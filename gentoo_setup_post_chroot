@@ -318,6 +318,7 @@ queue_emerge dd-rescue
 queue_emerge python-gnupg
 queue_emerge vbindiff
 queue_emerge libisoburn # xorriso
+queue_emerge expect # to script gdisk
 emerge_world
 
 /home/cfg/_myapps/replace-text/replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1
@@ -357,8 +358,12 @@ chown root:root /etc/sudoers
 
 for x in cdrom cdrw usb audio wheel; do gpasswd -a user $x ; done
 
-#mkdir /root/repos
-#pushd /root/repos
+mkdir /root/repos
+cd /root/repos
+git clone https://github.com/mrichar1/clipster.git
+cd clipster
+python setup.py install
+
 #git clone https://github.com/jakeogh/replace-text.git
 #chmod +x /root/repos/replace-text/replace-text
 #popd

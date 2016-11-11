@@ -47,6 +47,7 @@ def zero_byte_range(device, start, end, no_backup, note):
         dfh.write(bytearray(bytes_to_zero))
 
 def destroy_block_device_head_and_tail(device, size=(1024*1024*128), note=False, force=False, no_backup=False):
+    #run_command("sgdisk --zap-all " + device) #alt method
     #print("destroy_block_device_head_and_tail()")
     #print("no_backup:", no_backup)
     assert isinstance(no_backup, bool)

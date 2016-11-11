@@ -1,6 +1,6 @@
 #!/bin/bash
-argcount=3
-usage="stdlib boot_device hostname"
+argcount=4
+usage="stdlib boot_device hostname cflags"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 
 #musl: http://distfiles.gentoo.org/experimental/amd64/musl/HOWTO
@@ -28,8 +28,8 @@ queue_emerge()
         do
             inpkg="${1}"
             pkg=`eix -e# "${inpkg}"`
-            emerge -puv "${pkg}"
-            emerge -puv "${pkg}" | grep "^\[ebuild" | grep "${pkg}"
+            #emerge -puv "${pkg}"
+            #emerge -puv "${pkg}" | grep "^\[ebuild" | grep "${pkg}"
             exit_status="$?"
             if [[ "${exit_status}" == 0 ]];
             then
@@ -45,6 +45,8 @@ shift
 boot_device="${1}"
 shift
 hostname="${1}"
+shift
+cflags="${1}"
 shift
 
 timestamp=`date +%s`
@@ -63,6 +65,25 @@ echo "hostname=\"${hostname}\"" > /etc/conf.d/hostname
 
 cores=`grep processor /proc/cpuinfo | wc -l`
 echo "MAKEOPTS=\"-j${cores}\"" > /etc/portage/makeopts.conf
+
+if [[ "${cflags}" == "native" ]];
+then
+    echo "CFLAGS=\"-march=native -O2 -pipe -fomit-frame-pointer -ggdb\"" > /etc/portage/cflags.conf
+    echo "CXXFLAGS=\"\${CFLAGS}\"" >> /etc/portage/cflags.conf
+elif [[ "${cflags}" == "nocona" ]]; # first x86_64 arch
+then
+    echo "CFLAGS=\"-march=nocona -O2 -pipe -fomit-frame-pointer -ggdb\"" > /etc/portage/cflags.conf
+    echo "CXXFLAGS=\"\${CFLAGS}\"" >> /etc/portage/cflags.conf
+else
+    echo "Unknown cflags: ${cflags}"
+    exit 1
+fi
+
+CFLAGS="-march=native -O2 -pipe -fomit-frame-pointer -ggdb"
+#CFLAGS="-march=native -pipe -save-temps -Wformat-nonliteral -Wall -Wextra -O1 -ggdb -fbuiltin" #debug flags
+CXXFLAGS="${CFLAGS}"
+
+
 
 #if musl is getting used, CHOST must be changed
 if [[ "${stdlib}" == "musl" ]];
@@ -118,21 +139,21 @@ echo "GRUB_DEVICE=\"PARTUUID=${partuuid}\"" >> /etc/default/grub
 touch /etc/mtab
 
 echo -e "#<fs>\t<mountpoint>\t<type>\t<opts>\t<dump/pass>" > /etc/fstab
-echo -e 'UUID='`/home/cfg/linux/disk/blkid/PARTUUID_root_device` '\t/' '\text4' '\tnoatime' '\t0' '\t1' >> /etc/fstab
-
+echo -e 'PARTUUID='`/home/cfg/linux/disk/blkid/PARTUUID_root_device` '\t/' '\text4' '\tnoatime' '\t0' '\t1' >> /etc/fstab
 
 #grub-install "${boot_device}" || exit 1
+
+echo "grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck ${boot_device}"
+grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --no-rs-codes "${boot_device}" || exit 1
+#/bin/sh
+
 echo "grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot"
-grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot || exit 1
+grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes || exit 1
 grub-mkconfig -o /boot/grub/grub.cfg || exit 1
 #/bin/sh
 
-echo "grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck ${boot_device}"
-grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck "${boot_device}" || exit 1
-#/bin/sh
-
 test -d /boot/efi/EFI/BOOT || { mkdir /boot/efi/EFI/BOOT || exit 1 ; }
-cp -v /boot/efi/EFI/gentoo/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI || exit 1
+#cp -v /boot/efi/EFI/gentoo/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI || exit 1 # grub does this via --removable
 
 useradd --create-home user || exit 1
 echo "user:cayenneground~__" | chpasswd || exit 1
@@ -295,6 +316,8 @@ queue_emerge app-misc/mc
 queue_emerge ddrescue
 queue_emerge dd-rescue
 queue_emerge python-gnupg
+queue_emerge vbindiff
+queue_emerge libisoburn # xorriso
 emerge_world
 
 /home/cfg/_myapps/replace-text/replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1

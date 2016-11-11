@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import click
 import time
 import subprocess
 from kcl.fileops import path_is_block_special
 from kcl.fileops import block_special_path_is_mounted
-#from make_one_primary_partition import BlockDevice
 from kcl.command import run_command
 from gentoo_setup_install_stage3 import install_stage3
 from destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
+#from mbr_create import mbr_create
+from write_gpt import write_gpt
+from create_grub_bios_partition import create_grub_bios_partition
+from create_efi_partition import create_efi_partition
 
 def get_file_size(filename):
     fd = os.open(filename, os.O_RDONLY)
@@ -18,38 +22,26 @@ def get_file_size(filename):
     finally:
         os.close(fd)
 
-#def destroy_block_device_header(device):
-#    assert path_is_block_special(device)
-#    assert not block_special_path_is_mounted(device)
-#    with open(device, 'wb') as dh:
-#        #dh.write(bytearray(1024))
-#        dh.write(bytearray(1024*1024*256))
-#    return True
-#
-#def destroy_block_device_end(device):
-#    device_size = get_file_size(device)
-#    print("device_size:", device_size)
-#    location_to_start = device_size - (1024*1024*128)
-#    print("location_to_start:", location_to_start)
-#    with open(device, 'wb') as dh:
-#        dh.seek(location_to_start)
-#        dh.write(bytearray(1024*1024*128))
-#    return True
-
-
-HELP = "temp"
 @click.command()
-@click.option('--encrypt',         is_flag=True,  required=False, help=HELP)
-@click.option('--boot-device',     is_flag=False, required=True, help=HELP)
-@click.option('--root-device',     is_flag=False, required=True, help=HELP)
-@click.option('--boot-device-partition-table', is_flag=False, required=True, type=click.Choice(['gpt']), help=HELP)
-@click.option('--root-device-partition-table', is_flag=False, required=True, type=click.Choice(['gpt']), help=HELP)
-@click.option('--boot-device-filesystem', is_flag=False, required=True, type=click.Choice(['ext4']),     help=HELP)
-@click.option('--root-device-filesystem', is_flag=False, required=True, type=click.Choice(['ext4']),     help=HELP)
-@click.option('--c-std-lib',              is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']), help=HELP)
-@click.option('--hostname',               is_flag=False, required=True,  help=HELP)
-@click.option('--force',                  is_flag=True,  required=False, help=HELP)
-def install_gentoo(encrypt, boot_device, root_device, boot_device_partition_table, root_device_partition_table, boot_device_filesystem, root_device_filesystem, c_std_lib, hostname, force):
+@click.option('--encrypt',         is_flag=True,  required=False)
+@click.option('--boot-device',     is_flag=False, required=True)
+@click.option('--root-device',     is_flag=False, required=True)
+@click.option('--boot-device-partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
+@click.option('--root-device-partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
+@click.option('--boot-device-filesystem', is_flag=False, required=True, type=click.Choice(['ext4']))
+@click.option('--root-device-filesystem', is_flag=False, required=True, type=click.Choice(['ext4']))
+#@click.option('--c-std-lib',             is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']))
+@click.option('--c-std-lib',              is_flag=False, required=True, type=click.Choice(['glibc']))
+@click.option('--march-native',           is_flag=True, required=False)
+@click.option('--march-nocona',           is_flag=True, required=False)
+@click.option('--hostname',               is_flag=False, required=True)
+@click.option('--force',                  is_flag=True,  required=False)
+def install_gentoo(encrypt, boot_device, root_device, boot_device_partition_table, root_device_partition_table, boot_device_filesystem, root_device_filesystem, c_std_lib, march_native, march_nocona, hostname, force):
+    if (march_native and march_nocona):
+        print("You must select --march-native OR --mtune-pentium4", file=sys.stderr)
+        quit(1)
+    print("march_native:", march_native)
+    print("march_nocona:", march_nocona)
     if encrypt:
         print("encryption not yet supported")
         quit(1)
@@ -94,17 +86,20 @@ def install_gentoo(encrypt, boot_device, root_device, boot_device_partition_tabl
         destroy_block_device_head_and_tail(device=boot_device, force=True)
         #run_command("sgdisk --zap-all " + boot_device)
 
-        run_command("parted " + boot_device + " --script -- mklabel gpt")
+        write_gpt(boot_device, no_wipe=True, force=force, no_backup=False)
+        #run_command("parted " + boot_device + " --script -- mklabel gpt")
         #run_command("sgdisk --clear " + boot_device) #alt way to greate gpt label
 
-        run_command("parted " + boot_device + " --script -- mkpart primary 1MiB 3MiB")
-        run_command("parted " + boot_device + " --script -- name 1 BIOS")
-        run_command("parted " + boot_device + " --script -- set 1 bios_grub on")
+        #run_command("parted " + boot_device + " --script -- mkpart primary 1MiB 3MiB")
+        #run_command("parted " + boot_device + " --script -- name 1 BIOS")
+        #run_command("parted " + boot_device + " --script -- set 1 bios_grub on")
+        create_grub_bios_partition(device=boot_device, force=True)
 
-        run_command("parted " + boot_device + " --script -- mkpart primary 3MiB 100MiB")
-        run_command("parted " + boot_device + " --script -- name 2 EFI")
-        run_command("parted " + boot_device + " --script -- set 2 boot on")
-        run_command("mkfs.fat -F32 " + boot_device + "2")
+        #run_command("parted " + boot_device + " --script -- mkpart primary 3MiB 100MiB")
+        #run_command("parted " + boot_device + " --script -- name 2 EFI")
+        #run_command("parted " + boot_device + " --script -- set 2 boot on")
+        #run_command("mkfs.fat -F32 " + boot_device + "2")
+        create_efi_partition(device=boot_device, force=True)
 
         #boot_partition_command = "parted " + boot_device + " --script -- mkpart primary 200MiB 331MiB"
         #run_command(boot_partition_command)
@@ -147,7 +142,12 @@ def install_gentoo(encrypt, boot_device, root_device, boot_device_partition_tabl
         #output = run_command("/home/cfg/setup/gentoo_installer/configure_etc.sh " + hostname)
         #print("configure_etc.sh output:", output)
 
-        chroot_gentoo_command = "/home/cfg/setup/gentoo_installer/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname
+
+        if march_native:
+            chroot_gentoo_command = "/home/cfg/setup/gentoo_installer/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' native'
+        elif march_nocona:
+            chroot_gentoo_command = "/home/cfg/setup/gentoo_installer/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' nocona'
+
         print("now run:", chroot_gentoo_command)
 
         return

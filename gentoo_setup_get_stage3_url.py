@@ -27,6 +27,8 @@ def get_stage3_url(c_std_lib):
         quit(1)
     if c_std_lib == 'uclibc':
         latest = 'latest-stage3-amd64-uclibc-hardened.txt'
+        print("uclibc wont compile efivars")
+        quit(1)
     r = requests.get(mirror + latest)
     autobuild_file_lines = r.text.split('\n')
     r.close()

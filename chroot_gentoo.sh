@@ -1,12 +1,13 @@
 #!/bin/bash
 
-argcount=3
-usage="stdlib boot_device hostname"
+argcount=4
+usage="stdlib boot_device hostname cflags"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" > /dev/stderr && exit 1 ; } #"-ge=>=" "-gt=>" "-le=<=" "-lt=<" "-ne=!="
 
 stdlib="${1}"
 boot_device="${2}"
 hostname="${3}"
+cflags="${4}"
 
 echo "checking /proc /sys and /dev mounts in prep to chroot"
 mount | grep '/mnt/gentoo/proc' || { mount -t proc none /mnt/gentoo/proc || exit 1 ; }
@@ -30,5 +31,5 @@ time (cd /home && tar zcf - cfg ) | pv -trabT -B 600M | (cd /mnt/gentoo/home && 
 test -h /mnt/gentoo/boot/vmlinuz || { cp -af /boot/* /mnt/gentoo/boot/ || exit 1 ; }
 
 echo "Entering chroot"
-chroot /mnt/gentoo /bin/bash -c "su - -c '/home/cfg/setup/gentoo_installer/gentoo_setup_post_chroot ${stdlib} ${boot_device} ${hostname}'"
+chroot /mnt/gentoo /bin/bash -c "su - -c '/home/cfg/setup/gentoo_installer/gentoo_setup_post_chroot ${stdlib} ${boot_device} ${hostname} ${cflags}'"
 #chroot /mnt/gentoo /bin/bash -c "su - -c '/bin/bash'"

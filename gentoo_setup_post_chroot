@@ -1,6 +1,6 @@
 #!/bin/bash
-argcount=4
-usage="stdlib boot_device hostname cflags"
+argcount=5
+usage="stdlib boot_device hostname cflags root_filesystem"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 
 #musl: http://distfiles.gentoo.org/experimental/amd64/musl/HOWTO
@@ -48,6 +48,8 @@ hostname="${1}"
 shift
 cflags="${1}"
 shift
+root_filesystem="${1}"
+shift
 
 timestamp=`date +%s`
 echo "calling: source /etc/profile"
@@ -60,6 +62,7 @@ echo "chmod +x /home/cfg/sysskel/etc/local.d/*"
 chmod +x /home/cfg/sysskel/etc/local.d/*
 # right here, before layman is installed, before user is created, portage needs to get configured.
 /home/cfg/setup/symlink_tree /home/cfg/sysskel/ || exit 1
+env-update && source /etc/profile || exit 1
 
 echo "hostname=\"${hostname}\"" > /etc/conf.d/hostname
 
@@ -82,8 +85,6 @@ fi
 CFLAGS="-march=native -O2 -pipe -fomit-frame-pointer -ggdb"
 #CFLAGS="-march=native -pipe -save-temps -Wformat-nonliteral -Wall -Wextra -O1 -ggdb -fbuiltin" #debug flags
 CXXFLAGS="${CFLAGS}"
-
-
 
 #if musl is getting used, CHOST must be changed
 if [[ "${stdlib}" == "musl" ]];
@@ -108,49 +109,69 @@ locale-gen    #hm, musl does not need this? dont fail here for uclibc or musl
 echo "LC_COLLATE=\"C\"" >> /etc/env.d/02collate
 echo "US/Arizona" > /etc/timezone
 
+install_pkg dev-vcs/git # need this for any -9999 packages (zfs)
+
 #install kernel and update symlink (via use flag)
 install_pkg --quiet-build=n hardened-sources || exit 1
-
-#skip building kernel
-
 mv /usr/src/linux/.config /usr/src/linux/.config.orig
-ln -s /usr/src/linux_configs/.config /usr/src/linux/.config
+test -h /usr/src/linux/.config || ln -s /usr/src/linux_configs/.config /usr/src/linux/.config
 #cp /usr/src/linux_configs/.config /usr/src/linux/.config
 cores=`grep processor /proc/cpuinfo | wc -l`
-#cd /usr/src/linux && make -j"${cores}" && make install && make modules_install || exit 1
+grep "CONFIG_TRIM_UNUSED_KSYMS is not set" /usr/src/linux/.config || { echo "Rebuild the kernel with CONFIG_TRIM_UNUSED_KSYMS must be =n" ; exit 1 ; }
+
+cd /usr/src/linux && make -j"${cores}" && make install && make modules_install || exit 1
+
+env EXTRA_ECONF='--enable-linux-builtin' ebuild /usr/portage/sys-kernel/spl/spl-9999.ebuild clean configure
+(cd /var/tmp/portage/sys-kernel/spl-9999/work/spl-9999 && ./copy-builtin /usr/src/linux)
+env EXTRA_ECONF='--with-spl=/usr/src/linux --enable-linux-builtin --with-spl-obj=/usr/src/linux' ebuild /usr/portage/sys-fs/zfs-kmod/zfs-kmod-9999.ebuild clean configure
+(cd /var/tmp/portage/sys-fs/zfs-kmod-9999/work/zfs-kmod-9999/ && ./copy-builtin /usr/src/linux)
+
+#mkdir -p /etc/portage/profile
+#echo 'sys-fs/zfs -kernel-builtin' >> /etc/portage/profile/package.use.mask
+#echo 'sys-fs/zfs kernel-builtin' >> /etc/portage/package.use/zfs.conf
+emerge --oneshot --verbose sys-fs/zfs
+grep CONFIG_SPL /usr/src/linux/.config || exit 1
+grep CONFIG_ZFS /usr/src/linux/.config || exit 1
+
+
+cd /usr/src/linux && make -j"${cores}" && make install && make modules_install || exit 1 # again to build-in zfs
 
 # USE="${USE} -kernel-builtin" emerge spl zfs zfs-kmod || exit 1
 # rc-update add zfs boot  #for zfs on root
 
-env-update && source /etc/profile || exit 1
 
 #echo '''GRUB_PLATFORMS="pc efi-32 efi-64"''' >> /etc/portage/make.conf #not sure why needed, but causes probls on musl
 #echo '''GRUB_PLATFORMS="pc"''' >> /etc/portage/make.conf #not sure why needed, but causes probls on musl
 install_pkg grub:2 || exit 1
 install_pkg hexedit
 #echo '''USE="$USE device-mapper"'''        >> /etc/portage/make.conf
-root_partition=`/home/cfg/linux/disk/get_root_device`
-echo "-------------- root_partition: ${root_partition} ---------------------"
-#/bin/sh
-partuuid=`/home/cfg/linux/hardware/disk/blkid/PARTUUID "${root_partition}"`
-echo "GRUB_DEVICE partuuid: ${partuuid}"
-#/bin/sh
-echo "GRUB_DEVICE=\"PARTUUID=${partuuid}\"" >> /etc/default/grub
+
+echo -e "#<fs>\t<mountpoint>\t<type>\t<opts>\t<dump/pass>" > /etc/fstab # create empty fstab
+
+
+if [[ "${root_filesystem}" == "zfs" ]];
+then
+    echo "GRUB_PRELOAD_MODULES=\"part_gpt zfs\"" >> /etc/default/grub
+    echo "GRUB_CMDLINE_LINUX=\"boot=zfs root=ZFS=rpool/ROOT\"" >> /etc/default/grub
+else
+    root_partition=`/home/cfg/linux/disk/get_root_device`
+    echo "-------------- root_partition: ${root_partition} ---------------------"
+    partuuid=`/home/cfg/linux/hardware/disk/blkid/PARTUUID "${root_partition}"`
+    echo "GRUB_DEVICE partuuid: ${partuuid}"
+    echo "GRUB_DEVICE=\"PARTUUID=${partuuid}\"" >> /etc/default/grub
+    echo -e 'PARTUUID='`/home/cfg/linux/disk/blkid/PARTUUID_root_device` '\t/' '\text4' '\tnoatime' '\t0' '\t1' >> /etc/fstab
+
+fi
+
 touch /etc/mtab
 
-echo -e "#<fs>\t<mountpoint>\t<type>\t<opts>\t<dump/pass>" > /etc/fstab
-echo -e 'PARTUUID='`/home/cfg/linux/disk/blkid/PARTUUID_root_device` '\t/' '\text4' '\tnoatime' '\t0' '\t1' >> /etc/fstab
-
-#grub-install "${boot_device}" || exit 1
-
-echo "grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck ${boot_device}"
+echo "\"grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck ${boot_device}\""
 grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --no-rs-codes "${boot_device}" || exit 1
-#/bin/sh
 
-echo "grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot"
+echo "\"grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot\""
 grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes || exit 1
 grub-mkconfig -o /boot/grub/grub.cfg || exit 1
-#/bin/sh
+grub-mkconfig -o /root/chroot_grub.cfg || exit 1
 
 #test -d /boot/efi/EFI/BOOT || { mkdir /boot/efi/EFI/BOOT || exit 1 ; }
 #cp -v /boot/efi/EFI/gentoo/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI || exit 1 # grub does this via --removable
@@ -159,7 +180,7 @@ useradd --create-home user || exit 1
 echo "user:cayenneground~__" | chpasswd || exit 1
 
 test -h /home/user/cfg || { ln -s /home/cfg /home/user/cfg || exit 1 ; }
-test -h /root/cfg      || { ln -s /home/cfg /root/cfg || exit 1 ; }
+test -h /root/cfg      || { ln -s /home/cfg /root/cfg      || exit 1 ; }
 
 mkdir /delme
 mkdir /usr/portage
@@ -168,7 +189,6 @@ mkdir /usr/portage
 eselect profile list
 
 rmdir /etc/portage/package.mask
-
 chmod +x /etc/local.d/export_cores.start
 /etc/local.d/export_cores.start
 
@@ -196,7 +216,6 @@ eselect python list
 eselect profile list
 
 install_pkg ccache
-install_pkg dev-vcs/git
 mkdir /etc/portage/repos.conf #make this is layman is getting installed or not
 #install_pkg net-misc/curl #only needed with custom FETCHCOMMAND
 
@@ -254,7 +273,6 @@ install_pkg cpio    #for better-initramfs
 
 install_pkg unison
 ln -s /usr/bin/unison-2.48 /usr/bin/unison
-
 
 if [[ "${stdlib}" == "musl" ]];
 then
@@ -364,7 +382,6 @@ cd /root/repos
 git clone https://github.com/mrichar1/clipster.git
 cd clipster
 cp clipster /usr/local/bin
-
 
 #git clone https://github.com/jakeogh/replace-text.git
 #chmod +x /root/repos/replace-text/replace-text

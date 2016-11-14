@@ -9,7 +9,6 @@ from kcl.fileops import path_is_block_special
 from kcl.fileops import block_special_path_is_mounted
 from kcl.command import run_command
 from write_gpt import write_gpt
-from write_zfs_root_filesystem_on_device import write_zfs_root_filesystem_on_device
 from kcl.printops import cprint
 
 def write_boot_partition(device, force):

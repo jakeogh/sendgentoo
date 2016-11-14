@@ -13,14 +13,16 @@ from write_gpt import write_gpt
 from write_sysfs_partition import write_sysfs_partition
 from kcl.printops import cprint
 
-def create_root_device(device, partition_table, filesystem, force, exclusive):
-    assert not device[-1].isdigit()
-    cprint("installing gentoo on root device:", device, '(' + partition_table + ')', '(' + filesystem + ')')
-    assert path_is_block_special(device)
-    assert not block_special_path_is_mounted(device)
+def create_root_device(devices, partition_table, filesystem, force, exclusive, raid):
+    cprint("installing gentoo on root devices:", ' '.join(devices), '(' + partition_table + ')', '(' + filesystem + ')')
+    for device in devices:
+        assert not device[-1].isdigit()
+        assert path_is_block_special(device)
+        assert not block_special_path_is_mounted(device)
+
     assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
     if not force:
-        cprint("THIS WILL DESTROY ALL DATA ON", device, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
+        cprint("THIS WILL DESTROY ALL DATA ON", ' '.join(devices), "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
         answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")
         if answer != 'YES':
             quit(1)
@@ -38,17 +40,18 @@ def create_root_device(device, partition_table, filesystem, force, exclusive):
         start = '100MiB'
         end = '100%'
 
-    write_sysfs_partition(device=device, force=True, exclusive=exclusive, filesystem=filesystem)
+    write_sysfs_partition(devices=devices, force=True, exclusive=exclusive, filesystem=filesystem, raid=raid)
 
 
 @click.command()
-@click.option('--device',          is_flag=False, required=True)
+@click.argument('devices',         required=True, nargs=-1)
 @click.option('--partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
 @click.option('--filesystem',      is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
 @click.option('--force',           is_flag=True,  required=False)
 @click.option('--exclusive',       is_flag=True,  required=False)
-def main(device, partition_table, filesystem, force, exclusive):
-    create_root_device(device=device, partition_table=partition_table, filesystem=filesystem, force=force, exclusive=exclusive)
+@click.option('--raid',            is_flag=False, required=True, type=click.Choice(['disk', 'mirror', 'raidz1', 'raiz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']))
+def main(devices, partition_table, filesystem, force, exclusive, raid):
+    create_root_device(devices=devices, partition_table=partition_table, filesystem=filesystem, force=force, exclusive=exclusive, raid=raid)
 
 if __name__ == '__main__':
     main()

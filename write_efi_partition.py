@@ -24,21 +24,10 @@ def write_efi_partition(device, force, start='3MiB', end='100MiB'):
         time.sleep(5)
 
     output = run_command("parted " + device + " --script -- mkpart primary " + start + ' ' + end)
-    if 'Error' in output:
-        #print("Error:", output)
-        quit(1)
-    run_command("parted " + device + " --script -- name 2 EFI")
-    run_command("parted " + device + " --script -- set 2 boot on")
+    run_command("parted -a optimal " + device + " --script -- name 2 EFI")
+    run_command("parted -a optimal " + device + " --script -- set 2 boot on")
     run_command("mkfs.fat -F32 " + device + "2")
 
-    #run_command("parted " + device + " --script -- mkpart primary 100MiB 100%")
-    #run_command("parted " + device + " --script -- name 3 rootfs")
-    #run_command("mkfs.ext4 " + device + "3")
-
-    #set_boot_on_command = "parted " + device + " --script -- set 2 boot on"
-    #run_command(set_boot_on_command)
-    #root_partition_boot_flag_command = "parted " + device + " --script -- set 2 boot on"
-    #run_command(root_partition_boot_flag_command)
 
 @click.command()
 @click.option('--device', is_flag=False, required=True)

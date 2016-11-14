@@ -15,7 +15,7 @@ from write_efi_partition import write_efi_partition
 
 def create_boot_device(device, partition_table, filesystem, force):
     assert not device[-1].isdigit()
-    print("installing gentoo on boot device:", device, '(' + partition_table + ')', '(' + filesystem + ')')
+    print("installing gpt/grub/efi on boot device:", device, '(' + partition_table + ')', '(' + filesystem + ')')
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)
     assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
@@ -46,14 +46,14 @@ if __name__ == '__main__':
     main()
     quit(0)
 
-#boot_partition_command = "parted " + boot_device + " --script -- mkpart primary 200MiB 331MiB"
+#boot_partition_command = "parted -a optimal " + boot_device + " --script -- mkpart primary 200MiB 331MiB"
 #run_command(boot_partition_command)
-#set_boot_name_command = "parted " + boot_device + " --script -- name 2 grub"
+#set_boot_name_command = "parted -a optimal " + boot_device + " --script -- name 2 grub"
 #run_command(set_boot_name_command)
 #command = "mkfs.ext4 " + boot_device + "2"
 #run_command(command)
 
-#set_boot_on_command = "parted " + boot_device + " --script -- set 2 boot on"
+#set_boot_on_command = "parted -a optimal " + boot_device + " --script -- set 2 boot on"
 #run_command(set_boot_on_command)
-#root_partition_boot_flag_command = "parted " + boot_device + " --script -- set 2 boot on"
+#root_partition_boot_flag_command = "parted -a optimal " + boot_device + " --script -- set 2 boot on"
 #run_command(root_partition_boot_flag_command)

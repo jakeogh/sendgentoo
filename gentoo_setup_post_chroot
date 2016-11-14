@@ -10,7 +10,7 @@ install_pkg()
         echo "entering install_pkg()" > /dev/stderr
         echo "install_pkg() got args: $@" > /dev/stderr
         #emerge --usepkgonly --tree -u --ask n -n "$@" > /dev/stderr || exit 1
-        emerge --usepkg --tree -u --ask n -n "$@" > /dev/stderr || exit 1
+        emerge --usepkg --tree -u --ask n -n $@ > /dev/stderr || exit 1
 }
 
 emerge_world()
@@ -109,7 +109,7 @@ echo "LC_COLLATE=\"C\"" >> /etc/env.d/02collate
 echo "US/Arizona" > /etc/timezone
 
 #install kernel and update symlink (via use flag)
-install_pkg hardened-sources || exit 1
+install_pkg --quiet-build=n hardened-sources || exit 1
 
 #skip building kernel
 
@@ -152,7 +152,7 @@ grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-
 grub-mkconfig -o /boot/grub/grub.cfg || exit 1
 #/bin/sh
 
-test -d /boot/efi/EFI/BOOT || { mkdir /boot/efi/EFI/BOOT || exit 1 ; }
+#test -d /boot/efi/EFI/BOOT || { mkdir /boot/efi/EFI/BOOT || exit 1 ; }
 #cp -v /boot/efi/EFI/gentoo/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI || exit 1 # grub does this via --removable
 
 useradd --create-home user || exit 1
@@ -161,6 +161,7 @@ echo "user:cayenneground~__" | chpasswd || exit 1
 test -h /home/user/cfg || { ln -s /home/cfg /home/user/cfg || exit 1 ; }
 test -h /root/cfg      || { ln -s /home/cfg /root/cfg || exit 1 ; }
 
+mkdir /delme
 mkdir /usr/portage
 #emerge-webrsync
 #emerge --sync
@@ -362,7 +363,8 @@ mkdir /root/repos
 cd /root/repos
 git clone https://github.com/mrichar1/clipster.git
 cd clipster
-python setup.py install
+cp clipster /usr/local/bin
+
 
 #git clone https://github.com/jakeogh/replace-text.git
 #chmod +x /root/repos/replace-text/replace-text

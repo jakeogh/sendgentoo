@@ -7,6 +7,7 @@ import time
 import subprocess
 from kcl.fileops import path_is_block_special
 from kcl.fileops import block_special_path_is_mounted
+from kcl.fileops import path_is_mounted
 from kcl.command import run_command
 from gentoo_setup_install_stage3 import install_stage3
 from destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
@@ -15,6 +16,7 @@ from destroy_block_device_head_and_tail import destroy_block_device_head_and_tai
 from create_boot_device import create_boot_device
 from create_root_device import create_root_device
 from kcl.printops import cprint
+from write_boot_partition import write_boot_partition
 
 def get_file_size(filename):
     fd = os.open(filename, os.O_RDONLY)
@@ -24,19 +26,18 @@ def get_file_size(filename):
         os.close(fd)
 
 @click.command()
-@click.option('--encrypt',                is_flag=True,  required=False)
-@click.option('--boot-device',            is_flag=False, required=True)
-@click.option('--root-device',            is_flag=False, required=True)
+@click.option('--boot-device',                 is_flag=False, required=True)
+@click.option('--root-device',                 is_flag=False, required=True)
 @click.option('--boot-device-partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
 @click.option('--root-device-partition-table', is_flag=False, required=True, type=click.Choice(['gpt', 'zfs']))
-@click.option('--boot-filesystem', is_flag=False, required=True, type=click.Choice(['ext4']))
-@click.option('--root-filesystem', is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
-#@click.option('--c-std-lib',             is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']))
-@click.option('--c-std-lib',              is_flag=False, required=True, type=click.Choice(['glibc']))
-@click.option('--march',                  is_flag=False, required=True, type=click.Choice(['native', 'nocona']))
-@click.option('--hostname',               is_flag=False, required=True)
-@click.option('--force',                  is_flag=True,  required=False)
-def install_gentoo(encrypt, boot_device, root_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, march, hostname, force):
+@click.option('--boot-filesystem',             is_flag=False, required=True, type=click.Choice(['ext4']))
+@click.option('--root-filesystem',             is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
+@click.option('--c-std-lib',                   is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']))
+@click.option('--march',                       is_flag=False, required=True, type=click.Choice(['native', 'nocona']))
+@click.option('--hostname',                    is_flag=False, required=True)
+@click.option('--force',                       is_flag=True,  required=False)
+@click.option('--encrypt',                     is_flag=True,  required=False)
+def install_gentoo(boot_device, root_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, march, hostname, force, encrypt):
     if encrypt:
         cprint("encryption not yet supported")
         quit(1)
@@ -51,8 +52,8 @@ def install_gentoo(encrypt, boot_device, root_device, boot_device_partition_tabl
     assert not root_device[-1].isdigit()
     cprint("installing gentoo on boot device:", boot_device, '(' + boot_device_partition_table + ')', '(' + boot_filesystem + ')')
     assert path_is_block_special(boot_device)
-    umount_command = "/home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh"
-    run_command(umount_command)
+    #umount_command = "/home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh"
+    #run_command(umount_command)
     assert not block_special_path_is_mounted(boot_device)
     cprint("installing gentoo on root device:", root_device, '(' + root_device_partition_table + ')', '(' + root_filesystem + ')')
     assert path_is_block_special(root_device)
@@ -75,52 +76,54 @@ def install_gentoo(encrypt, boot_device, root_device, boot_device_partition_tabl
         pass
 
     if boot_device == root_device:
+        assert root_filesystem != 'zfs' # cant do zfs root on a single disk
         assert boot_filesystem  == root_filesystem
         assert boot_device_partition_table == root_device_partition_table
-
         create_boot_device(device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True)
         create_root_device(device=root_device, exclusive=False, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True)
-
-        root_mount_command = "mount " + boot_device + "3 /mnt/gentoo"
-        run_command(root_mount_command)
-
-        try:
-            os.mkdir('/mnt/gentoo/boot')
-        except FileExistsError:
-            pass
-
-        try:
-            os.mkdir('/mnt/gentoo/boot/efi')
-        except FileExistsError:
-            pass
-
-        run_command("mount " + boot_device + "2 /mnt/gentoo/boot/efi")
-        install_stage3(c_std_lib)
-
-        if march == 'native':
-            chroot_gentoo_command = "/home/cfg/setup/gentoo_installer/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' native'
-        elif march == 'nocona':
-            chroot_gentoo_command = "/home/cfg/setup/gentoo_installer/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' nocona'
-        cprint("now run:", chroot_gentoo_command)
-        return
+        root_mount_command = "mount " + root_device + "3 /mnt/gentoo"
+        boot_mount_command = False
 
     else:
-        cprint("differing root and boot devices: root_device:", root_device, "boot_device:", boot_device)
+        cprint("differing root and boot devices: (exclusive) root_device:", root_device, "boot_device:", boot_device)
+        create_boot_device(device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True)
+        write_boot_partition(device=boot_device, force=True)
+        create_root_device(device=root_device, exclusive=True, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True)
+        root_mount_command = "mount " + root_device + "1 /mnt/gentoo"
+        boot_mount_command = "mount " + boot_device + "3 /mnt/gentoo/boot"
 
+    run_command(root_mount_command)
+    #from IPython import embed; embed()
 
+    assert path_is_mounted('/mnt/gentoo')
+
+    try:
+        os.mkdir('/mnt/gentoo/boot')
+    except FileExistsError:
+        pass
+
+    if boot_mount_command:
+        run_command(boot_mount_command)
+        assert path_is_mounted('/mnt/gentoo/boot')
+    else:
+        assert not path_is_mounted('/mnt/gentoo/boot')
+
+    try:
+        os.mkdir('/mnt/gentoo/boot/efi')
+    except FileExistsError:
+        pass
+
+    run_command("mount " + boot_device + "2 /mnt/gentoo/boot/efi")
+    install_stage3(c_std_lib)
+
+    if march == 'native':
+        chroot_gentoo_command = "/home/cfg/setup/gentoo_installer/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' native'
+    elif march == 'nocona':
+        chroot_gentoo_command = "/home/cfg/setup/gentoo_installer/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' nocona'
+    cprint("now run:", chroot_gentoo_command)
+    return
 
 if __name__ == '__main__':
     install_gentoo()
     quit(0)
 
-#boot_partition_command = "parted " + boot_device + " --script -- mkpart primary 200MiB 331MiB"
-#run_command(boot_partition_command)
-#set_boot_name_command = "parted " + boot_device + " --script -- name 2 grub"
-#run_command(set_boot_name_command)
-#command = "mkfs.ext4 " + boot_device + "2"
-#run_command(command)
-
-#set_boot_on_command = "parted " + boot_device + " --script -- set 2 boot on"
-#run_command(set_boot_on_command)
-#root_partition_boot_flag_command = "parted " + boot_device + " --script -- set 2 boot on"
-#run_command(root_partition_boot_flag_command)

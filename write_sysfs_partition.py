@@ -32,18 +32,16 @@ def write_sysfs_partition(device, force, exclusive, filesystem):
             #destroy_block_device_head_and_tail(device=device, force=True) #these are done in create_root_device
             #write_gpt(device)
             partition_number = '1'
-            start = "0"
+            start = "0%"
             end = "100%"
         else:
             partition_number = '3'
             start = "100MiB"
             end = "100%"
 
-        output = run_command("parted " + device + " --script -- mkpart primary " + start + ' ' + end)
-        if 'Error' in output:
-            #cprint("Error:", output)
-            quit(1)
-        run_command("parted " + device + " --script -- name " + partition_number + " rootfs")
+        output = run_command("parted -a optimal " + device + " --script -- mkpart primary " + start + ' ' + end)
+        run_command("parted  " + device + " --script -- name " + partition_number + " rootfs")
+        time.sleep(1)
         run_command("mkfs.ext4 " + device + partition_number)
 
     elif filesystem == 'zfs':

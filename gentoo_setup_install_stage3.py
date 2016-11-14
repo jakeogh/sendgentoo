@@ -9,6 +9,7 @@ from gentoo_setup_download_stage3 import download_stage3
 from kcl.fileops import path_is_mounted
 from kcl.command import run_command
 import gnupg
+from kcl.printops import cprint
 
 HELP="temp"
 
@@ -20,11 +21,11 @@ def install_stage3(c_std_lib):
     stage3_file = download_stage3(c_std_lib, url=url)
     gpg = gnupg.GPG(verbose=True)
     #import_result = gpg.recv_keys('keyserver.ubuntu.com', '0x2D182910')
-    #print(import_result)
+    #cprint(import_result)
     run_command('gpg --keyserver keyserver.ubuntu.com --recv-key 0x2D182910')
-    print("stage3_file:", stage3_file)
+    cprint("stage3_file:", stage3_file)
     command = 'tar xjpf ' + stage3_file + ' -C /mnt/gentoo'
-    #print("command:", command)
+    #cprint("command:", command)
     run_command(command)
 
 @click.command()

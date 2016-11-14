@@ -4,6 +4,7 @@ import requests
 import click
 import sys
 from gentoo_setup_get_stage3_url import get_stage3_url
+from kcl.printops import cprint
 
 HELP="temp"
 
@@ -16,14 +17,14 @@ def download_file(url):
                 if chunk:
                     fh.write(chunk)
     except FileExistsError:
-        print("skipping download, file exists:", local_filename, file=sys.stderr)
+        cprint("skipping download, file exists:", local_filename)
     r.close()
     return local_filename
 
 def download_stage3(c_std_lib, url=False):
     if not url:
         url = get_stage3_url(c_std_lib)
-    #print(url)
+    #cprint(url)
     stage3_file = download_file(url)
     download_file(url+'.CONTENTS')
     download_file(url+'.DIGESTS')
@@ -35,12 +36,12 @@ def download_stage3(c_std_lib, url=False):
 def main(c_std_lib):
     download_stage3(c_std_lib)
     #url = get_stage3_url(c_std_lib)
-    #print(url)
+    #cprint(url)
     #download_file(url)
 
 if __name__ == '__main__':
     main()
-    #print("url:", url)
+    #cprint("url:", url)
 
 
 #cd /mnt/gentoo || exit 1

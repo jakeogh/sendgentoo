@@ -29,19 +29,6 @@ def write_grub_bios_partition(device, force, start='1MiB', end='3MiB'):
     run_command("parted " + device + " --script -- name 1 BIOS")
     run_command("parted " + device + " --script -- set 1 bios_grub on")
 
-    #run_command("parted " + device + " --script -- mkpart primary 3MiB 100MiB")
-    #run_command("parted " + device + " --script -- name 2 EFI")
-    #run_command("parted " + device + " --script -- set 2 boot on")
-    #run_command("mkfs.fat -F32 " + device + "2")
-
-    #run_command("parted " + device + " --script -- mkpart primary 100MiB 100%")
-    #run_command("parted " + device + " --script -- name 3 rootfs")
-    #run_command("mkfs.ext4 " + device + "3")
-
-    #set_boot_on_command = "parted " + device + " --script -- set 2 boot on"
-    #run_command(set_boot_on_command)
-    #root_partition_boot_flag_command = "parted " + device + " --script -- set 2 boot on"
-    #run_command(root_partition_boot_flag_command)
 
 @click.command()
 @click.option('--device', is_flag=False, required=True)

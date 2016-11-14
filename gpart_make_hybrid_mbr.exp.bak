@@ -43,7 +43,7 @@ if {$force_conservative} {
 
 
 set timeout -1
-spawn gdisk [lindex $argv 0]
+spawn gdisk /dev/sdc
 match_max 100000
 expect -exact "GPT fdisk (gdisk) version 1.0.1\r
 \r

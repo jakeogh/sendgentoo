@@ -6,9 +6,12 @@ import time
 from kcl.fileops import path_is_block_special
 from kcl.fileops import block_special_path_is_mounted
 from kcl.command import run_command
+from gentoo_setup_globals import RAID_LIST
+from kcl.iterops import grouper
+from kcl.printops import cprint
 
 def write_zfs_root_filesystem_on_devices(devices, force, raid):
-    print("make_zfs_filesystem_on_devices()")
+    cprint("make_zfs_filesystem_on_devices()")
 
     # https://raw.githubusercontent.com/ryao/zfs-overlay/master/zfs-install
     run_command("modprobe zfs || exit 1")
@@ -18,9 +21,22 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid):
         assert not block_special_path_is_mounted(device)
         assert not device[-1].isdigit()
 
-    if len(devices) > 1:
+    device_string = ''
+    if len(devices) == 1:
         assert raid == 'disk'
+        device_string = devices[0]
+    if len(devices) > 1:
+        assert raid == 'mirror'
+    if len(devices) == 2:
+        assert raid == 'mirror'
+        device_string = "mirror " + devices[0] + ' ' + devices[1]
+    assert len(devices) % 2 == 0
 
+    if len(devices) > 2:
+        for pair in grouper(devices, 2):
+            device_string = device_string + "mirror " + pair[0] + ' ' + pair[1] + ' '
+            cprint("device_string:", device_string)
+    assert device_string != ''
 
     zpool_command = """
     zpool create \
@@ -29,21 +45,46 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid):
     -o feature@empty_bpobj=enabled \
     -o feature@lz4_compress=enabled \
     -o feature@spacemap_histogram=enabled \
-    -o feature@enabled_txg=enabled \
     -o feature@extensible_dataset=enabled \
-    -o feature@embedded_data=enabled \
     -o feature@bookmarks=enabled \
+    -o feature@enabled_txg=enabled \
+    -o feature@embedded_data=enabled \
     -o cachefile='/tmp/zpool.cache'\
     -O atime=off \
     -O compression=lz4 \
+    -O copies=1 \
     -O xattr=sa \
     -O sharesmb=off \
     -O sharenfs=off \
-    -O checksum=sha256 \
+    -O checksum=fletcher4 \
     -O dedup=off \
+    -O utf8only=off \
     -m none \
     -R /mnt/gentoo \
-    rpool """ + ' '.join(devices)
+    rpool """ + device_string
+
+#    zpool_command = """
+#    zpool create \
+#    -f \
+#    -o feature@async_destroy=enabled \
+#    -o feature@empty_bpobj=enabled \
+#    -o feature@lz4_compress=enabled \
+#    -o feature@spacemap_histogram=enabled \
+#    -o feature@enabled_txg=enabled \
+#    -o feature@extensible_dataset=enabled \
+#    -o feature@embedded_data=enabled \
+#    -o feature@bookmarks=enabled \
+#    -o cachefile='/tmp/zpool.cache'\
+#    -O atime=off \
+#    -O compression=lz4 \
+#    -O xattr=sa \
+#    -O sharesmb=off \
+#    -O sharenfs=off \
+#    -O checksum=sha256 \
+#    -O dedup=off \
+#    -m none \
+#    -R /mnt/gentoo \
+#    rpool """ + ' '.join(devices)
 
     run_command(zpool_command)
 
@@ -87,7 +128,8 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid):
 @click.command()
 @click.argument('devices', required=True, nargs=-1)
 @click.option('--force', is_flag=True, required=False)
-@click.option('--raid', is_flag=False, required=True, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']))
+#@click.option('--raid', is_flag=False, required=True, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']))
+@click.option('--raid', is_flag=False, required=True, type=click.Choice(RAID_LIST))
 def main(devices, force, raid):
     write_zfs_root_filesystem_on_devices(devices=devices, force=force, raid=raid)
 

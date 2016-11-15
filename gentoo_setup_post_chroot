@@ -51,6 +51,8 @@ shift
 root_filesystem="${1}"
 shift
 
+zfs_module_mode="module"
+
 timestamp=`date +%s`
 echo "calling: source /etc/profile"
 source /etc/profile
@@ -62,7 +64,6 @@ echo "chmod +x /home/cfg/sysskel/etc/local.d/*"
 chmod +x /home/cfg/sysskel/etc/local.d/*
 # right here, before layman is installed, before user is created, portage needs to get configured.
 /home/cfg/setup/symlink_tree /home/cfg/sysskel/ || exit 1
-env-update && source /etc/profile || exit 1
 
 echo "hostname=\"${hostname}\"" > /etc/conf.d/hostname
 
@@ -82,10 +83,6 @@ else
     exit 1
 fi
 
-CFLAGS="-march=native -O2 -pipe -fomit-frame-pointer -ggdb"
-#CFLAGS="-march=native -pipe -save-temps -Wformat-nonliteral -Wall -Wextra -O1 -ggdb -fbuiltin" #debug flags
-CXXFLAGS="${CFLAGS}"
-
 #if musl is getting used, CHOST must be changed
 if [[ "${stdlib}" == "musl" ]];
 then
@@ -104,6 +101,7 @@ else
     exit 1
 fi
 
+env-update && source /etc/profile || exit 1
 echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen    #hm, musl does not need this? dont fail here for uclibc or musl
 echo "LC_COLLATE=\"C\"" >> /etc/env.d/02collate
@@ -113,32 +111,50 @@ install_pkg dev-vcs/git # need this for any -9999 packages (zfs)
 
 #install kernel and update symlink (via use flag)
 install_pkg --quiet-build=n hardened-sources || exit 1
-mv /usr/src/linux/.config /usr/src/linux/.config.orig
+#mv /usr/src/linux/.config /usr/src/linux/.config.orig # hardened-sources was jut emerged, so there is no .config yet
 test -h /usr/src/linux/.config || ln -s /usr/src/linux_configs/.config /usr/src/linux/.config
+#/bin/sh
 #cp /usr/src/linux_configs/.config /usr/src/linux/.config
 cores=`grep processor /proc/cpuinfo | wc -l`
 grep "CONFIG_TRIM_UNUSED_KSYMS is not set" /usr/src/linux/.config || { echo "Rebuild the kernel with CONFIG_TRIM_UNUSED_KSYMS must be =n" ; exit 1 ; }
 
-cd /usr/src/linux && make -j"${cores}" && make install && make modules_install || exit 1
+if [[ "${zfs_module_mode}" == "module" ]];
+then
 
-env EXTRA_ECONF='--enable-linux-builtin' ebuild /usr/portage/sys-kernel/spl/spl-9999.ebuild clean configure
-(cd /var/tmp/portage/sys-kernel/spl-9999/work/spl-9999 && ./copy-builtin /usr/src/linux)
-env EXTRA_ECONF='--with-spl=/usr/src/linux --enable-linux-builtin --with-spl-obj=/usr/src/linux' ebuild /usr/portage/sys-fs/zfs-kmod/zfs-kmod-9999.ebuild clean configure
-(cd /var/tmp/portage/sys-fs/zfs-kmod-9999/work/zfs-kmod-9999/ && ./copy-builtin /usr/src/linux)
+    cd /usr/src/linux && make menuconfig && make -j"${cores}" && make install && make modules_install || exit 1
+    #USE="${USE} -kernel-builtin" emerge spl zfs zfs-kmod
+else
+    cd /usr/src/linux && make prepare || exit 1
+    #cd /usr/src/linux && make -j"${cores}" && make install && make modules_install || exit 1
+    grep "CONFIG_ZFS=y" /usr/src/linux/.config || { echo "1 why did grep \"CONFIG_ZFS=y\" /usr/src/linux/.config exit 1?" ; }
+    grep "CONFIG_SPL=y" /usr/src/linux/.config || { echo "1 why did grep \"CONFIG_SPL=y\" /usr/src/linux/.config exit 1?" ; }
 
-#mkdir -p /etc/portage/profile
-#echo 'sys-fs/zfs -kernel-builtin' >> /etc/portage/profile/package.use.mask
-#echo 'sys-fs/zfs kernel-builtin' >> /etc/portage/package.use/zfs.conf
-emerge --oneshot --verbose sys-fs/zfs
-grep CONFIG_SPL /usr/src/linux/.config || exit 1
-grep CONFIG_ZFS /usr/src/linux/.config || exit 1
+    env EXTRA_ECONF='--enable-linux-builtin' ebuild /usr/portage/sys-kernel/spl/spl-9999.ebuild clean configure || exit 1
+    (cd /var/tmp/portage/sys-kernel/spl-9999/work/spl-9999 && ./copy-builtin /usr/src/linux) || exit 1
+    env EXTRA_ECONF='--with-spl=/usr/src/linux --enable-linux-builtin --with-spl-obj=/usr/src/linux' ebuild /usr/portage/sys-fs/zfs-kmod/zfs-kmod-9999.ebuild clean configure || exit 1
+    (cd /var/tmp/portage/sys-fs/zfs-kmod-9999/work/zfs-kmod-9999/ && ./copy-builtin /usr/src/linux) || exit 1
 
+    #mkdir -p /etc/portage/profile
+    #echo 'sys-fs/zfs -kernel-builtin' >> /etc/portage/profile/package.use.mask
+    #echo 'sys-fs/zfs kernel-builtin' >> /etc/portage/package.use/zfs.conf
 
-cd /usr/src/linux && make -j"${cores}" && make install && make modules_install || exit 1 # again to build-in zfs
+    grep "CONFIG_SPL=y" /usr/src/linux/.config || echo "CONFIG_SPL=y" >> /usr/src/linux/.config
+    grep "CONFIG_ZFS=y" /usr/src/linux/.config || echo "CONFIG_ZFS=y" >> /usr/src/linux/.config
 
-# USE="${USE} -kernel-builtin" emerge spl zfs zfs-kmod || exit 1
-# rc-update add zfs boot  #for zfs on root
+    grep "CONFIG_ZFS=y" /usr/src/linux/.config || { echo "why did grep \"CONFIG_ZFS=y\" /usr/src/linux/.config exit 1?" ; }
+    grep "CONFIG_SPL=y" /usr/src/linux/.config || { echo "why did grep \"CONFIG_SPL=y\" /usr/src/linux/.config exit 1?" ; }
+    /bin/sh
 
+    cd /usr/src/linux && make -j"${cores}" && make install && make modules_install || exit 1 # again to build-in zfs
+
+    #emerge --oneshot --verbose sys-fs/zfs
+    #rc-update add zfs boot  #for zfs on root # not needed if zfs is built-in
+    # USE="${USE} -kernel-builtin" emerge spl zfs zfs-kmod || exit 1
+fi
+
+install_pkg zfs
+install_pkg zfs-kmod
+rc-update add zfs-mount boot
 
 #echo '''GRUB_PLATFORMS="pc efi-32 efi-64"''' >> /etc/portage/make.conf #not sure why needed, but causes probls on musl
 #echo '''GRUB_PLATFORMS="pc"''' >> /etc/portage/make.conf #not sure why needed, but causes probls on musl
@@ -148,11 +164,12 @@ install_pkg hexedit
 
 echo -e "#<fs>\t<mountpoint>\t<type>\t<opts>\t<dump/pass>" > /etc/fstab # create empty fstab
 
-
 if [[ "${root_filesystem}" == "zfs" ]];
 then
     echo "GRUB_PRELOAD_MODULES=\"part_gpt zfs\"" >> /etc/default/grub
-    echo "GRUB_CMDLINE_LINUX=\"boot=zfs root=ZFS=rpool/ROOT\"" >> /etc/default/grub
+   #echo "GRUB_CMDLINE_LINUX_DEFAULT=\"boot=zfs root=ZFS=rpool/ROOT\"" >> /etc/default/grub
+   #echo "GRUB_CMDLINE_LINUX_DEFAULT=\"boot=zfs\"" >> /etc/default/grub
+    echo "GRUB_DEVICE=\"ZFS=rpool/ROOT/gentoo\"" >> /etc/default/grub
 else
     root_partition=`/home/cfg/linux/disk/get_root_device`
     echo "-------------- root_partition: ${root_partition} ---------------------"
@@ -163,15 +180,26 @@ else
 
 fi
 
-touch /etc/mtab
+ln -sf /proc/self/mounts /etc/mtab
+#touch /etc/mtab
+
+#echo "grub-probe /"
+#grub-probe /
+#echo "sleeping 10s, is zfs detected?"
+#sleep 10
 
 echo "\"grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck ${boot_device}\""
 grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --no-rs-codes "${boot_device}" || exit 1
 
 echo "\"grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot\""
 grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes || exit 1
+
+install_pkg genkernel
+genkernel initramfs --no-clean --no-mountboot --zfs || exit 1
+
 grub-mkconfig -o /boot/grub/grub.cfg || exit 1
 grub-mkconfig -o /root/chroot_grub.cfg || exit 1
+#/bin/sh
 
 #test -d /boot/efi/EFI/BOOT || { mkdir /boot/efi/EFI/BOOT || exit 1 ; }
 #cp -v /boot/efi/EFI/gentoo/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI || exit 1 # grub does this via --removable
@@ -382,6 +410,9 @@ cd /root/repos
 git clone https://github.com/mrichar1/clipster.git
 cd clipster
 cp clipster /usr/local/bin
+
+echo "now run: umount /mnt/gentoo/boot/efi && umount /mnt/gentoo/boot && ./gpart_make_hybrid_mbr.sh ${boot_device}"
+
 
 #git clone https://github.com/jakeogh/replace-text.git
 #chmod +x /root/repos/replace-text/replace-text

@@ -31,6 +31,13 @@ time (cd /home && tar zcf - cfg ) | pv -trabT -B 600M | (cd /mnt/gentoo/home && 
 
 #test -h /mnt/gentoo/boot/vmlinuz || { cp -af /boot/* /mnt/gentoo/boot/ || exit 1 ; }
 
+if [[ "${root_filesystem}" == 'zfs' ]];
+then
+    mkdir -p /mnt/gentoo/etc/zfs
+    cp /etc/zfs/zpool.cache /mnt/gentoo/etc/zfs/zpool.cache
+fi
+
 echo "Entering chroot"
-chroot /mnt/gentoo /bin/bash -c "su - -c '/home/cfg/setup/gentoo_installer/gentoo_setup_post_chroot ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem}'"
+#chroot /mnt/gentoo /bin/bash -c "su - -c '/home/cfg/setup/gentoo_installer/gentoo_setup_post_chroot ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem}'"
+env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l -c "su - -c '/home/cfg/setup/gentoo_installer/gentoo_setup_post_chroot ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem}'"
 #chroot /mnt/gentoo /bin/bash -c "su - -c '/bin/bash'"

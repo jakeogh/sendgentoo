@@ -30,7 +30,7 @@ def write_boot_partition(device, force):
     end = "400MiB"
 
     output = run_command("parted -a optimal " + device + " --script -- mkpart primary " + start + ' ' + end)
-    run_command("parted  " + device + " --script -- name " + partition_number + " rootfs")
+    run_command("parted  " + device + " --script -- name " + partition_number + " bootfs")
     run_command("mkfs.ext4 " + device + partition_number)
 
 

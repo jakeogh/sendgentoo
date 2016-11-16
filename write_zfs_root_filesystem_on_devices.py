@@ -10,7 +10,7 @@ from gentoo_setup_globals import RAID_LIST
 from kcl.iterops import grouper
 from kcl.printops import cprint
 
-def write_zfs_root_filesystem_on_devices(devices, force, raid):
+def write_zfs_root_filesystem_on_devices(devices, force, raid, pool_name):
     cprint("make_zfs_filesystem_on_devices()")
 
     # https://raw.githubusercontent.com/ryao/zfs-overlay/master/zfs-install
@@ -40,6 +40,8 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid):
             cprint("device_string:", device_string)
     assert device_string != ''
 
+    assert len(pool_name) > 2
+
     zpool_command = """
     zpool create \
     -f \
@@ -62,8 +64,7 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid):
     -O dedup=off \
     -O utf8only=off \
     -m none \
-    -R /mnt/gentoo \
-    rpool """ + device_string
+    -R /mnt/gentoo """ + pool_name + ' ' + device_string
 
 #    zpool_command = """
 #    zpool create \
@@ -132,8 +133,9 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid):
 @click.option('--force', is_flag=True, required=False)
 #@click.option('--raid', is_flag=False, required=True, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']))
 @click.option('--raid', is_flag=False, required=True, type=click.Choice(RAID_LIST))
-def main(devices, force, raid):
-    write_zfs_root_filesystem_on_devices(devices=devices, force=force, raid=raid)
+@click.option('--pool-name', is_flag=False, required=True, type=str)
+def main(devices, force, raid, pool_name):
+    write_zfs_root_filesystem_on_devices(devices=devices, force=force, raid=raid, pool_name=pool_name)
 
 if __name__ == '__main__':
     main()

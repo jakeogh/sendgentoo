@@ -11,6 +11,7 @@ from kcl.fileops import path_is_mounted
 from kcl.command import run_command
 from gentoo_setup_install_stage3 import install_stage3
 from destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
+from destroy_block_devices_head_and_tail import destroy_block_devices_head_and_tail
 #from write_gpt import write_gpt
 #from write_sysfs_partition import write_sysfs_partition
 from create_boot_device import create_boot_device
@@ -81,7 +82,11 @@ def install_gentoo(boot_device, root_devices, boot_device_partition_table, root_
     cprint("hostname:", hostname)
 
     for device in root_devices:
-        assert get_file_size(boot_device) < get_file_size(device[0])
+        cprint("boot_device:", boot_device)
+        cprint("device:", device)
+        cprint("get_file_size(boot_device)", get_file_size(boot_device))
+        cprint("get_file_size(device", get_file_size(device))
+        assert get_file_size(boot_device) <= get_file_size(device)
 
     first_root_device_size = get_file_size(root_devices[0])
     for device in root_devices:
@@ -105,7 +110,7 @@ def install_gentoo(boot_device, root_devices, boot_device_partition_table, root_
         assert boot_filesystem  == root_filesystem
         assert boot_device_partition_table == root_device_partition_table
         if boot_filesystem == 'zfs':
-            destroy_block_device_head_and_tail(device, force=True, no_backup=True)
+            destroy_block_devices_head_and_tail(root_devices, force=True, no_backup=True)
             create_root_device(devices=root_devices, exclusive=True, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid) # if this is zfs, it will make a gpt table, / and EFI partition
             create_boot_device(device=boot_device, partition_table='none', filesystem=boot_filesystem, force=True) # dont want to delete the gpt that zfs made
             boot_mount_command = False

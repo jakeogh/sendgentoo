@@ -12,6 +12,7 @@ from destroy_block_device_head_and_tail import destroy_block_device_head_and_tai
 from write_gpt import write_gpt
 from write_sysfs_partition import write_sysfs_partition
 from kcl.printops import cprint
+from gentoo_setup_globals import RAID_LIST
 
 def create_root_device(devices, partition_table, filesystem, force, exclusive, raid):
     cprint("installing gentoo on root devices:", ' '.join(devices), '(' + partition_table + ')', '(' + filesystem + ')')
@@ -42,8 +43,7 @@ def create_root_device(devices, partition_table, filesystem, force, exclusive, r
         #start = '100MiB'
         #end = '100%'
 
-    write_sysfs_partition(devices=devices, force=True, exclusive=exclusive, filesystem=filesystem, raid=raid)
-
+    write_sysfs_partition(devices=devices, force=True, exclusive=exclusive, filesystem=filesystem, raid=raid, pool_name=pool_name)
 
 @click.command()
 @click.argument('devices',         required=True, nargs=-1)
@@ -51,9 +51,10 @@ def create_root_device(devices, partition_table, filesystem, force, exclusive, r
 @click.option('--filesystem',      is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
 @click.option('--force',           is_flag=True,  required=False)
 @click.option('--exclusive',       is_flag=True,  required=False)
-@click.option('--raid',            is_flag=False, required=True, type=click.Choice(['disk', 'mirror', 'raidz1', 'raiz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']))
-def main(devices, partition_table, filesystem, force, exclusive, raid):
-    create_root_device(devices=devices, partition_table=partition_table, filesystem=filesystem, force=force, exclusive=exclusive, raid=raid)
+@click.option('--raid',            is_flag=False, required=True, type=click.Choice(RAID_LIST))
+@click.option('--pool-name',       is_flag=False, required=False, type=str)
+def main(devices, partition_table, filesystem, force, exclusive, raid, pool_name):
+    create_root_device(devices=devices, partition_table=partition_table, filesystem=filesystem, force=force, exclusive=exclusive, raid=raid, pool_name=pool_name)
 
 if __name__ == '__main__':
     main()

@@ -8,12 +8,11 @@ import subprocess
 from kcl.fileops import path_is_block_special
 from kcl.fileops import block_special_path_is_mounted
 from kcl.command import run_command
-from write_gpt import write_gpt
 from kcl.printops import cprint
 
-def write_boot_partition(device, force, partition_number):
-    cprint("creating boot partition  (for grub config, stage2, vmlinuz) on:", device)
-    assert not device[-1].isdigit()
+def format_fat16_partition(device, force):
+    cprint("formatting fat16 partition on:", device)
+    assert device[-1].isdigit()
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)
 
@@ -25,20 +24,16 @@ def write_boot_partition(device, force, partition_number):
         cprint("Sleeping 5 seconds")
         time.sleep(5)
 
-    partition_number = '3'
-    start = "100MiB"
-    end = "400MiB"
+    run_command("mkfs.fat -F16 -s2 " + device)
 
-    output = run_command("parted -a optimal " + device + " --script -- mkpart primary " + start + ' ' + end)
-    run_command("parted  " + device + " --script -- name " + partition_number + " bootfs")
-    run_command("mkfs.ext4 " + device + partition_number)
+    # 127488 /mnt/sdb2/EFI/BOOT/BOOTX64.EFI
 
 
 @click.command()
 @click.option('--device', is_flag=False, required=True)
 @click.option('--force',  is_flag=True,  required=False)
 def main(device, force):
-    write_boot_partition(device=device, force=force)
+    format_fat16_partition(device=device, force=force)
 
 if __name__ == '__main__':
     main()

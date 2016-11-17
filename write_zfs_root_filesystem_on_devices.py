@@ -25,12 +25,14 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid):
     if len(devices) == 1:
         assert raid == 'disk'
         device_string = devices[0]
+
     if len(devices) > 1:
         assert raid == 'mirror'
+        assert len(devices) % 2 == 0
+
     if len(devices) == 2:
         assert raid == 'mirror'
         device_string = "mirror " + devices[0] + ' ' + devices[1]
-    assert len(devices) % 2 == 0
 
     if len(devices) > 2:
         for pair in grouper(devices, 2):

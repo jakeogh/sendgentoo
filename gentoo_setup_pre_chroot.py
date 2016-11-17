@@ -17,6 +17,7 @@ from create_boot_device import create_boot_device
 from create_root_device import create_root_device
 from kcl.printops import cprint
 from write_boot_partition import write_boot_partition
+from format_fat32_partition import format_fat32_partition
 
 def get_file_size(filename):
     fd = os.open(filename, os.O_RDONLY)
@@ -29,8 +30,8 @@ def get_file_size(filename):
 @click.argument('root_devices',                required=True, nargs=-1)
 @click.option('--boot-device',                 is_flag=False, required=True)
 @click.option('--boot-device-partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
-@click.option('--root-device-partition-table', is_flag=False, required=True, type=click.Choice(['gpt', 'zfs']))
-@click.option('--boot-filesystem',             is_flag=False, required=True, type=click.Choice(['ext4']))
+@click.option('--root-device-partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
+@click.option('--boot-filesystem',             is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
 @click.option('--root-filesystem',             is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
 @click.option('--c-std-lib',                   is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']))
 @click.option('--raid',                        is_flag=False, required=True, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']))
@@ -56,7 +57,7 @@ def install_gentoo(boot_device, root_devices, boot_device_partition_table, root_
             assert raid == 'disk'
 
     if root_filesystem == 'zfs':
-        assert root_device_partition_table == 'zfs'
+        assert root_device_partition_table == 'gpt'
 
     assert not boot_device[-1].isdigit()
     for device in root_devices:
@@ -100,13 +101,22 @@ def install_gentoo(boot_device, root_devices, boot_device_partition_table, root_
         pass
 
     if boot_device == root_devices[0]:
-        assert root_filesystem != 'zfs' # cant do zfs root on a single disk
+        #assert root_filesystem != 'zfs' # cant do zfs root on a single disk #can now
         assert boot_filesystem  == root_filesystem
         assert boot_device_partition_table == root_device_partition_table
-        create_boot_device(device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True)
-        create_root_device(device=root_devices, exclusive=False, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True)
-        root_mount_command = "mount " + root_device + "3 /mnt/gentoo"
-        boot_mount_command = False
+        if boot_filesystem == 'zfs':
+            destroy_block_device_head_and_tail(device, force=True, no_backup=True)
+            create_root_device(devices=root_devices, exclusive=True, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid) # if this is zfs, it will make a gpt table, / and EFI partition
+            create_boot_device(device=boot_device, partition_table='none', filesystem=boot_filesystem, force=True) # dont want to delete the gpt that zfs made
+            boot_mount_command = False
+            root_mount_command = False
+
+        elif boot_filesystem == 'ext4':
+            destroy_block_device_head_and_tail(device, force=True)
+            create_boot_device(device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True)
+            create_root_device(devices=root_devices, exclusive=False, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid)
+            root_mount_command = "mount " + root_device + "3 /mnt/gentoo"
+            boot_mount_command = False
     else:
         cprint("differing root and boot devices: (exclusive) root_devices[0]:", root_devices[0], "boot_device:", boot_device)
         create_boot_device(device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True)
@@ -140,7 +150,13 @@ def install_gentoo(boot_device, root_devices, boot_device_partition_table, root_
     except FileExistsError:
         pass
 
-    run_command("mount " + boot_device + "2 /mnt/gentoo/boot/efi")
+    if boot_filesystem == 'zfs':
+        efi_mount_command = "mount " + boot_device + "9 /mnt/gentoo/boot/efi"
+    else:
+        efi_mount_command = "mount " + boot_device + "2 /mnt/gentoo/boot/efi"
+
+    #run_command("mount " + boot_device + "2 /mnt/gentoo/boot/efi")
+    run_command(efi_mount_command)
     install_stage3(c_std_lib)
 
     if march == 'native':

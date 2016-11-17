@@ -30,15 +30,17 @@ def create_root_device(devices, partition_table, filesystem, force, exclusive, r
         time.sleep(5)
 
     if exclusive:
-        destroy_block_device_head_and_tail(device=device, force=True)
-        write_gpt(device, no_wipe=True, force=force, no_backup=False)
-        cprint("making exclusive root device:", device)
-        start = '0'
-        end = '100%'
+        if filesystem != 'zfs':
+            destroy_block_device_head_and_tail(device=device, force=True)
+            write_gpt(device, no_wipe=True, force=force, no_backup=False) #zfs does this on it's own, feed it a blank disk
+        #cprint("making exclusive root device:", device)
+        #start = '0'
+        #end = '100%'
     else:
-        cprint("making 3rd partition root device:", device)
-        start = '100MiB'
-        end = '100%'
+        pass
+        #cprint("making 3rd partition root device:", device)
+        #start = '100MiB'
+        #end = '100%'
 
     write_sysfs_partition(devices=devices, force=True, exclusive=exclusive, filesystem=filesystem, raid=raid)
 

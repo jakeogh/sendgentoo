@@ -366,6 +366,8 @@ queue_emerge python-gnupg
 queue_emerge vbindiff
 queue_emerge libisoburn # xorriso
 queue_emerge expect # to script gdisk
+queue_emerge di
+queue_emerge hdparm
 emerge_world
 
 /home/cfg/_myapps/replace-text/replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1

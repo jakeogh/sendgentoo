@@ -121,7 +121,8 @@ grep "CONFIG_TRIM_UNUSED_KSYMS is not set" /usr/src/linux/.config || { echo "Reb
 if [[ "${zfs_module_mode}" == "module" ]];
 then
 
-    cd /usr/src/linux && make menuconfig && make -j"${cores}" && make install && make modules_install || exit 1
+    #cd /usr/src/linux && make menuconfig && make -j"${cores}" && make install && make modules_install || exit 1
+    cd /usr/src/linux && make oldconfig && make -j"${cores}" && make install && make modules_install || exit 1
     #USE="${USE} -kernel-builtin" emerge spl zfs zfs-kmod
 else
     cd /usr/src/linux && make prepare || exit 1

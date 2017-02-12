@@ -19,7 +19,8 @@ def download_file(url):
     r.close()
 
 def get_stage3_url(c_std_lib):
-    mirror = 'http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/'
+    #mirror = 'http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/'
+    mirror = 'http://gentoo.osuosl.org/releases/amd64/autobuilds/'
     if c_std_lib == 'glibc':
         latest = 'latest-stage3-amd64-hardened+nomultilib.txt'
     if c_std_lib == 'musl':
@@ -31,6 +32,7 @@ def get_stage3_url(c_std_lib):
         cprint("uclibc wont compile efivars")
         quit(1)
     r = requests.get(mirror + latest)
+    cprint(r)
     autobuild_file_lines = r.text.split('\n')
     r.close()
     for line in autobuild_file_lines:
@@ -38,6 +40,7 @@ def get_stage3_url(c_std_lib):
             path = line.split(' ')[0]
             break
     #cprint('path:', path)
+    assert 'stage3' in path
     url = mirror + path
     #cprint("url:", url)
     return url
@@ -48,7 +51,7 @@ def get_stage3_url(c_std_lib):
 def main(c_std_lib):
     url = get_stage3_url(c_std_lib)
     cprint(url)
-    download_file(url)
+    #download_file(url)
 
 
 if __name__ == '__main__':

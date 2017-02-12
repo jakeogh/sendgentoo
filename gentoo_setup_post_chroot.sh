@@ -5,6 +5,14 @@ test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 
 #musl: http://distfiles.gentoo.org/experimental/amd64/musl/HOWTO
 
+install_pkg_force_compile()
+{
+        echo "entering install_pkg()" > /dev/stderr
+        echo "install_pkg() got args: $@" > /dev/stderr
+        #emerge --usepkgonly --tree -u --ask n -n "$@" > /dev/stderr || exit 1
+        emerge --tree -u --ask n -n $@ > /dev/stderr || exit 1
+}
+
 install_pkg()
 {
         echo "entering install_pkg()" > /dev/stderr
@@ -17,7 +25,7 @@ emerge_world()
 {
         echo "entering emerge_world()" > /dev/stderr
         #emerge --usepkgonly --tree -u --ask n -n "$@" > /dev/stderr || exit 1
-        emerge --usepkg --tree -u --ask n -n world > /dev/stderr || exit 1
+        emerge --backtrack=130 --usepkg --tree -u --ask n -n world > /dev/stderr || exit 1
 }
 
 queue_emerge()
@@ -35,9 +43,47 @@ queue_emerge()
             then
                 echo "adding to /var/lib/portage/world: ${pkg}"
                 grep "${pkg}" /var/lib/portage/world > /dev/null 2>&1 || { echo "${pkg}" >> /var/lib/portage/world ; }
+            else
+                echo "${pkg} failed"
+            fi
+            emerge -pv --usepkg --tree -u --ask n -n world
+            exit_status="$?"
+            if [[ "${exit_status}" != 0 ]];
+            then
+                echo "emerge world failed on ${pkg}"
+                exit 1
             fi
         shift
         done
+}
+
+install_xorg()
+{
+    install_pkg xf86-input-mouse   # works with mdev
+    install_pkg xf86-input-evdev   # mouse/kbd for eudev
+    #install_pkg slock
+    install_pkg xnee
+    install_pkg xterm xlsfonts xfontsel xfd xtitle lsx xbindkeys
+    install_pkg xorg-x11
+    install_pkg redshift xdpyinfo wmctrl
+    install_pkg x11-misc/xclip xev mesa-progs xdotool
+    install_pkg dmenu
+    install_pkg xbindkeys xautomation xvkbd xsel
+    install_pkg xnee
+    install_pkg xfontsel terminus-font xlsfonts liberation-fonts
+    install_pkg xfd lsw
+    #install_pkg sympy
+    install_pkg gv
+    install_pkg xclock
+    install_pkg xpyb
+    install_pkg python-xlib
+    install_pkg qtile
+    install_pkg xkeycaps
+    install_pkg feh
+    install_pkg kdiff3
+    install_pkg x11-misc/vdpauinfo
+    install_pkg evtest #better than xev
+    emerge_world
 }
 
 stdlib="${1}"
@@ -62,7 +108,23 @@ echo "root:cayenneground~__" | chpasswd
 
 echo "chmod +x /home/cfg/sysskel/etc/local.d/*"
 chmod +x /home/cfg/sysskel/etc/local.d/*
-# right here, before layman is installed, before user is created, portage needs to get configured.
+
+eselect python set --python3 python3.4
+eselect python set python3.4
+eselect python list
+eselect profile list
+
+cd /home/cfg/_myapps/kcl
+python setup.py install # requires py3 so must be after changing eselect
+cd -
+
+
+mkdir /etc/portage/repos.conf #make this is layman is getting installed or not
+#install_pkg net-misc/curl #only needed with custom FETCHCOMMAND
+
+
+# right here, before layman is installed (so git custom USE flags are in effect), before user is created, portage needs to get configured.
+chmod +x /home/cfg/setup/symlink_tree
 /home/cfg/setup/symlink_tree /home/cfg/sysskel/ || exit 1
 
 echo "hostname=\"${hostname}\"" > /etc/conf.d/hostname
@@ -106,6 +168,19 @@ echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen    #hm, musl does not need this? dont fail here for uclibc or musl
 echo "LC_COLLATE=\"C\"" >> /etc/env.d/02collate
 echo "US/Arizona" > /etc/timezone
+
+equery depgraph layman
+sleep 20
+install_pkg layman   # pulls in git
+layman -L || { /bin/sh ; exit 1 ; }  # get layman trees
+layman -o https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml -f -a jakeogh
+
+if [[ "${stdlib}" == "musl" ]];
+then
+    layman -a musl || exit 1
+    echo "source /var/lib/layman/make.conf" >> /etc/portage/make.conf # musl specific # need to switch to repos.d https://wiki.gentoo.org/wiki/Overlay
+fi
+
 
 install_pkg dev-vcs/git # need this for any -9999 packages (zfs)
 
@@ -153,9 +228,10 @@ else
     # USE="${USE} -kernel-builtin" emerge spl zfs zfs-kmod || exit 1
 fi
 
-install_pkg zfs
-install_pkg zfs-kmod
-rc-update add zfs-mount boot
+install_pkg_force_compile spl || exit 1
+install_pkg_force_compile zfs || exit 1
+install_pkg_force_compile zfs-kmod || exit 1
+rc-update add zfs-mount boot || exit 1
 
 #echo '''GRUB_PLATFORMS="pc efi-32 efi-64"''' >> /etc/portage/make.conf #not sure why needed, but causes probls on musl
 #echo '''GRUB_PLATFORMS="pc"''' >> /etc/portage/make.conf #not sure why needed, but causes probls on musl
@@ -170,7 +246,8 @@ then
     echo "GRUB_PRELOAD_MODULES=\"part_gpt zfs\"" >> /etc/default/grub
    #echo "GRUB_CMDLINE_LINUX_DEFAULT=\"boot=zfs root=ZFS=rpool/ROOT\"" >> /etc/default/grub
    #echo "GRUB_CMDLINE_LINUX_DEFAULT=\"boot=zfs\"" >> /etc/default/grub
-    echo "GRUB_DEVICE=\"ZFS=rpool/ROOT/gentoo\"" >> /etc/default/grub
+   #echo "GRUB_DEVICE=\"ZFS=rpool/ROOT/gentoo\"" >> /etc/default/grub
+    echo "GRUB_DEVICE=\"ZFS=${hostname}/ROOT/gentoo\"" >> /etc/default/grub
 else
     root_partition=`/home/cfg/linux/disk/get_root_device`
     echo "-------------- root_partition: ${root_partition} ---------------------"
@@ -205,8 +282,9 @@ grub-mkconfig -o /root/chroot_grub.cfg || exit 1
 #test -d /boot/efi/EFI/BOOT || { mkdir /boot/efi/EFI/BOOT || exit 1 ; }
 #cp -v /boot/efi/EFI/gentoo/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI || exit 1 # grub does this via --removable
 
-useradd --create-home user || exit 1
+test -d /home/user || { useradd --create-home user || exit 1 ; }
 echo "user:cayenneground~__" | chpasswd || exit 1
+for x in cdrom cdrw usb audio video wheel; do gpasswd -a user $x ; done
 
 test -h /home/user/cfg || { ln -s /home/cfg /home/user/cfg || exit 1 ; }
 test -h /root/cfg      || { ln -s /home/cfg /root/cfg      || exit 1 ; }
@@ -239,22 +317,11 @@ mkdir /mnt/sdo1 /mnt/sdo2 /mnt/sdo3
 mkdir /mnt/xvdi1 /mnt/xvdj1
 mkdir /mnt/loop /mnt/samba /mnt/dvd /mnt/cdrom
 
-eselect python set --python3 python3.4
-eselect python set python3.4
-eselect python list
-eselect profile list
+echo "US/Arizona" > /etc/localtime
+install_pkg netdate
+/home/cfg/time/set_time_via_ntp
 
 install_pkg ccache
-mkdir /etc/portage/repos.conf #make this is layman is getting installed or not
-#install_pkg net-misc/curl #only needed with custom FETCHCOMMAND
-
-if [[ "${stdlib}" == "musl" ]];
-then
-    install_pkg layman   # pulls in git
-    layman -L || exit 1  # get layman trees
-    layman -a musl || exit 1
-    echo "source /var/lib/layman/make.conf" >> /etc/portage/make.conf
-fi
 
 install_pkg sys-fs/eudev
 touch /run/openrc/softlevel
@@ -268,7 +335,8 @@ then
 fi
 
 rc-update add sshd default
-rc-update del netmount default  #handeled later, dont want dhcpcd running all the time
+#rc-update del netmount default  #handeled later, dont want dhcpcd running all the time
+rc-update add netmount default
 
 install_pkg syslog-ng
 rc-update add syslog-ng default
@@ -300,7 +368,7 @@ install_pkg cpio    #for better-initramfs
 #/bin/cp -v /home/cfg/setup/gentoo_installer/portage_overlay/lshw/*.ebuild /usr/portage/sys-apps/lshw/
 #ebuild /usr/portage/sys-apps/lshw/lshw-02.16b-r2.ebuild manifest
 
-install_pkg unison
+MAKEOPTS="-j1" emerge --usepkg unison
 ln -s /usr/bin/unison-2.48 /usr/bin/unison
 
 if [[ "${stdlib}" == "musl" ]];
@@ -319,62 +387,108 @@ rc-update add dnsproxy default
 
 install_pkg gradm #required for gentoo-hardened RBAC
 
-install_pkg eix #setup/linux:queue_emerge() needs this
+install_pkg eix #setup/linux:install_pkg() needs this
 eix-update
 
-queue_emerge iw
-queue_emerge linux-firmware
-queue_emerge wpa_supplicant
-queue_emerge htop
-queue_emerge sudo
-queue_emerge vim
-queue_emerge pydf
-queue_emerge click #python arg parser
-queue_emerge requests
-queue_emerge sys-apps/usbutils # for lsusb
-queue_emerge psutil # python system info library
-queue_emerge parted
-queue_emerge multipath-tools # unhappy on musl
-queue_emerge cryptsetup
-queue_emerge pyparted
-queue_emerge hexedit
-queue_emerge ncdu
-queue_emerge app-text/tree
-queue_emerge dosfstools #mkfs.vfat for uefi partition
-queue_emerge pv
-queue_emerge app-crypt/gnupg
-queue_emerge dev-util/dirdiff
-queue_emerge tmux
-queue_emerge gentoolkit
-queue_emerge tcpdump
-queue_emerge smartmontools   #to get HD sn's
-queue_emerge gentoolkit       #equery
-queue_emerge timer_entropyd  #ssh-keygen
-queue_emerge hwinfo  # for checking avail kms modes and detecting video cards
-queue_emerge lshw    # fixed for musl
-queue_emerge pfl     # e-file like qpkg for files that are in portage
-queue_emerge patchutils # combinediff
-queue_emerge libbsd # strlcpy https://en.wikibooks.org/wiki/C_Programming/C_Reference/nonstandard/strlcpy
-queue_emerge lsof
-queue_emerge iotop
-queue_emerge debugedit
-queue_emerge gptfdisk #gdisk sgdisk cgdisk
-queue_emerge gpart # partition disaster recovery tool
-queue_emerge app-misc/mc
-queue_emerge ddrescue
-queue_emerge dd-rescue
-queue_emerge python-gnupg
-queue_emerge vbindiff
-queue_emerge libisoburn # xorriso
-queue_emerge expect # to script gdisk
-queue_emerge di
-queue_emerge hdparm
-emerge_world
+install_pkg moreutils # vidir
+install_pkg iw
+install_pkg linux-firmware
+install_pkg wpa_supplicant
+install_pkg htop
+install_pkg sudo
+install_pkg vim
+install_pkg pydf
+install_pkg click #python arg parser
+install_pkg requests
+install_pkg sys-apps/usbutils # for lsusb
+install_pkg psutil # python system info library
+install_pkg parted
+install_pkg multipath-tools # unhappy on musl
+install_pkg cryptsetup
+install_pkg pyparted
+install_pkg hexedit
+install_pkg ncdu
+install_pkg app-text/tree
+install_pkg dosfstools #mkfs.vfat for uefi partition
+install_pkg pv
+install_pkg app-crypt/gnupg
+install_pkg dev-util/dirdiff
+install_pkg tmux
+install_pkg gentoolkit
+install_pkg tcpdump
+install_pkg smartmontools   #to get HD sn's
+install_pkg gentoolkit       #equery
+install_pkg timer_entropyd  #ssh-keygen
+install_pkg hwinfo  # for checking avail kms modes and detecting video cards
+install_pkg lshw    # fixed for musl
+install_pkg pfl     # e-file like qpkg for files that are in portage
+install_pkg patchutils # combinediff
+install_pkg libbsd # strlcpy https://en.wikibooks.org/wiki/C_Programming/C_Reference/nonstandard/strlcpy
+install_pkg lsof
+install_pkg iotop
+install_pkg debugedit
+install_pkg gptfdisk #gdisk sgdisk cgdisk
+install_pkg gpart # partition disaster recovery tool
+install_pkg app-misc/mc
+install_pkg ddrescue
+install_pkg dd-rescue
+install_pkg python-gnupg
+install_pkg vbindiff
+install_pkg libisoburn # xorriso
+install_pkg expect # to script gdisk
+install_pkg di
+install_pkg hdparm
+install_pkg iozone
+install_pkg minicom
+install_pkg app-misc/screen
+install_pkg net-wireless/bluez #bluetooth
+install_pkg sys-firmware/bluez-firmware
+install_pkg net-wireless/bluez-hcidump
+install_pkg dev-python/pybluez
+install_pkg grc #colorizer for cmds
+install_pkg acpi
+install_pkg net-wireless/wireless-tools
+#install_pkg dev-python/sh
+install_pkg nfs-utils
+install_pkg app-backup/bup
+install_pkg sshuttle
+install_pkg sys-apps/kexec-tools #kernel crash dumping
+install_pkg links
+install_pkg app-misc/byobu #screen/tmux manager
+install_pkg app-admin/ccze # to make ctail(byobu) happy
+install_pkg distcc
+install_pkg app-crypt/gpgme #for alot
+install_pkg dev-python/pygpgme #for alot
+install_pkg dev-python/configobj # for alot
+install_pkg dev-python/python-magic # for alot
+install_pkg dev-python/twisted # for alot
+install_pkg dev-python/urwidtrees # for alot
+install_pkg notmuch # for alot
+install_pkg www-client/lynx # for alot
+install_pkg dev-python/pudb # nice python debugger (terminal)
+install_pkg net-misc/whois
+install_pkg www-client/w3m
+install_pkg www-client/elinks
+install_pkg sys-apps/most
+#install_pkg rust
+install_pkg sys-fs/simple-mtpfs
+install_pkg sqlalchemy
+install_pkg httplib2
+install_pkg psycopg
+perl-cleaner modules # needed to avoid XML::Parser... configure: error
+#install_pkg pgadmin3 #webkit problem
+postgres psql template1 -c 'create extension hstore;'
+install_pkg pydot
+install_pkg subversion
+install_pkg paps #txt to pdf
+lspci | grep -i nvidia | grep -i vga && install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
+#emerge_world
+#/bin/sh
 
 /home/cfg/_myapps/replace-text/replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1
 
-echo "vm.overcommit_memory=2"   >> /etc/sysctl.conf
-echo "vm.overcommit_ratio=100"  >> /etc/sysctl.conf
+#echo "vm.overcommit_memory=2"   >> /etc/sysctl.conf
+#echo "vm.overcommit_ratio=100"  >> /etc/sysctl.conf
 mkdir /sys/fs/cgroup/memory/0
 #echo -e '''#!/bin/sh\necho 1 > /sys/fs/cgroup/memory/0/memory.oom_control''' > /etc/local.d/memory.oom_control.start #done in sysskel
 #chmod +x /etc/local.d/memory.oom_control.start
@@ -406,7 +520,6 @@ ln -s -r /boot/vmlinuz-"${kernel_version}" /boot/vmlinuz
 #chmod -R u+rw /home/user
 chown root:root /etc/sudoers
 
-for x in cdrom cdrw usb audio wheel; do gpasswd -a user $x ; done
 
 mkdir /root/repos
 cd /root/repos
@@ -414,13 +527,11 @@ git clone https://github.com/mrichar1/clipster.git
 cd clipster
 cp clipster /usr/local/bin
 
-echo "now run: umount /mnt/gentoo/boot/efi && umount /mnt/gentoo/boot && ./gpart_make_hybrid_mbr.sh ${boot_device}"
-
 
 #git clone https://github.com/jakeogh/replace-text.git
 #chmod +x /root/repos/replace-text/replace-text
 #popd
 
-
-
+install_xorg
+install_pkg gqrx
 

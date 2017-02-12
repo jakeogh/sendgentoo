@@ -9,9 +9,11 @@ from kcl.fileops import path_is_block_special
 from kcl.fileops import block_special_path_is_mounted
 from kcl.command import run_command
 from kcl.printops import cprint
+from format_fat16_partition import format_fat16_partition
+
 
 def write_efi_partition(device, force, start, end, partition_number):
-    cprint("creating efi partition on:", device + partition_number)
+    cprint("creating efi partition on device:", device, "partition_number:", partition_number, "start:", start, "end:", end)
     assert not device[-1].isdigit()
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)
@@ -25,10 +27,12 @@ def write_efi_partition(device, force, start, end, partition_number):
         time.sleep(5)
 
     #output = run_command("parted " + device + " --align optimal --script -- mkpart primary " + start + ' ' + end)
-    output = run_command("parted " + device + " --script -- mkpart primary " + start + ' ' + end)
-    run_command("parted -a optimal " + device + " --script -- name " + partition_number + " EFI")
-    run_command("parted -a optimal " + device + " --script -- set " + partition_number + " boot on")
-    run_command("mkfs.fat -F32 " + device + "2")
+    output = run_command("parted --align minimal " + device + " --script -- mkpart primary " + start + ' ' + end, verbose=True)
+    run_command("parted " + device + " --script -- name " + partition_number + " EFI")
+    run_command("parted " + device + " --script -- set " + partition_number + " boot on")
+    #run_command("mkfs.fat -F32 " + device + partition_number, verbose=True)
+    #run_command("mkfs.fat -F16 " + device + partition_number, verbose=True)
+    format_fat16_partition(device=device+partition_number, force=True)
 
     # 127488 /mnt/sdb2/EFI/BOOT/BOOTX64.EFI
 

@@ -9,4 +9,4 @@ cd /usr/src/linux && make menuconfig && ~/cfg/pause && make -j12 && make install
 echo "kernel compile and install completed OK"
 
 qpkg zfs && USE="${USE} -kernel-builtin" emerge spl zfs zfs-kmod || { echo "xfs is not installed, skipping \"emerge zfs\"" ; }
-
+qpkg zfs && genkernel initramfs --no-clean --no-mountboot --zfs --symlink

@@ -36,10 +36,13 @@ def create_boot_device(device, partition_table, filesystem, force):
         if filesystem != 'zfs':
             write_gpt(device, no_wipe=True, force=force, no_backup=False) # zfs does this
 
-    write_grub_bios_partition(device=device, force=True, start='48s', end='1023s', partition_number='2')
+    if filesystem == 'zfs':
+        write_grub_bios_partition(device=device, force=True, start='48s', end='1023s', partition_number='2') #2 if zfs made sda1 and sda9
+    else:
+        write_grub_bios_partition(device=device, force=True, start='48s', end='1023s', partition_number='1')
 
     if filesystem != 'zfs':
-        write_efi_partition(device=device, force=True, start='1024s', end='2047s', partition_number='3') # this is /dev/sda9 on zfs
+        write_efi_partition(device=device, force=True, start='1024s', end='18047s', partition_number='2') # this is /dev/sda9 on zfs
 
     if filesystem == 'zfs':
         format_fat16_partition(device=device+'9', force=True)

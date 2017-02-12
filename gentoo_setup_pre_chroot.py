@@ -36,11 +36,20 @@ def get_file_size(filename):
 @click.option('--root-filesystem',             is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
 @click.option('--c-std-lib',                   is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']))
 @click.option('--raid',                        is_flag=False, required=True, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']))
+@click.option('--raid-group-size',             is_flag=False, required=True, type=int)
 @click.option('--march',                       is_flag=False, required=True, type=click.Choice(['native', 'nocona']))
+#@click.option('--pool-name',                   is_flag=False, required=True, type=str)
 @click.option('--hostname',                    is_flag=False, required=True)
 @click.option('--force',                       is_flag=True,  required=False)
 @click.option('--encrypt',                     is_flag=True,  required=False)
-def install_gentoo(boot_device, root_devices, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, raid, march, hostname, force, encrypt):
+def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, raid, raid_group_size, march, hostname, force, encrypt):
+
+    if not os.path.isdir('/usr/portage/distfiles'):
+        os.makedirs('/usr/portage/distfiles')
+
+    if not os.path.isdir('/usr/portage/sys-kernel'):
+        cprint("run emerge--sync first")
+        quit(1)
     if encrypt:
         cprint("encryption not yet supported")
         quit(1)
@@ -64,8 +73,8 @@ def install_gentoo(boot_device, root_devices, boot_device_partition_table, root_
     for device in root_devices:
         assert not device[-1].isdigit()
 
-    if raid:
-        assert root_filesystem == 'zfs'
+    #if raid:
+    #    assert root_filesystem == 'zfs'
 
     cprint("installing gentoo on boot device:", boot_device, '(' + boot_device_partition_table + ')', '(' + boot_filesystem + ')')
     assert path_is_block_special(boot_device)
@@ -110,8 +119,8 @@ def install_gentoo(boot_device, root_devices, boot_device_partition_table, root_
         assert boot_filesystem  == root_filesystem
         assert boot_device_partition_table == root_device_partition_table
         if boot_filesystem == 'zfs':
-            destroy_block_devices_head_and_tail(root_devices, force=True, no_backup=True)
-            create_root_device(devices=root_devices, exclusive=True, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid) # if this is zfs, it will make a gpt table, / and EFI partition
+            destroy_block_devices_head_and_tail(root_devices, force=True, no_backup=True, size=(1024*1024*128), note=False)
+            create_root_device(devices=root_devices, exclusive=True, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=hostname) # if this is zfs, it will make a gpt table, / and EFI partition
             create_boot_device(device=boot_device, partition_table='none', filesystem=boot_filesystem, force=True) # dont want to delete the gpt that zfs made
             boot_mount_command = False
             root_mount_command = False
@@ -119,8 +128,8 @@ def install_gentoo(boot_device, root_devices, boot_device_partition_table, root_
         elif boot_filesystem == 'ext4':
             destroy_block_device_head_and_tail(device, force=True)
             create_boot_device(device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True)
-            create_root_device(devices=root_devices, exclusive=False, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid)
-            root_mount_command = "mount " + root_device + "3 /mnt/gentoo"
+            create_root_device(devices=root_devices, exclusive=False, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=hostname)
+            root_mount_command = "mount " + root_devices[0] + "3 /mnt/gentoo"
             boot_mount_command = False
     else:
         cprint("differing root and boot devices: (exclusive) root_devices[0]:", root_devices[0], "boot_device:", boot_device)

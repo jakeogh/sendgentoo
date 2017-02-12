@@ -10,7 +10,7 @@ from gentoo_setup_globals import RAID_LIST
 from kcl.iterops import grouper
 from kcl.printops import cprint
 
-def write_zfs_root_filesystem_on_devices(devices, force, raid, pool_name):
+def write_zfs_root_filesystem_on_devices(devices, force, raid, raid_group_size, pool_name, mount_point='/mnt/gentoo'):
     cprint("make_zfs_filesystem_on_devices()")
 
     # https://raw.githubusercontent.com/ryao/zfs-overlay/master/zfs-install
@@ -20,6 +20,9 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid, pool_name):
         assert path_is_block_special(device)
         assert not block_special_path_is_mounted(device)
         assert not device[-1].isdigit()
+
+    #assert raid_group_size >= 2
+    assert len(devices) >= raid_group_size
 
     device_string = ''
     if len(devices) == 1:
@@ -34,8 +37,9 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid, pool_name):
         assert raid == 'mirror'
         device_string = "mirror " + devices[0] + ' ' + devices[1]
 
+    # striped mirror raid10
     if len(devices) > 2:
-        for pair in grouper(devices, 2):
+        for pair in grouper(devices, raid_group_size):
             device_string = device_string + "mirror " + pair[0] + ' ' + pair[1] + ' '
             cprint("device_string:", device_string)
     assert device_string != ''
@@ -64,7 +68,7 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid, pool_name):
     -O dedup=off \
     -O utf8only=off \
     -m none \
-    -R /mnt/gentoo """ + pool_name + ' ' + device_string
+    -R """ + mount_point + ' ' + pool_name + ' ' + device_string
 
 #    zpool_command = """
 #    zpool create \
@@ -89,15 +93,15 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid, pool_name):
 #    -R /mnt/gentoo \
 #    rpool """ + ' '.join(devices)
 
-    run_command(zpool_command)
+    run_command(zpool_command, verbose=True)
 
     # Workaround 0.6.4 regression
     #run_command("zfs umount /mnt/gentoo/rpool")
     #run_command("rmdir /mnt/gentoo/rpool")
 
     # Create rootfs
-    run_command("zfs create -o mountpoint=none rpool/ROOT")
-    run_command("zfs create -o mountpoint=/ rpool/ROOT/gentoo")
+    run_command("zfs create -o mountpoint=none " + pool_name + "/ROOT", verbose=True)
+    run_command("zfs create -o mountpoint=/ " + pool_name + "/ROOT/gentoo", verbose=True)
 
     # Create home directories
     #zfs create -o mountpoint=/home rpool/HOME
@@ -118,11 +122,11 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid, pool_name):
     #zfs create -o mountpoint=/var/tmp/ccache -o compression=lz4 rpool/GENTOO/ccache
 
     # Set bootfs
-    run_command("zpool set bootfs=rpool/ROOT/gentoo rpool")
+    run_command("zpool set bootfs=" + pool_name + "/ROOT/gentoo " + pool_name, verbose=True)
 
     # Copy zpool.cache into chroot
-    run_command("mkdir -p /mnt/gentoo/etc/zfs")
-    run_command("cp /tmp/zpool.cache /mnt/gentoo/etc/zfs/zpool.cache")
+    run_command("mkdir -p /mnt/gentoo/etc/zfs", verbose=True)
+    run_command("cp /tmp/zpool.cache /mnt/gentoo/etc/zfs/zpool.cache", verbose=True)
 
     #print("done making zfs filesystem, here's what is mounted:")
     #run_command('mount')
@@ -133,9 +137,11 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid, pool_name):
 @click.option('--force', is_flag=True, required=False)
 #@click.option('--raid', is_flag=False, required=True, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']))
 @click.option('--raid', is_flag=False, required=True, type=click.Choice(RAID_LIST))
+@click.option('--raid-group-size', is_flag=False, required=True, type=int)
 @click.option('--pool-name', is_flag=False, required=True, type=str)
-def main(devices, force, raid, pool_name):
-    write_zfs_root_filesystem_on_devices(devices=devices, force=force, raid=raid, pool_name=pool_name)
+@click.option('--mount-point', is_flag=False, required=False, type=str)
+def main(devices, force, raid, raid_group_size, pool_name):
+    write_zfs_root_filesystem_on_devices(devices=devices, force=force, raid=raid, raid_group_size=raid_group_size, pool_name=pool_name, mount_point=mount_point)
 
 if __name__ == '__main__':
     main()

@@ -13,7 +13,7 @@ from write_zfs_root_filesystem_on_devices import write_zfs_root_filesystem_on_de
 from kcl.printops import cprint
 from gentoo_setup_globals import RAID_LIST
 
-def write_sysfs_partition(devices, force, exclusive, filesystem, raid, pool_name):
+def write_sysfs_partition(devices, force, exclusive, filesystem, raid, raid_group_size, pool_name=False):
     cprint("creating sysfs partition on:", devices)
 
     if filesystem == 'zfs':
@@ -52,21 +52,20 @@ def write_sysfs_partition(devices, force, exclusive, filesystem, raid, pool_name
 
     elif filesystem == 'zfs':
         assert exclusive
-        write_zfs_root_filesystem_on_devices(devices=devices, force=True, raid=raid, pool_name=pool_name)
+        write_zfs_root_filesystem_on_devices(devices=devices, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=pool_name)
     else:
         cprint("unknown filesystem:", filesystem)
         quit(1)
 @click.command()
 @click.argument('devices',      required=True, nargs=-1)
 @click.option('--filesystem', is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
-#@click.option('--start',     is_flag=False, required=False, type=str, default='100MiB')
-#@click.option('--end',       is_flag=False, required=False, type=str, default='100%')
 @click.option('--force',      is_flag=True,  required=False)
 @click.option('--exclusive',  is_flag=True,  required=False)
 @click.option('--raid',       is_flag=False, required=True, type=click.Choice(RAID_LIST))
+@click.option('--raid-group-size',       is_flag=False, required=True, type=int)
 @click.option('--pool-name',  is_flag=False, required=False, type=str)
 def main(devices, filesystem, force, exclusive, raid):
-    write_sysfs_partition(devices=devices, filesystem=filesystem, force=force, exclusive=exclusive, raid=raid)
+    write_sysfs_partition(devices=devices, filesystem=filesystem, force=force, exclusive=exclusive, raid=raid, raid_group_size=raid_group_size)
 
 if __name__ == '__main__':
     main()

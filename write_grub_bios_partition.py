@@ -12,7 +12,7 @@ from kcl.command import run_command
 from write_gpt import write_gpt
 
 def write_grub_bios_partition(device, force, start, end, partition_number):
-    cprint("creating grub_bios partition on:", device + partition_number)
+    cprint("creating grub_bios partition on device:", device, "partition_number:", partition_number, "start:", start, "end:", end)
     assert not device[-1].isdigit()
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)
@@ -26,7 +26,7 @@ def write_grub_bios_partition(device, force, start, end, partition_number):
         time.sleep(5)
 
     #run_command("parted " + device + " --align optimal --script -- mkpart primary " + start + ' ' + end)
-    run_command("parted " + device + " --script -- mkpart primary " + start + ' ' + end)
+    run_command("parted " + device + " --align minimal --script -- mkpart primary " + start + ' ' + end)
     run_command("parted " + device + " --script -- name " + partition_number + " BIOSGRUB")
     run_command("parted " + device + " --script -- set " + partition_number + " bios_grub on")
 
@@ -48,10 +48,6 @@ def write_grub_bios_partition(device, force, start, end, partition_number):
 
 @click.command()
 @click.option('--device', is_flag=False, required=True)
-#@click.option('--start',  is_flag=False, required=False, type=str, default='1MiB')
-#@click.option('--end',    is_flag=False, required=False, type=str, default='2MiB') #was 3MiB
-#@click.option('--start',  is_flag=False, required=False, type=str, default='48s')
-#@click.option('--end',    is_flag=False, required=False, type=str, default='1MiB') #was 3MiB
 @click.option('--start',  is_flag=False, required=True, type=str)
 @click.option('--end',    is_flag=False, required=True, type=str)
 @click.option('--partition_number',    is_flag=False, required=True, type=str)

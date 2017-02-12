@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import os
 import sys
 import click
@@ -14,8 +13,8 @@ from write_sysfs_partition import write_sysfs_partition
 from kcl.printops import cprint
 from gentoo_setup_globals import RAID_LIST
 
-def create_root_device(devices, partition_table, filesystem, force, exclusive, raid):
-    cprint("installing gentoo on root devices:", ' '.join(devices), '(' + partition_table + ')', '(' + filesystem + ')')
+def create_root_device(devices, partition_table, filesystem, force, exclusive, raid, raid_group_size, pool_name=False):
+    cprint("installing gentoo on root devices:", ' '.join(devices), '(' + partition_table + ')', '(' + filesystem + ')', '(', pool_name, ')')
     for device in devices:
         assert not device[-1].isdigit()
         assert path_is_block_special(device)
@@ -34,16 +33,13 @@ def create_root_device(devices, partition_table, filesystem, force, exclusive, r
         if filesystem != 'zfs':
             destroy_block_device_head_and_tail(device=device, force=True)
             write_gpt(device, no_wipe=True, force=force, no_backup=False) #zfs does this on it's own, feed it a blank disk
-        #cprint("making exclusive root device:", device)
-        #start = '0'
-        #end = '100%'
     else:
         pass
-        #cprint("making 3rd partition root device:", device)
-        #start = '100MiB'
-        #end = '100%'
 
-    write_sysfs_partition(devices=devices, force=True, exclusive=exclusive, filesystem=filesystem, raid=raid, pool_name=pool_name)
+    if pool_name:
+        write_sysfs_partition(devices=devices, force=True, exclusive=exclusive, filesystem=filesystem, raid=raid, pool_name=pool_name, raid_group_size=raid_group_size)
+    else:
+        write_sysfs_partition(devices=devices, force=True, exclusive=exclusive, filesystem=filesystem, raid=raid, raid_group_size=raid_group_size)
 
 @click.command()
 @click.argument('devices',         required=True, nargs=-1)
@@ -52,22 +48,12 @@ def create_root_device(devices, partition_table, filesystem, force, exclusive, r
 @click.option('--force',           is_flag=True,  required=False)
 @click.option('--exclusive',       is_flag=True,  required=False)
 @click.option('--raid',            is_flag=False, required=True, type=click.Choice(RAID_LIST))
+@click.option('--raid-group-size', is_flag=False, required=True, type=int)
 @click.option('--pool-name',       is_flag=False, required=False, type=str)
 def main(devices, partition_table, filesystem, force, exclusive, raid, pool_name):
-    create_root_device(devices=devices, partition_table=partition_table, filesystem=filesystem, force=force, exclusive=exclusive, raid=raid, pool_name=pool_name)
+    create_root_device(devices=devices, partition_table=partition_table, filesystem=filesystem, force=force, exclusive=exclusive, raid=raid, raid_group_size=raid_group_size, pool_name=pool_name)
 
 if __name__ == '__main__':
     main()
     quit(0)
 
-#boot_partition_command = "parted " + boot_device + " --script -- mkpart primary 200MiB 331MiB"
-#run_command(boot_partition_command)
-#set_boot_name_command = "parted " + boot_device + " --script -- name 2 grub"
-#run_command(set_boot_name_command)
-#command = "mkfs.ext4 " + boot_device + "2"
-#run_command(command)
-
-#set_boot_on_command = "parted " + boot_device + " --script -- set 2 boot on"
-#run_command(set_boot_on_command)
-#root_partition_boot_flag_command = "parted " + boot_device + " --script -- set 2 boot on"
-#run_command(root_partition_boot_flag_command)

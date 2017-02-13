@@ -30,7 +30,8 @@ def create_boot_device(device, partition_table, filesystem, force):
         cprint("Sleeping 5 seconds")
         time.sleep(5)
 
-    #destroy_block_device_head_and_tail(device=device, force=True) # dont do this here, want to be able to let zfs make the gpt and it's partitions before making bios_grub and EFI
+    # dont do this here, want to be able to let zfs make the gpt and it's partitions before making bios_grub and EFI
+    #destroy_block_device_head_and_tail(device=device, force=True)
 
     if partition_table == 'gpt':
         if filesystem != 'zfs':

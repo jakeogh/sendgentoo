@@ -78,8 +78,6 @@ def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_
 
     cprint("installing gentoo on boot device:", boot_device, '(' + boot_device_partition_table + ')', '(' + boot_filesystem + ')')
     assert path_is_block_special(boot_device)
-    #umount_command = "/home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh"
-    #run_command(umount_command)
     assert not block_special_path_is_mounted(boot_device)
     cprint("installing gentoo on root device(s):", root_devices, '(' + root_device_partition_table + ')', '(' + root_filesystem + ')')
     for device in root_devices:
@@ -87,7 +85,7 @@ def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_
         assert not block_special_path_is_mounted(device)
 
     assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
-    cprint("using C standard library:", c_std_lib)
+    cprint("using C library:", c_std_lib)
     cprint("hostname:", hostname)
 
     for device in root_devices:
@@ -127,7 +125,7 @@ def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_
 
         elif boot_filesystem == 'ext4':
             destroy_block_device_head_and_tail(device, force=True)
-            create_boot_device(device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True)
+            create_boot_device(device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True) # writes gurb_bios from 48s to 1023s then writes EFI partition from 1024s to 18047s
             create_root_device(devices=root_devices, exclusive=False, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=hostname)
             root_mount_command = "mount " + root_devices[0] + "3 /mnt/gentoo"
             boot_mount_command = False

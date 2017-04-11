@@ -452,7 +452,7 @@ install_pkg app-cdr/cdrtools
 #lspci | grep -i nvidia | grep -i vga && install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
 install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
 
-/home/cfg/_myapps/replace-text/replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1
+grep noclear /etc/inittab || { /home/cfg/_myapps/replace-text/replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1 ; }
 
 #echo "vm.overcommit_memory=2"   >> /etc/sysctl.conf
 #echo "vm.overcommit_ratio=100"  >> /etc/sysctl.conf

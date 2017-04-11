@@ -27,7 +27,7 @@ test -d /mnt/gentoo/usr/local/portage || { mkdir -p /mnt/gentoo/usr/local/portag
 
 echo "cp -ar /home/cfg /mnt/gentoo/home/"
 #time cp -ar /home/cfg /mnt/gentoo/home/ || exit 1
-time (cd /home && tar zcf - cfg ) | pv -trabT -B 600M | (cd /mnt/gentoo/home && tar zxpSf - )
+time (cd /home && tar --one-file-system -z -c -f - cfg ) | pv -trabT -B 600M | (cd /mnt/gentoo/home && tar zxpSf - )
 
 #test -h /mnt/gentoo/boot/vmlinuz || { cp -af /boot/* /mnt/gentoo/boot/ || exit 1 ; }
 
@@ -44,9 +44,13 @@ env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l -c "su - -c '/home/
 
 eclean-pkg -d #remove outdated binary packages before cp
 
-umount /mnt/gentoo/usr/portage && cp -avr /usr/portage/packages /mnt/gentoo/usr/portage/ && mkdir /mnt/gentoo/usr/portage/distfiles && cp /usr/portage/distfiles/*stage3* /mnt/gentoo/usr/portage/distfiles/
+#umount /mnt/gentoo/usr/portage && cp -avr /usr/portage/packages /mnt/gentoo/usr/portage/ && mkdir /mnt/gentoo/usr/portage/distfiles && cp -ar /usr/portage /mnt/gentoo/usr/portage
+umount /mnt/gentoo/usr/portage && cp -ar /usr/portage /mnt/gentoo/usr/
 
 /home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh
-/home/cfg/setup/gentoo_installer/gpart_make_hybrid_mbr.sh
+/home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh
+/home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh
+/home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh
+/home/cfg/setup/gentoo_installer/gpart_make_hybrid_mbr.sh "${boot_device}"
 
 echo "gentoo install complete! might need to fix grub.cfg"

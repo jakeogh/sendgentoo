@@ -2,7 +2,7 @@
 #import os
 import click
 #import time
-from kcl.time import timestamp
+from kcl.timeops import timestamp
 
 def backup_byte_range(device, start, end, note):
     #print("backup_byte_range()")

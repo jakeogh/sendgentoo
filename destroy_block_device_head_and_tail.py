@@ -47,7 +47,7 @@ def zero_byte_range(device, start, end, no_backup, note):
         dfh.seek(start)
         dfh.write(bytearray(bytes_to_zero))
 
-def destroy_block_device_head_and_tail(device, size=(1024*1024*128), note=False, force=False, no_backup=False):
+def destroy_block_device_head_and_tail(device, size=(512), note=False, force=False, no_backup=False):
     #run_command("sgdisk --zap-all " + device) #alt method
     #cprint("destroy_block_device_head_and_tail()")
     #cprint("no_backup:", no_backup)
@@ -70,7 +70,7 @@ def destroy_block_device_head_and_tail(device, size=(1024*1024*128), note=False,
 
 @click.command()
 @click.option('--device', is_flag=False, required=True)
-@click.option('--size',   is_flag=False, required=False, type=int, default=(1024*1024*128))
+@click.option('--size',   is_flag=False, required=False, type=int, default=(512))
 @click.option('--note',   is_flag=False, required=False)
 @click.option('--force',  is_flag=True,  required=False)
 @click.option('--no-backup', is_flag=True,  required=False)

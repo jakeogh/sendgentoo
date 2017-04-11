@@ -7,25 +7,23 @@ test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 
 install_pkg_force_compile()
 {
-        echo "entering install_pkg()" > /dev/stderr
-        echo "install_pkg() got args: $@" > /dev/stderr
-        #emerge --usepkgonly --tree -u --ask n -n "$@" > /dev/stderr || exit 1
-        emerge --tree -u --ask n -n $@ > /dev/stderr || exit 1
+        echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
+        emerge -pv     --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
+        emerge --quiet --tree --usepkg=n -u --ask n -n $@ > /dev/stderr || exit 1
 }
 
 install_pkg()
 {
-        #echo "entering install_pkg()" > /dev/stderr
         echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
-        #emerge --usepkgonly --tree -u --ask n -n "$@" > /dev/stderr || exit 1
-        emerge --usepkg --tree -u --ask n -n $@ > /dev/stderr || exit 1
+        emerge -pv     --tree --usepkg    -u --ask n -n $@ > /dev/stderr
+        emerge --quiet --tree --usepkg    -u --ask n -n $@ > /dev/stderr || exit 1
 }
 
 emerge_world()
 {
-        echo "entering emerge_world()" > /dev/stderr
-        #emerge --usepkgonly --tree -u --ask n -n "$@" > /dev/stderr || exit 1
-        emerge --backtrack=130 --usepkg --tree -u --ask n -n world > /dev/stderr || exit 1
+        echo "emerge_world()" > /dev/stderr
+        emerge -pv     --backtrack=130 --usepkg --tree -u --ask n -n world > /dev/stderr
+        emerge --quiet --backtrack=130 --usepkg --tree -u --ask n -n world > /dev/stderr || exit 1
 }
 
 queue_emerge()
@@ -62,14 +60,13 @@ install_xorg()
     install_pkg xf86-input-mouse   # works with mdev
     install_pkg xf86-input-evdev   # mouse/kbd for eudev
     #install_pkg slock #Setting caps 'cap_dac_override,cap_setgid,cap_setuid,cap_sys_resource=ep' on file '/usr/bin/slock' failed usage: filecap
-    install_pkg xnee
     install_pkg xterm xlsfonts xfontsel xfd xtitle lsx xbindkeys
-    install_pkg xorg-x11
+    #install_pkg xorg-x11 #isnt this a dep?
     install_pkg redshift xdpyinfo wmctrl
     install_pkg x11-misc/xclip xev mesa-progs xdotool
     install_pkg dmenu
     install_pkg xbindkeys xautomation xvkbd xsel
-    install_pkg xnee
+    install_pkg xnee xkeycaps
     install_pkg xfontsel terminus-font xlsfonts liberation-fonts
     install_pkg xfd lsw
 #    install_pkg sympy #boost craps # failed to create symbolic link '/var/tmp/portage/dev-libs/boost-1.63.0/temp/libpython2.7.so': Permission denied # ERROR: dev-libs/boost-1.63.0::gentoo failed (install phase)
@@ -78,36 +75,24 @@ install_xorg()
     install_pkg xpyb
     install_pkg python-xlib
     install_pkg qtile
-    install_pkg xkeycaps
     install_pkg feh
-    install_pkg kdiff3
+    #install_pkg gimp #angry about PYTHON_SINGLE_TARGET not being 2.7
+    install_pkg app-misc/evtest              #better than xev
+    install_pkg kde-misc/kdiff3
     install_pkg x11-misc/vdpauinfo
-    install_pkg evtest              #better than xev
     install_pkg app-admin/keepassx
-    install_pkg_force_compile exiv2 #temp to fix imagemagic
+    #install_pkg_force_compile exiv2 #temp to fix imagemagic
     install_pkg media-gfx/imagemagick #not linking
-
-    #iridb deps added to ebuild
-    #install_pkg cssselect           #iridb
-    #install_pkg dev-python/yapsy    #iridb
-    #install_pkg dev-python/sh       #iridb
-    #install_pkg werkzeug            #iridb
-    #install_pkg lxml                #iridb
-    #install_pkg colorama            #iridb
-    #install_pkg argh                #iridb
-    #install_pkg sqlalchemy          #iridb
-
     install_pkg sci-electronics/xoscope
-    install_pkg qemu
-    install_pkg virt-manager
-    install_pkg app-emulation/virt-viewer
+    install_pkg app-emulation/qemu
+    #install_pkg virt-manager
+    #install_pkg app-emulation/virt-viewer #unhappy about PYTHON_SINGLE_TARGET being 3.4
     install_pkg iridb
     install_pkg mpv
     install_pkg youtube-dl
-    install_pkg gimp
-    install_pkg pdftk
+    install_pkg app-text/pdftk
     install_pkg app-mobilephone/dfu-util #to flash bootloaders
-    install_pkg tigervnc
+    install_pkg net-misc/tigervnc
 
     #CAN Bus Stuff
     install_pkg net-misc/socketcand
@@ -157,7 +142,8 @@ env-update && source /etc/profile || exit 1
 echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
 locale-gen    #hm, musl does not need this? dont fail here for uclibc or musl
 echo "LC_COLLATE=\"C\"" >> /etc/env.d/02collate
-echo "US/Arizona" > /etc/timezone
+echo "US/Arizona" > /etc/timezone # not /etc/localtime, the next line does that
+emerge --config timezone-data
 
 cores=`grep processor /proc/cpuinfo | wc -l`
 echo "MAKEOPTS=\"-j${cores}\"" > /etc/portage/makeopts.conf
@@ -186,10 +172,14 @@ echo "<=app-portage/layman-2.0.0-r3" >> /etc/portage/package.mask/layman
 #sleep 10
 #echo "USE=\"$USE -pcre\"" >> /etc/portage/make.conf #todo fix later. perl sux
 #echo "USE=\"$USE -perl\"" >> /etc/portage/make.conf #todo fix later. perl sux
-emerge -1 --usepkg=n dev-libs/icu
+gcc-config x86_64-pc-linux-gnu-5.4.0 || exit 1
+source /etc/profile
+emerge --oneshot sys-devel/libtool
+emerge world --newuse
+
+#emerge -1 --usepkg=n dev-libs/icu
 emerge @preserved-rebuild
 perl-cleaner --all
-emerge world --newuse
 emerge layman --usepkg --tree --backtrack=130 --verbose-conflicts  # pulls in git
 
 cat /etc/layman/layman.cfg | grep -v check_official > /etc/layman/layman.cfg.new
@@ -207,6 +197,7 @@ chmod +x /home/cfg/setup/symlink_tree #this depends on kcl
 /home/cfg/setup/symlink_tree /home/cfg/sysskel/ || exit 1
 /home/cfg/git/configure_git_global
 
+#bug way too late but depends on replace-text which depends on kcl which depends on layman
 #if musl is getting used, CHOST must be changed #bug, this is needs to split into it's own conf
 if [[ "${stdlib}" == "musl" ]];
 then
@@ -225,8 +216,6 @@ else
     exit 1
 fi
 
-
-
 if [[ "${stdlib}" == "musl" ]];
 then
     layman -a musl || exit 1
@@ -234,13 +223,8 @@ then
 fi
 
 install_pkg dev-vcs/git # need this for any -9999 packages (zfs)
-
-gcc-config x86_64-pc-linux-gnu-5.4.0 || exit 1
-source /etc/profile && emerge --oneshot sys-devel/libtool
-
 emerge @preserved-rebuild # good spot to do this as a bunch of flags just changed
 emerge @world --newuse --usepkg
-
 
 #install kernel and update symlink (via use flag)
 install_pkg --quiet-build=n hardened-sources || exit 1
@@ -255,7 +239,6 @@ grep "CONFIG_FB_EFI is not set" /usr/src/linux/.config && { echo "Rebuild the ke
 
 if [[ "${zfs_module_mode}" == "module" ]];
 then
-
     #cd /usr/src/linux && make menuconfig && make -j"${cores}" && make install && make modules_install || exit 1
     cd /usr/src/linux && make oldconfig && make -j"${cores}" && make install && make modules_install || exit 1
     #USE="${USE} -kernel-builtin" emerge spl zfs zfs-kmod
@@ -292,6 +275,7 @@ install_pkg_force_compile spl || exit 1
 install_pkg_force_compile zfs || exit 1
 install_pkg_force_compile zfs-kmod || exit 1
 rc-update add zfs-mount boot || exit 1
+install_pkg gradm #required for gentoo-hardened RBAC
 
 #echo '''GRUB_PLATFORMS="pc efi-32 efi-64"''' >> /etc/portage/make.conf #not sure why needed, but causes probls on musl
 #echo '''GRUB_PLATFORMS="pc"''' >> /etc/portage/make.conf #not sure why needed, but causes probls on musl
@@ -376,7 +360,6 @@ mkdir /mnt/sdo1 /mnt/sdo2 /mnt/sdo3
 mkdir /mnt/xvdi1 /mnt/xvdj1
 mkdir /mnt/loop /mnt/samba /mnt/dvd /mnt/cdrom
 
-echo "US/Arizona" > /etc/localtime
 install_pkg netdate
 /home/cfg/time/set_time_via_ntp
 
@@ -403,29 +386,6 @@ rc-update add syslog-ng default
 install_pkg dhcpcd
 install_pkg cpio    #for better-initramfs
 
-#fix ocaml and unison
-#/bin/cp -v /home/cfg/setup/gentoo_installer/portage_overlay/ocaml/*.patch   /usr/portage/dev-lang/ocaml/files/
-#/bin/cp -v /home/cfg/setup/gentoo_installer/portage_overlay/ocaml/*.ebuild  /usr/portage/dev-lang/ocaml/
-#ebuild /usr/portage/dev-lang/ocaml/ocaml-4.02.3.ebuild manifest
-#
-#/bin/cp -v /home/cfg/setup/gentoo_installer/portage_overlay/unison/*.patch  /usr/portage/net-misc/unison/files/
-#/bin/cp -v /home/cfg/setup/gentoo_installer/portage_overlay/unison/*.c  /usr/portage/net-misc/unison/files/ || exit 1
-#/bin/cp -v /home/cfg/setup/gentoo_installer/portage_overlay/unison/*.ebuild /usr/portage/net-misc/unison/
-#ebuild /usr/portage/net-misc/unison/unison-2.48.3.ebuild manifest
-#
-#/bin/cp -v /home/cfg/setup/gentoo_installer/portage_overlay/parted/*.patch  /usr/portage/sys-block/parted/files/
-#/bin/cp -v /home/cfg/setup/gentoo_installer/portage_overlay/parted/*.ebuild /usr/portage/sys-block/parted/
-#ebuild /usr/portage/sys-block/parted/parted-3.2.ebuild manifest
-#
-#mkdir /usr/portage/sys-apps/hwinfo/files/
-#/bin/cp -v /home/cfg/setup/gentoo_installer/portage_overlay/hwinfo/*.patch  /usr/portage/sys-apps/hwinfo/files/
-#/bin/cp -v /home/cfg/setup/gentoo_installer/portage_overlay/hwinfo/*.ebuild /usr/portage/sys-apps/hwinfo/
-#ebuild /usr/portage/sys-apps/hwinfo/hwinfo-21.4.ebuild manifest
-#
-#mkdir /usr/portage/sys-apps/lshw/files/
-#/bin/cp -v /home/cfg/setup/gentoo_installer/portage_overlay/lshw/*.patch  /usr/portage/sys-apps/lshw/files/
-#/bin/cp -v /home/cfg/setup/gentoo_installer/portage_overlay/lshw/*.ebuild /usr/portage/sys-apps/lshw/
-#ebuild /usr/portage/sys-apps/lshw/lshw-02.16b-r2.ebuild manifest
 
 MAKEOPTS="-j1" emerge --usepkg unison
 ln -s /usr/bin/unison-2.48 /usr/bin/unison
@@ -444,68 +404,51 @@ rc-update add dnsmasq default
 install_pkg dnsproxy
 rc-update add dnsproxy default
 
-install_pkg gradm #required for gentoo-hardened RBAC
-
 install_pkg eix #setup/linux:install_pkg() needs this
 eix-update
 
 install_pkg moreutils # vidir
-install_pkg dev-util/strace
-install_pkg dev-util/ltrace
-install_pkg iw
+install_pkg dev-util/strace dev-util/ltrace
+install_pkg iw wpa_supplicant
 install_pkg linux-firmware
-install_pkg wpa_supplicant
-install_pkg htop
-install_pkg sudo
-install_pkg vim
-install_pkg nmap
+install_pkg htop iotop sudo vim
+install_pkg nmap tcpdump
 install_pkg pydf
-install_pkg click #python arg parser
-#install_pkg requests #dep for dnsgate, iridb. added to ebuilds
+#install_pkg click #python arg parser, should be a dep by now...
 install_pkg sys-apps/usbutils # for lsusb
 install_pkg psutil # python system info library
-install_pkg parted
+install_pkg parted pyparted
 install_pkg multipath-tools # unhappy on musl
-install_pkg cryptsetup
-install_pkg pyparted
-install_pkg hexedit
-install_pkg ncdu
-install_pkg app-text/tree
+install_pkg cryptsetup hexedit
+install_pkg ncdu app-text/tree
 install_pkg dosfstools #mkfs.vfat for uefi partition
 install_pkg pv
 install_pkg app-crypt/gnupg
 install_pkg dev-util/dirdiff
-install_pkg tmux
-install_pkg gentoolkit
-install_pkg tcpdump
-install_pkg smartmontools   #to get HD sn's
-install_pkg gentoolkit       #equery
+install_pkg tmux app-misc/mc
+install_pkg app-portage/gentoolkit #equery
+install_pkg sys-apps/smartmontools   #to get HD sn's
 install_pkg timer_entropyd  #ssh-keygen
 install_pkg hwinfo  # for checking avail kms modes and detecting video cards
-install_pkg lshw    # fixed for musl
+install_pkg lshw lsof
 install_pkg pfl     # e-file like qpkg for files that are in portage
 install_pkg patchutils # combinediff
 install_pkg libbsd # strlcpy https://en.wikibooks.org/wiki/C_Programming/C_Reference/nonstandard/strlcpy
-install_pkg lsof
-install_pkg iotop
 install_pkg debugedit
 install_pkg gptfdisk #gdisk sgdisk cgdisk
-install_pkg gpart # partition disaster recovery tool
-install_pkg app-misc/mc
-install_pkg ddrescue
-install_pkg dd-rescue
+install_pkg sys-block/gpart # partition disaster recovery tool
+install_pkg ddrescue dd-rescue
 install_pkg python-gnupg
 install_pkg vbindiff
 install_pkg colordiff
-install_pkg unrar
-install_pkg p7zip
+install_pkg app-arch/unrar app-arch/p7zip app-arch/rzip
 install_pkg libisoburn # xorriso
-install_pkg expect # to script gdisk
-install_pkg di
-install_pkg hdparm
-install_pkg iozone
-install_pkg minicom
-install_pkg app-misc/screen
+install_pkg dev-tcltk/expect # to script gdisk
+install_pkg sys-block/di
+install_pkg sys-apps/hdparm
+install_pkg app-benchmarks/iozone
+install_pkg net-dialup/minicom
+#install_pkg app-misc/screen #Can't locate Locale/Messages.pm in @INC
 
 #failing
 #install_pkg net-wireless/bluez #bluetooth
@@ -513,33 +456,20 @@ install_pkg app-misc/screen
 #install_pkg net-wireless/bluez-hcidump
 #install_pkg dev-python/pybluez
 
-
-
-
-install_pkg grc #colorizer for cmds
-install_pkg acpi
+install_pkg app-misc/grc #colorizer for cmds
+install_pkg sys-power/acpi
 install_pkg net-wireless/wireless-tools
 install_pkg dev-python/sh
-install_pkg nfs-utils
+install_pkg net-fs/nfs-utils
 install_pkg app-backup/bup
-install_pkg sshuttle
+install_pkg net-proxy/sshuttle
 install_pkg sys-apps/kexec-tools #kernel crash dumping
 #install_pkg links #fails - media-libs/mesa-17.0.3 (Change USE: -vaapi)
 install_pkg app-misc/byobu #screen/tmux manager
 install_pkg app-admin/ccze # to make ctail(byobu) happy
-install_pkg distcc
-install_pkg rzip
-install_pkg www-client/lynx # for alot
+install_pkg sys-devel/distcc
 install_pkg app-cdr/nrg2iso
 install_pkg net-ftp/tftp-hpa
-#alot deps moved into ebuild
-#install_pkg app-crypt/gpgme #for alot
-#install_pkg dev-python/pygpgme #for alot
-#install_pkg dev-python/configobj # for alot
-#install_pkg dev-python/python-magic # for alot
-#install_pkg dev-python/twisted # for alot
-#install_pkg dev-python/urwidtrees # for alot
-#install_pkg notmuch # for alot
 #install_pkg dev-python/pudb # nice python debugger (terminal)
 
 #install_pkg gpgmda
@@ -547,23 +477,21 @@ chown root:mail /var/spool/mail/
 chmod 03775 /var/spool/mail/
 
 install_pkg net-misc/whois
-install_pkg www-client/w3m
-install_pkg www-client/elinks
+install_pkg www-client/w3m www-client/elinks
 install_pkg sys-apps/most
 #install_pkg rust
 install_pkg sys-fs/simple-mtpfs
-install_pkg sqlalchemy
-install_pkg httplib2
-install_pkg psycopg
+#install_pkg sqlalchemy # iridb dep in ebuild
+#install_pkg httplib2 # iridb dep in ebuild
+install_pkg dev-python/psycopg
 perl-cleaner modules # needed to avoid XML::Parser... configure: error
 perl-cleaner --reallyall
-install_pkg pgadmin3 #webkit problem
-echo "this is not supposed to ask for confirmation:"
-emerge --config --ask=n dev-db/postgresql
-#install_pkg postgresql
-#postgres psql template1 -c 'create extension hstore;'
+install_pkg pgadmin3
+#echo "this is not supposed to ask for confirmation:"
+test -f /var/lib/postgresql/9.6/data/PG_VERSION || emerge --config --ask=n dev-db/postgresql
+/etc/init.d/postgresql-9.6 start
 sudo su postgres -c "psql template1 -c 'create extension hstore;'"
-sudo su postgres -c "psql -U postgres -c 'CREATE EXTENSION adminpack;'" #makes pgadmin happy
+sudo su postgres -c "psql -U postgres -c 'create extension adminpack;'" #makes pgadmin happy
 #sudo su postgres -c "psql template1 -c 'create extension uint;'"
 install_pkg pydot
 install_pkg subversion
@@ -573,12 +501,14 @@ install_pkg dnsgate
 install_pkg weechat
 #install_pkg pylint #broken
 install_pkg dev-vcs/tig #text interface for git
-install_pkg app-text/pandoc #doc processing, txt to pdf and everything else under the sun
-install_pkg dev-python/beautifulsoup
+
+# forever compile time
+#install_pkg app-text/pandoc #doc processing, txt to pdf and everything else under the sun
+
+#install_pkg dev-python/beautifulsoup # should be a dep
 install_pkg app-cdr/cdrtools
-lspci | grep -i nvidia | grep -i vga && install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
-#emerge_world
-#/bin/sh
+#lspci | grep -i nvidia | grep -i vga && install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
+install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
 
 /home/cfg/_myapps/replace-text/replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1
 
@@ -607,25 +537,16 @@ else
 fi
 
 test -e /boot/vmlinuz && { echo "removing old vmlinuz symlink" ; rm /boot/vmlinuz ; }
-
 ls -al /boot/vmlinuz-"${kernel_version}"
 ln -s -r /boot/vmlinuz-"${kernel_version}" /boot/vmlinuz
 
-#chown -R user:user /home/user
-#chmod -R u+rw /home/user
-chown root:root /etc/sudoers
-
+/home/cfg/setup/fix_cfg_perms
 
 mkdir /root/repos
 cd /root/repos
 git clone https://github.com/mrichar1/clipster.git
 cd clipster
 cp clipster /usr/local/bin
-
-
-#git clone https://github.com/jakeogh/replace-text.git
-#chmod +x /root/repos/replace-text/replace-text
-#popd
 
 install_xorg
 #install_pkg gqrx

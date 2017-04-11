@@ -51,6 +51,6 @@ umount /mnt/gentoo/usr/portage && cp -ar /usr/portage /mnt/gentoo/usr/
 /home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh
 /home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh
 /home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh
-/home/cfg/setup/gentoo_installer/gpart_make_hybrid_mbr.sh "${boot_device}"
+/home/cfg/setup/gentoo_installer/gpart_make_hybrid_mbr.sh "${boot_device}" #would be nice to do this earlier
 
 echo "gentoo install complete! might need to fix grub.cfg"

@@ -42,7 +42,7 @@ echo "Entering chroot"
 env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l -c "su - -c '/home/cfg/setup/gentoo_installer/gentoo_setup_post_chroot.sh ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem}'" || { echo "gentoo_setup_post_chroot.sh exited $?" ; exit 1 ; }
 #chroot /mnt/gentoo /bin/bash -c "su - -c '/bin/bash'"
 
-eclean-pkg -d #remove outdated binary packages before cp
+#eclean-pkg -d #remove outdated binary packages before cp #hm, deletes stuff it shouldnt...
 
 #umount /mnt/gentoo/usr/portage && cp -avr /usr/portage/packages /mnt/gentoo/usr/portage/ && mkdir /mnt/gentoo/usr/portage/distfiles && cp -ar /usr/portage /mnt/gentoo/usr/portage
 umount /mnt/gentoo/usr/portage && cp -ar /usr/portage /mnt/gentoo/usr/

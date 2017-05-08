@@ -57,11 +57,11 @@ queue_emerge()
 
 install_xorg()
 {
-    #install_pkg slock #Setting caps 'cap_dac_override,cap_setgid,cap_setuid,cap_sys_resource=ep' on file '/usr/bin/slock' failed usage: filecap
+    install_pkg slock #Setting caps 'cap_dac_override,cap_setgid,cap_setuid,cap_sys_resource=ep' on file '/usr/bin/slock' failed usage: filecap
     install_pkg xf86-input-mouse xf86-input-evdev  # works with mdev mouse/kbd for eudev
     install_pkg xterm xlsfonts xfontsel xfd xtitle lsx redshift xdpyinfo wmctrl x11-misc/xclip xev mesa-progs xdotool dmenu xbindkeys xautomation xvkbd xsel xnee xkeycaps xfontsel terminus-font xlsfonts liberation-fonts xfd lsw evtest
     install_pkg gv xclock xpyb python-xlib qtile feh
-    #install_pkg gimp #angry about PYTHON_SINGLE_TARGET not being 2.7
+    install_pkg gimp
     install_pkg kde-misc/kdiff3 x11-misc/vdpauinfo app-admin/keepassx
     install_pkg media-gfx/imagemagick sci-electronics/xoscope app-emulation/qemu
     #install_pkg virt-manager
@@ -70,14 +70,17 @@ install_xorg()
     install_pkg mpv youtube-dl app-text/pdftk
     install_pkg app-mobilephone/dfu-util #to flash bootloaders
     install_pkg net-misc/tigervnc
+    install_pkg rdesktop
+    install_pkg transmission
+    install_pkg ipython
 
     #CAN Bus Stuff
     install_pkg net-misc/socketcand cantoolz
     #install_pkg net-misc/caringcaribou
     #busmaster
     #install_pkg pulseview #logic analyzer
-    #install_pkg sys-firmware/sigrok-firmware-fx2lafw
-    #install_pkg gqrx
+    install_pkg sys-firmware/sigrok-firmware-fx2lafw
+    install_pkg gqrx
     #emerge_world
 }
 
@@ -104,8 +107,6 @@ echo "root:cayenneground~__" | chpasswd
 echo "chmod +x /home/cfg/sysskel/etc/local.d/*"
 chmod +x /home/cfg/sysskel/etc/local.d/*
 
-exit 0
-
 eselect python set --python3 python3.4
 eselect python set python3.4
 eselect python list
@@ -113,7 +114,6 @@ eselect profile list
 
 mkdir /poolz3_8x5TB_A
 #mkdir /etc/portage/repos.conf #make this is layman is getting installed or not
-#install_pkg net-misc/curl #only needed with custom FETCHCOMMAND
 
 echo "hostname=\"${hostname}\"" > /etc/conf.d/hostname
 env-update && source /etc/profile || exit 1
@@ -146,8 +146,7 @@ echo "FEATURES=\"parallel-fetch splitdebug buildpkg\"" >> /etc/portage/make.conf
 
 
 echo "<=app-portage/layman-2.0.0-r3" >> /etc/portage/package.mask/layman
-#equery depgraph layman
-#sleep 10
+
 #echo "USE=\"$USE -pcre\"" >> /etc/portage/make.conf #todo fix later. perl sux
 #echo "USE=\"$USE -perl\"" >> /etc/portage/make.conf #todo fix later. perl sux
 gcc-config x86_64-pc-linux-gnu-5.4.0 || exit 1
@@ -158,7 +157,8 @@ emerge world --newuse
 #emerge -1 --usepkg=n dev-libs/icu
 emerge @preserved-rebuild
 perl-cleaner --all
-emerge layman --usepkg --tree --backtrack=130 --verbose-conflicts  # pulls in git
+#emerge layman --usepkg --tree --backtrack=130 --verbose-conflicts  # pulls in git
+install_pkg layman
 
 cat /etc/layman/layman.cfg | grep -v check_official > /etc/layman/layman.cfg.new
 mv /etc/layman/layman.cfg.new /etc/layman/layman.cfg
@@ -173,7 +173,8 @@ emerge -u -1 portage
 
 #echo "=dev-python/kcl-0.0.1 ~amd64" >> /etc/portage/package.accept_keywords
 install_pkg psutil #hm temp
-install_pkg_force_compile kcl #seems the binary didnt pull the deps?
+#install_pkg_force_compile kcl #seems the binary didnt pull the deps?
+install_pkg kcl
 
 chmod +x /home/cfg/setup/symlink_tree #this depends on kcl
 /home/cfg/setup/symlink_tree /home/cfg/sysskel/ || exit 1
@@ -282,6 +283,11 @@ else
     echo -e 'PARTUUID='`/home/cfg/linux/disk/blkid/PARTUUID_root_device` '\t/' '\text4' '\tnoatime' '\t0' '\t1' >> /etc/fstab
 fi
 
+cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
+mkdir /mnt/t420s_160GB_intel_ssd_SSDSA2M160G2LE
+mkdir /mnt/t420s_160GB_kingston_ssd_SNM225
+mkdir /mnt/t420s_2TB_seagate
+
 ln -sf /proc/self/mounts /etc/mtab
 #touch /etc/mtab
 
@@ -368,7 +374,8 @@ install_pkg dhcpcd
 install_pkg cpio    #for better-initramfs
 
 
-MAKEOPTS="-j1" emerge --usepkg unison
+#MAKEOPTS="-j1" emerge --usepkg unison
+install_pkg unison
 ln -s /usr/bin/unison-2.48 /usr/bin/unison
 
 if [[ "${stdlib}" == "musl" ]];
@@ -385,7 +392,7 @@ rc-update add dnsmasq default
 install_pkg dnsproxy
 rc-update add dnsproxy default
 
-install_pkg eix #setup/linux:install_pkg() needs this
+install_pkg eix
 eix-update
 
 install_pkg moreutils # vidir
@@ -403,6 +410,7 @@ install_pkg sys-block/gpart ddrescue dd-rescue python-gnupg vbindiff colordiff a
 install_pkg libisoburn # xorriso
 install_pkg dev-tcltk/expect # to script gdisk
 install_pkg sys-block/di sys-apps/hdparm app-benchmarks/iozone net-dialup/minicom
+install_pkg sshfs
 #install_pkg app-misc/screen #Can't locate Locale/Messages.pm in @INC
 
 #failing
@@ -419,8 +427,11 @@ install_pkg app-misc/byobu #screen/tmux manager
 install_pkg app-admin/ccze # to make ctail(byobu) happy
 install_pkg sys-devel/distcc app-cdr/nrg2iso net-ftp/tftp-hpa
 #install_pkg dev-python/pudb # nice python debugger (terminal)
+install_pkg testdisk
+install_pkg sys-fs/extundelete
 
 #install_pkg gpgmda
+emerge --onlydeps gpgmda
 chown root:mail /var/spool/mail/ #invalid group
 chmod 03775 /var/spool/mail/
 
@@ -433,15 +444,17 @@ install_pkg dev-python/psycopg
 perl-cleaner modules # needed to avoid XML::Parser... configure: error
 perl-cleaner --reallyall
 install_pkg pgadmin3
-#echo "this is not supposed to ask for confirmation:"
-test -f /var/lib/postgresql/9.6/data/PG_VERSION || emerge --config --ask=n dev-db/postgresql
-/etc/init.d/postgresql-9.6 start
-sudo su postgres -c "psql template1 -c 'create extension hstore;'"
-sudo su postgres -c "psql -U postgres -c 'create extension adminpack;'" #makes pgadmin happy
-#sudo su postgres -c "psql template1 -c 'create extension uint;'"
-install_pkg pydot paps #txt to pdf
+##echo "this is not supposed to ask for confirmation:" but it still does. commenting out
+#test -f /var/lib/postgresql/9.6/data/PG_VERSION || emerge --config --ask=n dev-db/postgresql
+pg_version=`/home/cfg/postgresql/get_version`
+rc-update add `postgresql-${pg_version}` default
+#/etc/init.d/postgresql-9.6 start
+#sudo su postgres -c "psql template1 -c 'create extension hstore;'"
+#sudo su postgres -c "psql -U postgres -c 'create extension adminpack;'" #makes pgadmin happy
+##sudo su postgres -c "psql template1 -c 'create extension uint;'"
+install_pkg pydot #paps #txt to pdf
 install_pkg ranpwd dnsgate weechat
-#install_pkg pylint #broken
+install_pkg pylint
 install_pkg dev-vcs/tig #text interface for git
 
 # forever compile time

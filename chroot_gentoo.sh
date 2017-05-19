@@ -44,8 +44,20 @@ env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l -c "su - -c '/home/
 
 #eclean-pkg -d #remove outdated binary packages before cp #hm, deletes stuff it shouldnt...
 
-#umount /mnt/gentoo/usr/portage && cp -avr /usr/portage/packages /mnt/gentoo/usr/portage/ && mkdir /mnt/gentoo/usr/portage/distfiles && cp -ar /usr/portage /mnt/gentoo/usr/portage
-umount /mnt/gentoo/usr/portage && cp -ar /usr/portage /mnt/gentoo/usr/
+umount /mnt/gentoo/usr/portage || exit 1
+portage_size=`du -s /usr/portage | cut -f 1`
+portage_size_plus_15_pct=`python -c "print(int($portage_size*1.15))"`
+
+mnt_gentoo_free=`/bin/df | egrep "/mnt/gentoo$" | ~/cfg/text/collapse_whitespace | cut -d ' ' -f 4`
+
+if [[ "${mnt_gentoo_free}" -gt "${portage_size_plus_15_pct}" ]];
+then
+    cp -ar /usr/portage /mnt/gentoo/usr/
+else
+    echo "mnt_gentoo_free: ${mnt_gentoo_free}"
+    echo "portage_size_plus_15_pct: ${portage_size_plus_15_pct}"
+    echo "skipping /usr/portage copy"
+fi
 
 /home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh
 /home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh

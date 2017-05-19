@@ -5,6 +5,8 @@ test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 
 #musl: http://distfiles.gentoo.org/experimental/amd64/musl/HOWTO
 
+#spark: https://github.com/holman/spark.git
+
 install_pkg_force_compile()
 {
         echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
@@ -15,15 +17,15 @@ install_pkg_force_compile()
 install_pkg()
 {
         echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
-        emerge -pv     --tree --usepkg    -u --ask n -n $@ > /dev/stderr
-        emerge --quiet --tree --usepkg    -u --ask n -n $@ > /dev/stderr || exit 1
+        emerge -pv     --tree --usepkg=y    -u --ask n -n $@ > /dev/stderr
+        emerge --quiet --tree --usepkg=y    -u --ask n -n $@ > /dev/stderr || exit 1
 }
 
 emerge_world()
 {
         echo "emerge_world()" > /dev/stderr
-        emerge -pv     --backtrack=130 --usepkg --tree -u --ask n -n world > /dev/stderr
-        emerge --quiet --backtrack=130 --usepkg --tree -u --ask n -n world > /dev/stderr || exit 1
+        emerge -pv     --backtrack=130 --usepkg=y --tree -u --ask n -n world > /dev/stderr
+        emerge --quiet --backtrack=130 --usepkg=y --tree -u --ask n -n world > /dev/stderr || exit 1
 }
 
 queue_emerge()
@@ -207,10 +209,10 @@ fi
 
 install_pkg dev-vcs/git # need this for any -9999 packages (zfs)
 emerge @preserved-rebuild # good spot to do this as a bunch of flags just changed
-emerge @world --newuse --usepkg
+emerge @world --quiet-build=y --newuse --usepkg=y
 
 #install kernel and update symlink (via use flag)
-install_pkg --quiet-build=n hardened-sources || exit 1
+install_pkg hardened-sources || exit 1
 #mv /usr/src/linux/.config /usr/src/linux/.config.orig # hardened-sources was jut emerged, so there is no .config yet
 test -h /usr/src/linux/.config || ln -s /usr/src/linux_configs/.config /usr/src/linux/.config
 #cp /usr/src/linux_configs/.config /usr/src/linux/.config
@@ -262,6 +264,7 @@ install_pkg gradm #required for gentoo-hardened RBAC
 #echo '''GRUB_PLATFORMS="pc efi-32 efi-64"''' >> /etc/portage/make.conf #not sure why needed, but causes probls on musl
 #echo '''GRUB_PLATFORMS="pc"''' >> /etc/portage/make.conf #not sure why needed, but causes probls on musl
 install_pkg grub:2 || exit 1
+install_pkg memtest86+ # do before generating grub.conf
 install_pkg hexedit
 #echo '''USE="$USE device-mapper"'''        >> /etc/portage/make.conf
 
@@ -307,7 +310,6 @@ genkernel initramfs --no-clean --no-mountboot --zfs || exit 1
 
 grub-mkconfig -o /boot/grub/grub.cfg || exit 1
 grub-mkconfig -o /root/chroot_grub.cfg || exit 1
-#/bin/sh
 
 #test -d /boot/efi/EFI/BOOT || { mkdir /boot/efi/EFI/BOOT || exit 1 ; }
 #cp -v /boot/efi/EFI/gentoo/grubx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI || exit 1 # grub does this via --removable
@@ -373,7 +375,6 @@ rc-update add syslog-ng default
 install_pkg dhcpcd
 install_pkg cpio    #for better-initramfs
 
-
 #MAKEOPTS="-j1" emerge --usepkg unison
 install_pkg unison
 ln -s /usr/bin/unison-2.48 /usr/bin/unison
@@ -411,6 +412,7 @@ install_pkg libisoburn # xorriso
 install_pkg dev-tcltk/expect # to script gdisk
 install_pkg sys-block/di sys-apps/hdparm app-benchmarks/iozone net-dialup/minicom
 install_pkg sshfs
+install_pkg syslinux #isohybrid
 #install_pkg app-misc/screen #Can't locate Locale/Messages.pm in @INC
 
 #failing

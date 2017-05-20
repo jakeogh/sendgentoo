@@ -53,6 +53,7 @@ mnt_gentoo_free=`/bin/df | egrep "/mnt/gentoo$" | ~/cfg/text/collapse_whitespace
 if [[ "${mnt_gentoo_free}" -gt "${portage_size_plus_15_pct}" ]];
 then
     cp -ar /usr/portage /mnt/gentoo/usr/
+    du -sh /mnt/gentoo/usr/portage
 else
     echo "mnt_gentoo_free: ${mnt_gentoo_free}"
     echo "portage_size_plus_15_pct: ${portage_size_plus_15_pct}"

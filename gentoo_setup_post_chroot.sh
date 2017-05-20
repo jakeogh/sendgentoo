@@ -62,7 +62,10 @@ install_xorg()
     install_pkg slock #Setting caps 'cap_dac_override,cap_setgid,cap_setuid,cap_sys_resource=ep' on file '/usr/bin/slock' failed usage: filecap
     install_pkg xf86-input-mouse xf86-input-evdev  # works with mdev mouse/kbd for eudev
     install_pkg xterm xlsfonts xfontsel xfd xtitle lsx redshift xdpyinfo wmctrl x11-misc/xclip xev mesa-progs xdotool dmenu xbindkeys xautomation xvkbd xsel xnee xkeycaps xfontsel terminus-font xlsfonts liberation-fonts xfd lsw evtest
-    install_pkg gv xclock xpyb python-xlib qtile feh
+    install_pkg gv xclock xpyb python-xlib
+    install_pkf qtile dev-python/pygobject #temp qtile dep
+    install_pkg feh
+    install_pkg xmodmap
     install_pkg gimp
     install_pkg kde-misc/kdiff3 x11-misc/vdpauinfo app-admin/keepassx
     install_pkg media-gfx/imagemagick sci-electronics/xoscope app-emulation/qemu
@@ -75,6 +78,7 @@ install_xorg()
     install_pkg rdesktop
     install_pkg transmission
     install_pkg ipython
+    install_pkg x11-misc/clipster
 
     #CAN Bus Stuff
     install_pkg net-misc/socketcand cantoolz
@@ -212,6 +216,7 @@ emerge @preserved-rebuild # good spot to do this as a bunch of flags just change
 emerge @world --quiet-build=y --newuse --usepkg=y
 
 #install kernel and update symlink (via use flag)
+export KCONFIG_OVERWRITECONFIG=1 # https://www.mail-archive.com/lede-dev@lists.infradead.org/msg07290.html
 install_pkg hardened-sources || exit 1
 #mv /usr/src/linux/.config /usr/src/linux/.config.orig # hardened-sources was jut emerged, so there is no .config yet
 test -h /usr/src/linux/.config || ln -s /usr/src/linux_configs/.config /usr/src/linux/.config
@@ -457,6 +462,7 @@ rc-update add `postgresql-${pg_version}` default
 install_pkg pydot #paps #txt to pdf
 install_pkg ranpwd dnsgate weechat
 install_pkg pylint
+install_pkg dev-util/splint # c checker
 install_pkg dev-vcs/tig #text interface for git
 
 # forever compile time
@@ -498,12 +504,6 @@ ls -al /boot/vmlinuz-"${kernel_version}"
 ln -s -r /boot/vmlinuz-"${kernel_version}" /boot/vmlinuz
 
 /home/cfg/setup/fix_cfg_perms
-
-mkdir /root/repos
-cd /root/repos
-git clone https://github.com/mrichar1/clipster.git
-cd clipster
-cp clipster /usr/local/bin
 
 install_xorg
 

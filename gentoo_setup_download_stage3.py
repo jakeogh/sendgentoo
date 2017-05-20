@@ -22,9 +22,9 @@ def download_file(url):
     r.close()
     return local_filename
 
-def download_stage3(c_std_lib, url=False):
+def download_stage3(c_std_lib, multilib, url=False):
     if not url:
-        url = get_stage3_url(c_std_lib)
+        url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib)
     cprint("url:", url)
     stage3_file = download_file(url)
     download_file(url+'.CONTENTS')
@@ -34,8 +34,9 @@ def download_stage3(c_std_lib, url=False):
 
 @click.command()
 @click.option('--c-std-lib', is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']), help=HELP)
+@click.option('--multilib', is_flag=True, required=False, help=HELP)
 def main(c_std_lib):
-    download_stage3(c_std_lib)
+    download_stage3(c_std_lib=c_std_lib, multilib=multilib)
     #url = get_stage3_url(c_std_lib)
     #cprint(url)
     #download_file(url)

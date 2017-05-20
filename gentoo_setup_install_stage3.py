@@ -13,12 +13,12 @@ from kcl.printops import cprint
 
 HELP="temp"
 
-def install_stage3(c_std_lib):
+def install_stage3(c_std_lib, multilib):
     os.chdir('/mnt/gentoo')
     assert os.getcwd() == '/mnt/gentoo'
     assert path_is_mounted('/mnt/gentoo')
-    url = get_stage3_url(c_std_lib)
-    stage3_file = download_stage3(c_std_lib, url=url)
+    url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib)
+    stage3_file = download_stage3(c_std_lib=c_std_lib, multilib=multilib, url=url)
     assert file_exists(stage3_file)
     gpg = gnupg.GPG(verbose=True)
     #import_result = gpg.recv_keys('keyserver.ubuntu.com', '0x2D182910')
@@ -30,8 +30,9 @@ def install_stage3(c_std_lib):
 
 @click.command()
 @click.option('--c-std-lib', is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']), help=HELP)
+@click.option('--multilib', is_flag=True, required=False, help=HELP)
 def main(c_std_lib):
-    install_stage3(c_std_lib)
+    install_stage3(c_std_lib=c_std_lib, multilib=multilib)
 
 if __name__ == '__main__':
     main()

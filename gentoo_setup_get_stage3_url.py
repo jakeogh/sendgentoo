@@ -18,11 +18,14 @@ def download_file(url):
         cprint("skipping download, file exists:", local_filename)
     r.close()
 
-def get_stage3_url(c_std_lib):
+def get_stage3_url(c_std_lib, multilib):
     #mirror = 'http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/'
     mirror = 'http://gentoo.osuosl.org/releases/amd64/autobuilds/'
     if c_std_lib == 'glibc':
-        latest = 'latest-stage3-amd64-hardened+nomultilib.txt'
+        if not multilib:
+            latest = 'latest-stage3-amd64-hardened+nomultilib.txt'
+        else:
+            latest = 'latest-stage3-amd64-hardened.txt'
     if c_std_lib == 'musl':
         latest = ''
         cprint("cant use musl yet")
@@ -48,8 +51,9 @@ def get_stage3_url(c_std_lib):
 
 @click.command()
 @click.option('--c-std-lib', is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']), help=HELP)
+@click.option('--multilib', is_flag=True, required=False, help=HELP)
 def main(c_std_lib):
-    url = get_stage3_url(c_std_lib)
+    url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib)
     cprint(url)
     #download_file(url)
 

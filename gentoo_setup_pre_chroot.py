@@ -42,7 +42,8 @@ def get_file_size(filename):
 @click.option('--hostname',                    is_flag=False, required=True)
 @click.option('--force',                       is_flag=True,  required=False)
 @click.option('--encrypt',                     is_flag=True,  required=False)
-def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, raid, raid_group_size, march, hostname, force, encrypt):
+@click.option('--multilib',                    is_flag=True,  required=False)
+def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, raid, raid_group_size, march, hostname, force, encrypt, multilib):
 
     if not os.path.isdir('/usr/portage/distfiles'):
         os.makedirs('/usr/portage/distfiles')
@@ -169,7 +170,7 @@ def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_
 
     #run_command("mount " + boot_device + "2 /mnt/gentoo/boot/efi")
     run_command(efi_mount_command)
-    install_stage3(c_std_lib)
+    install_stage3(c_std_lib=c_std_lib, multilib=multilib)
 
     if march == 'native':
         chroot_gentoo_command = "/home/cfg/setup/gentoo_installer/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' native' + ' ' + root_filesystem

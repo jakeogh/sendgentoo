@@ -8,10 +8,10 @@ from kcl.fileops import block_special_path_is_mounted
 from kcl.command import run_command
 from gentoo_setup_globals import RAID_LIST
 from kcl.iterops import grouper
-from kcl.printops import cprint
+from kcl.printops import eprint
 
 def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_point='none', alt_root=False):
-    cprint("make_zfs_filesystem_on_devices()")
+    eprint("make_zfs_filesystem_on_devices()")
 
     # https://raw.githubusercontent.com/ryao/zfs-overlay/master/zfs-install
     run_command("modprobe zfs || exit 1")
@@ -41,11 +41,11 @@ def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_poin
         if raid_group_size == 2: # striped mirror raid10
             for pair in grouper(devices, 2):
                 device_string = device_string + "mirror " + pair[0] + ' ' + pair[1] + ' '
-                cprint("device_string:", device_string)
+                eprint("device_string:", device_string)
         elif raid_group_size == 4:
             for quad in grouper(devices, 4):
                 device_string = device_string + "mirror " + quad[0] + ' ' + quad[1] + ' ' + quad[2] + ' ' + quad[3] + ' '
-                cprint("device_string:", device_string)
+                eprint("device_string:", device_string)
         else:
             print("unknown mode")
             quit(1)

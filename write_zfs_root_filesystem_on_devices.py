@@ -8,10 +8,10 @@ from kcl.fileops import block_special_path_is_mounted
 from kcl.command import run_command
 from gentoo_setup_globals import RAID_LIST
 from kcl.iterops import grouper
-from kcl.printops import cprint
+from kcl.printops import eprint
 
 def write_zfs_root_filesystem_on_devices(devices, force, raid, raid_group_size, pool_name, mount_point='/mnt/gentoo'):
-    cprint("make_zfs_filesystem_on_devices()")
+    eprint("make_zfs_filesystem_on_devices()")
 
     # https://raw.githubusercontent.com/ryao/zfs-overlay/master/zfs-install
     run_command("modprobe zfs || exit 1")
@@ -41,7 +41,7 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid, raid_group_size, 
     if len(devices) > 2:
         for pair in grouper(devices, raid_group_size):
             device_string = device_string + "mirror " + pair[0] + ' ' + pair[1] + ' '
-            cprint("device_string:", device_string)
+            eprint("device_string:", device_string)
     assert device_string != ''
 
     assert len(pool_name) > 2

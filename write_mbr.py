@@ -5,21 +5,21 @@ import click
 import time
 from kcl.fileops import path_is_block_special
 from kcl.fileops import block_special_path_is_mounted
-from kcl.printops import cprint
+from kcl.printops import eprint
 from kcl.command import run_command
 from destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
 
 def write_mbr(device, no_wipe, force, no_backup):
-    cprint("writing MBR to:", device)
+    eprint("writing MBR to:", device)
     assert not device[-1].isdigit()
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)
     if not force:
-        cprint("THIS WILL DESTROY ALL DATA ON:", device, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
+        eprint("THIS WILL DESTROY ALL DATA ON:", device, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
         answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")
         if answer != 'YES':
             quit(1)
-        cprint("Sleeping 5 seconds")
+        eprint("Sleeping 5 seconds")
         time.sleep(5)
     if not no_wipe:
         destroy_block_device_head_and_tail(device=device, force=force, no_backup=no_backup)

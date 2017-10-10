@@ -4,12 +4,12 @@ import requests
 import click
 import sys
 from gentoo_setup_get_stage3_url import get_stage3_url
-from kcl.printops import cprint
+from kcl.printops import eprint
 
 HELP="temp"
 
 def download_file(url):
-    cprint("downloading:", url)
+    eprint("downloading:", url)
     local_filename = '/usr/portage/distfiles/' + url.split('/')[-1]
     r = requests.get(url, stream=True)
     try:
@@ -18,14 +18,14 @@ def download_file(url):
                 if chunk:
                     fh.write(chunk)
     except FileExistsError:
-        cprint("skipping download, file exists:", local_filename)
+        eprint("skipping download, file exists:", local_filename)
     r.close()
     return local_filename
 
 def download_stage3(c_std_lib, multilib, url=False):
     if not url:
         url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib)
-    cprint("url:", url)
+    eprint("url:", url)
     stage3_file = download_file(url)
     download_file(url+'.CONTENTS')
     download_file(url+'.DIGESTS')
@@ -38,12 +38,12 @@ def download_stage3(c_std_lib, multilib, url=False):
 def main(c_std_lib):
     download_stage3(c_std_lib=c_std_lib, multilib=multilib)
     #url = get_stage3_url(c_std_lib)
-    #cprint(url)
+    #eprint(url)
     #download_file(url)
 
 if __name__ == '__main__':
     main()
-    #cprint("url:", url)
+    #eprint("url:", url)
 
 
 #cd /mnt/gentoo || exit 1

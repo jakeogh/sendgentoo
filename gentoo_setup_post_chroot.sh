@@ -4,7 +4,6 @@ usage="stdlib boot_device hostname cflags root_filesystem"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 
 #musl: http://distfiles.gentoo.org/experimental/amd64/musl/HOWTO
-
 #spark: https://github.com/holman/spark.git
 
 install_pkg_force_compile()
@@ -57,38 +56,42 @@ queue_emerge()
         done
 }
 
-install_xorg()
-{
-    install_pkg slock #Setting caps 'cap_dac_override,cap_setgid,cap_setuid,cap_sys_resource=ep' on file '/usr/bin/slock' failed usage: filecap
-    install_pkg xf86-input-mouse xf86-input-evdev  # works with mdev mouse/kbd for eudev
-    install_pkg xterm xlsfonts xfontsel xfd xtitle lsx redshift xdpyinfo wmctrl x11-misc/xclip xev mesa-progs xdotool dmenu xbindkeys xautomation xvkbd xsel xnee xkeycaps xfontsel terminus-font xlsfonts liberation-fonts xfd lsw evtest
-    install_pkg gv xclock xpyb python-xlib
-    install_pkf qtile dev-python/pygobject #temp qtile dep
-    install_pkg feh
-    install_pkg xmodmap
-    install_pkg gimp
-    install_pkg kde-misc/kdiff3 x11-misc/vdpauinfo app-admin/keepassx
-    install_pkg media-gfx/imagemagick sci-electronics/xoscope app-emulation/qemu
-    #install_pkg virt-manager
-    #install_pkg app-emulation/virt-viewer #unhappy about PYTHON_SINGLE_TARGET being 3.4
-    install_pkg iridb
-    install_pkg mpv youtube-dl app-text/pdftk
-    install_pkg app-mobilephone/dfu-util #to flash bootloaders
-    install_pkg net-misc/tigervnc
-    install_pkg rdesktop
-    install_pkg transmission
-    install_pkg ipython
-    install_pkg x11-misc/clipster
+source /home/cfg/setup/gentoo_installer/install_xorg.sh
 
-    #CAN Bus Stuff
-    install_pkg net-misc/socketcand cantoolz
-    #install_pkg net-misc/caringcaribou
-    #busmaster
-    #install_pkg pulseview #logic analyzer
-    install_pkg sys-firmware/sigrok-firmware-fx2lafw
-    install_pkg gqrx
-    #emerge_world
-}
+#install_xorg()
+#{
+#    install_pkg_force_compile slock #Setting caps 'cap_dac_override,cap_setgid,cap_setuid,cap_sys_resource=ep' on file '/usr/bin/slock' failed usage: filecap
+#    install_pkg xf86-input-mouse xf86-input-evdev  # works with mdev mouse/kbd for eudev
+#    install_pkg xterm xlsfonts xfontsel xfd xtitle lsx redshift xdpyinfo wmctrl x11-misc/xclip xev mesa-progs xdotool dmenu xbindkeys xautomation xvkbd xsel xnee xkeycaps xfontsel terminus-font xlsfonts liberation-fonts xfd lsw evtest
+#    install_pkg gv xclock xpyb python-xlib
+#    install_pkg qtile dev-python/pygobject #temp qtile dep
+#    install_pkg feh
+#    install_pkg xmodmap
+#    install_pkg gimp
+#    install_pkg kde-misc/kdiff3 x11-misc/vdpauinfo app-admin/keepassx
+#    install_pkg media-gfx/imagemagick sci-electronics/xoscope app-emulation/qemu
+#    #install_pkg virt-manager
+#    #install_pkg app-emulation/virt-viewer #unhappy about PYTHON_SINGLE_TARGET being 3.4
+#    install_pkg iridb
+#    install_pkg mpv youtube-dl app-text/pdftk
+#    install_pkg app-mobilephone/dfu-util #to flash bootloaders
+#    install_pkg net-misc/tigervnc
+#    install_pkg rdesktop
+#    install_pkg transmission
+#    install_pkg ipython
+#    install_pkg x11-misc/clipster
+#
+#    #CAN Bus Stuff
+#    install_pkg net-misc/socketcand cantoolz
+#    #install_pkg net-misc/caringcaribou
+#    #busmaster
+#    #install_pkg pulseview #logic analyzer
+#    install_pkg sys-firmware/sigrok-firmware-fx2lafw
+#    #install_pkg gqrx #fails on gnuradio
+#    #emerge_world
+#    install_pkg openoffice-bin
+#    install_pkg app-text/mupdf
+#}
 
 stdlib="${1}"
 shift
@@ -102,32 +105,26 @@ root_filesystem="${1}"
 shift
 
 zfs_module_mode="module"
-
-timestamp=`date +%s`
-echo "calling: source /etc/profile"
-source /etc/profile
+env-update || exit 1
+source /etc/profile || exit 1
 export PS1="(chroot) $PS1"
-echo "setting passwd inside new chroot"
+
+#here down is stuff that might not need to run every time
+# ---- begin run once, critical stuff ----
+
 echo "root:cayenneground~__" | chpasswd
-
-echo "chmod +x /home/cfg/sysskel/etc/local.d/*"
 chmod +x /home/cfg/sysskel/etc/local.d/*
-
 eselect python set --python3 python3.4
 eselect python set python3.4
 eselect python list
 eselect profile list
 
-mkdir /poolz3_8x5TB_A
-#mkdir /etc/portage/repos.conf #make this is layman is getting installed or not
-
 echo "hostname=\"${hostname}\"" > /etc/conf.d/hostname
-env-update && source /etc/profile || exit 1
-echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+egrep "^en_US.UTF-8 UTF-8" /etc/locale.gen || { echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen ; }
 locale-gen    #hm, musl does not need this? dont fail here for uclibc or musl
-echo "LC_COLLATE=\"C\"" >> /etc/env.d/02collate
-echo "US/Arizona" > /etc/timezone # not /etc/localtime, the next line does that
-emerge --config timezone-data
+egrep '''^LC_COLLATE="C"''' /etc/env.d/02collate || { echo "LC_COLLATE=\"C\"" >> /etc/env.d/02collate ; }
+echo "US/Arizona" > /etc/timezone || exit 1 # not /etc/localtime, the next line does that
+emerge --config timezone-data || exit 1
 
 cores=`grep processor /proc/cpuinfo | wc -l`
 echo "MAKEOPTS=\"-j${cores}\"" > /etc/portage/makeopts.conf
@@ -152,6 +149,7 @@ echo "FEATURES=\"parallel-fetch splitdebug buildpkg\"" >> /etc/portage/make.conf
 
 
 echo "<=app-portage/layman-2.0.0-r3" >> /etc/portage/package.mask/layman
+echo "sys-devel/gcc fortran" > /etc/portage/package.use/gcc #otherwise gcc compiles twice
 
 #echo "USE=\"$USE -pcre\"" >> /etc/portage/make.conf #todo fix later. perl sux
 #echo "USE=\"$USE -perl\"" >> /etc/portage/make.conf #todo fix later. perl sux
@@ -174,7 +172,7 @@ layman -L || { /bin/sh ; exit 1 ; }  # get layman trees
 layman -o https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml -f -a jakeogh
 layman -S # update layman trees
 
-emerge -u -1 sandbox
+emerge -u -1 sandbox #why? fails... 
 emerge -u -1 portage
 
 #echo "=dev-python/kcl-0.0.1 ~amd64" >> /etc/portage/package.accept_keywords
@@ -255,9 +253,6 @@ else
 
     cd /usr/src/linux && make -j"${cores}" && make install && make modules_install || exit 1 # again to build-in zfs
 
-    #emerge --oneshot --verbose sys-fs/zfs
-    #rc-update add zfs boot  #for zfs on root # not needed if zfs is built-in
-    # USE="${USE} -kernel-builtin" emerge spl zfs zfs-kmod || exit 1
 fi
 
 install_pkg_force_compile spl || exit 1
@@ -287,7 +282,7 @@ else
     echo "-------------- root_partition: ${root_partition} ---------------------"
     partuuid=`/home/cfg/linux/hardware/disk/blkid/PARTUUID "${root_partition}"`
     echo "GRUB_DEVICE partuuid: ${partuuid}"
-    echo "GRUB_DEVICE=\"PARTUUID=${partuuid}\"" >> /etc/default/grub
+    egrep "^GRUB_DEVICE=\"PARTUUID=${partuuid}\"" /etc/default/grub || { echo "GRUB_DEVICE=\"PARTUUID=${partuuid}\"" >> /etc/default/grub ; }
     echo -e 'PARTUUID='`/home/cfg/linux/disk/blkid/PARTUUID_root_device` '\t/' '\text4' '\tnoatime' '\t0' '\t1' >> /etc/fstab
 fi
 
@@ -295,6 +290,7 @@ cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
 mkdir /mnt/t420s_160GB_intel_ssd_SSDSA2M160G2LE
 mkdir /mnt/t420s_160GB_kingston_ssd_SNM225
 mkdir /mnt/t420s_2TB_seagate
+mkdir /poolz3_8x5TB_A
 
 ln -sf /proc/self/mounts /etc/mtab
 #touch /etc/mtab
@@ -412,12 +408,14 @@ install_pkg hwinfo lshw lsof pfl     # e-file like qpkg for files that are in po
 install_pkg patchutils # combinediff
 install_pkg libbsd # strlcpy https://en.wikibooks.org/wiki/C_Programming/C_Reference/nonstandard/strlcpy
 install_pkg debugedit gptfdisk #gdisk sgdisk cgdisk
-install_pkg sys-block/gpart ddrescue dd-rescue python-gnupg vbindiff colordiff app-arch/unrar app-arch/p7zip app-arch/rzip
+install_pkg sys-block/gpart ddrescue dd-rescue python-gnupg vbindiff colordiff app-arch/unrar app-arch/p7zip app-arch/rzip app-arch/zip
 install_pkg libisoburn # xorriso
 install_pkg dev-tcltk/expect # to script gdisk
 install_pkg sys-block/di sys-apps/hdparm app-benchmarks/iozone net-dialup/minicom
 install_pkg sshfs
 install_pkg syslinux #isohybrid
+install_pkg rdiff-backup
+install_pkg app-portage/repoman #gentoo dev
 #install_pkg app-misc/screen #Can't locate Locale/Messages.pm in @INC
 
 #failing
@@ -436,9 +434,10 @@ install_pkg sys-devel/distcc app-cdr/nrg2iso net-ftp/tftp-hpa
 #install_pkg dev-python/pudb # nice python debugger (terminal)
 install_pkg testdisk
 install_pkg sys-fs/extundelete
-
-#install_pkg gpgmda
-emerge --onlydeps gpgmda
+install_pkg net-fs/cifs-utils net-fs/samba
+install_pkg sys-devel/gdb dev-util/splint # c checker
+install_pkg gpgmda
+#emerge --onlydeps --quiet --tree --usepkg=y -u --ask n -n gpgmda
 chown root:mail /var/spool/mail/ #invalid group
 chmod 03775 /var/spool/mail/
 
@@ -454,17 +453,30 @@ install_pkg pgadmin3
 ##echo "this is not supposed to ask for confirmation:" but it still does. commenting out
 #test -f /var/lib/postgresql/9.6/data/PG_VERSION || emerge --config --ask=n dev-db/postgresql
 pg_version=`/home/cfg/postgresql/get_version`
-rc-update add `postgresql-${pg_version}` default
+rc-update add "postgresql-${pg_version}" default
 #/etc/init.d/postgresql-9.6 start
 #sudo su postgres -c "psql template1 -c 'create extension hstore;'"
 #sudo su postgres -c "psql -U postgres -c 'create extension adminpack;'" #makes pgadmin happy
 ##sudo su postgres -c "psql template1 -c 'create extension uint;'"
-install_pkg pydot #paps #txt to pdf
+install_pkg pydot paps #txt to pdf
 install_pkg ranpwd dnsgate weechat
 install_pkg pylint
-install_pkg dev-util/splint # c checker
+install_pkg dev-util/shellcheck
 install_pkg dev-vcs/tig #text interface for git
-
+install_pkg sys-fs/squashfs-tools
+install_pkg sys-power/acpid
+install_pkg sys-process/glances
+install_pkg net-firewall/firehol
+install_pkg media-libs/netpbm
+install_pkg dev-python/pyinotify # predictit api
+install_pkg dev-python/pandas #data analysis
+install_pkg sci-libs/scikits_learn
+install_pkg sys-fs/inotify-tools
+install_pkg media-libs/exiftool
+install_pkg net-dns/bind-tools #dig
+install_pkg net-misc/telnet-bsd
+install_pkg app-text/html2text
+install_pkg dev-python/dnspython #python dns lib
 # forever compile time
 #install_pkg app-text/pandoc #doc processing, txt to pdf and everything else under the sun
 
@@ -486,11 +498,10 @@ rc-update add gpm default   #console mouse support
 
 install_pkg alsa-utils #alsamixer
 rc-update add alsasound boot
+install_pkg media-plugins/alsaequal
 
 # /home/cfg/setup/gentoo_installer/gentoo_setup_post_chroot_build_initramfs
 
-#test -e /boot/grub/grub.cfg && mv /boot/grub/grub.cfg /boot/grub/grub.cfg."${timestamp}"
-#cp /home/cfg/setup/gentoo_installer/grub.cfg /boot/grub/grub.cfg || echo "unable to copy grub.cfg!"
 
 if [[ -d '/usr/src/linux/.git' ]];
 then
@@ -504,6 +515,6 @@ ls -al /boot/vmlinuz-"${kernel_version}"
 ln -s -r /boot/vmlinuz-"${kernel_version}" /boot/vmlinuz
 
 /home/cfg/setup/fix_cfg_perms
-
+/home/cfg/git/configure_git_global
 install_xorg
 

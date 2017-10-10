@@ -10,11 +10,11 @@ from kcl.command import run_command
 from destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
 from write_gpt import write_gpt
 from write_sysfs_partition import write_sysfs_partition
-from kcl.printops import cprint
+from kcl.printops import eprint
 from gentoo_setup_globals import RAID_LIST
 
 def create_root_device(devices, partition_table, filesystem, force, exclusive, raid, raid_group_size, pool_name=False):
-    cprint("installing gentoo on root devices:", ' '.join(devices), '(' + partition_table + ')', '(' + filesystem + ')', '(', pool_name, ')')
+    eprint("installing gentoo on root devices:", ' '.join(devices), '(' + partition_table + ')', '(' + filesystem + ')', '(', pool_name, ')')
     for device in devices:
         assert not device[-1].isdigit()
         assert path_is_block_special(device)
@@ -22,11 +22,11 @@ def create_root_device(devices, partition_table, filesystem, force, exclusive, r
 
     assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
     if not force:
-        cprint("THIS WILL DESTROY ALL DATA ON", ' '.join(devices), "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
+        eprint("THIS WILL DESTROY ALL DATA ON", ' '.join(devices), "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
         answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")
         if answer != 'YES':
             quit(1)
-        cprint("Sleeping 5 seconds")
+        eprint("Sleeping 5 seconds")
         time.sleep(5)
 
     if exclusive:

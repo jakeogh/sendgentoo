@@ -8,34 +8,34 @@ from kcl.fileops import path_is_block_special
 from kcl.fileops import block_special_path_is_mounted
 from kcl.fileops import get_file_size
 from backup_byte_range import backup_byte_range
-from kcl.printops import cprint
+from kcl.printops import eprint
 
 def destroy_block_device_head(device, size, no_backup, note):
-    #cprint("destroy_black_device_head()")
-    #cprint("no_backup:", no_backup)
+    #eprint("destroy_black_device_head()")
+    #eprint("no_backup:", no_backup)
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)
     zero_byte_range(device, 0, size, no_backup, note)
 
 def destroy_block_device_tail(device, size, no_backup, note):
-    #cprint("destroy_block_device_tail()")
-    #cprint("no_backup:", no_backup)
+    #eprint("destroy_block_device_tail()")
+    #eprint("no_backup:", no_backup)
     assert size > 0
     device_size = get_file_size(device)
-    #cprint("device_size:", device_size)
+    #eprint("device_size:", device_size)
     assert size <= device_size
     start = device_size - size
-    #cprint("start:       ", start)
+    #eprint("start:       ", start)
     assert start > 0
-    #cprint("bytes to zero:", size)
+    #eprint("bytes to zero:", size)
     end = start + size
     zero_byte_range(device, start, end, no_backup, note)
 
 def zero_byte_range(device, start, end, no_backup, note):
-    #cprint("zero_byte_range()")
-    #cprint("start:", start)
-    #cprint("end:", end)
-    #cprint("no_backup:", no_backup)
+    #eprint("zero_byte_range()")
+    #eprint("start:", start)
+    #eprint("end:", end)
+    #eprint("no_backup:", no_backup)
     assert start >= 0
     assert end > 0
     assert start < end
@@ -49,19 +49,19 @@ def zero_byte_range(device, start, end, no_backup, note):
 
 def destroy_block_device_head_and_tail(device, size=(512), note=False, force=False, no_backup=False):
     #run_command("sgdisk --zap-all " + device) #alt method
-    #cprint("destroy_block_device_head_and_tail()")
-    #cprint("no_backup:", no_backup)
+    #eprint("destroy_block_device_head_and_tail()")
+    #eprint("no_backup:", no_backup)
     assert isinstance(no_backup, bool)
     assert not device[-1].isdigit()
-    cprint("destroying device:", device)
+    eprint("destroying device:", device)
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)
     if not force:
-        cprint("THIS WILL DESTROY ALL DATA ON ", device, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
+        eprint("THIS WILL DESTROY ALL DATA ON ", device, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
         answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")
         if answer != 'YES':
             quit(1)
-        cprint("Sleeping 5 seconds")
+        eprint("Sleeping 5 seconds")
         time.sleep(5)
 
     destroy_block_device_head(device=device, size=size, note=note, no_backup=no_backup)

@@ -8,23 +8,23 @@ from kcl.fileops import path_is_block_special
 from kcl.fileops import block_special_path_is_mounted
 from kcl.fileops import get_file_size
 from backup_byte_range import backup_byte_range
-from kcl.printops import cprint
+from kcl.printops import eprint
 from destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
 
 def destroy_block_devices_head_and_tail(devices, size, note, force, no_backup):
     for device in devices:
         assert isinstance(no_backup, bool)
         assert not device[-1].isdigit()
-        cprint("destroying device:", device)
+        eprint("destroying device:", device)
         assert path_is_block_special(device)
         assert not block_special_path_is_mounted(device)
 
     if not force:
-        cprint("THIS WILL DESTROY ALL DATA ON ", device, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
+        eprint("THIS WILL DESTROY ALL DATA ON ", device, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
         answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")
         if answer != 'YES':
             quit(1)
-        cprint("Sleeping 5 seconds")
+        eprint("Sleeping 5 seconds")
         time.sleep(5)
 
     for device in devices:

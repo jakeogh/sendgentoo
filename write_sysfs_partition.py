@@ -10,11 +10,11 @@ from kcl.fileops import block_special_path_is_mounted
 from kcl.command import run_command
 from write_gpt import write_gpt
 from write_zfs_root_filesystem_on_devices import write_zfs_root_filesystem_on_devices
-from kcl.printops import cprint
+from kcl.printops import eprint
 from gentoo_setup_globals import RAID_LIST
 
 def write_sysfs_partition(devices, force, exclusive, filesystem, raid, raid_group_size, pool_name=False):
-    cprint("creating sysfs partition on:", devices)
+    eprint("creating sysfs partition on:", devices)
 
     if filesystem == 'zfs':
         assert pool_name
@@ -25,11 +25,11 @@ def write_sysfs_partition(devices, force, exclusive, filesystem, raid, raid_grou
         assert not block_special_path_is_mounted(device)
 
     if not force:
-        cprint("THIS WILL DESTROY ALL DATA ON:", devices, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
+        eprint("THIS WILL DESTROY ALL DATA ON:", devices, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
         answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")
         if answer != 'YES':
             quit(1)
-        cprint("Sleeping 5 seconds")
+        eprint("Sleeping 5 seconds")
         time.sleep(5)
 
     if filesystem == 'ext4':
@@ -54,7 +54,7 @@ def write_sysfs_partition(devices, force, exclusive, filesystem, raid, raid_grou
         assert exclusive
         write_zfs_root_filesystem_on_devices(devices=devices, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=pool_name)
     else:
-        cprint("unknown filesystem:", filesystem)
+        eprint("unknown filesystem:", filesystem)
         quit(1)
 @click.command()
 @click.argument('devices',      required=True, nargs=-1)

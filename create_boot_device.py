@@ -12,22 +12,22 @@ from kcl.command import run_command
 from write_gpt import write_gpt
 from write_grub_bios_partition import write_grub_bios_partition
 from write_efi_partition import write_efi_partition
-from kcl.printops import cprint
+from kcl.printops import eprint
 from format_fat16_partition import format_fat16_partition
 
 def create_boot_device(device, partition_table, filesystem, force):
     assert not device[-1].isdigit()
-    cprint("installing gpt/grub/efi on boot device:", device, '(' + partition_table + ')', '(' + filesystem + ')')
+    eprint("installing gpt/grub/efi on boot device:", device, '(' + partition_table + ')', '(' + filesystem + ')')
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)
     assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
 
     if not force:
-        cprint("THIS WILL DESTROY ALL DATA ON", device, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
+        eprint("THIS WILL DESTROY ALL DATA ON", device, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
         answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")
         if answer != 'YES':
             quit(1)
-        cprint("Sleeping 5 seconds")
+        eprint("Sleeping 5 seconds")
         time.sleep(5)
 
     # dont do this here, want to be able to let zfs make the gpt and it's partitions before making bios_grub and EFI

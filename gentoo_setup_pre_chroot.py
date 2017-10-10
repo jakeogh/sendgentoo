@@ -6,8 +6,8 @@ import click
 import time
 import subprocess
 from kcl.fileops import path_is_block_special
-from kcl.fileops import block_special_path_is_mounted
-from kcl.fileops import path_is_mounted
+from kcl.mountops import block_special_path_is_mounted
+from kcl.mountops import path_is_mounted
 from kcl.command import run_command
 from gentoo_setup_install_stage3 import install_stage3
 from destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
@@ -16,7 +16,7 @@ from destroy_block_devices_head_and_tail import destroy_block_devices_head_and_t
 #from write_sysfs_partition import write_sysfs_partition
 from create_boot_device import create_boot_device
 from create_root_device import create_root_device
-from kcl.printops import cprint
+from kcl.printops import eprint
 from write_boot_partition import write_boot_partition
 from format_fat32_partition import format_fat32_partition
 
@@ -49,16 +49,16 @@ def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_
         os.makedirs('/usr/portage/distfiles')
 
     if not os.path.isdir('/usr/portage/sys-kernel'):
-        cprint("run emerge--sync first")
+        eprint("run emerge--sync first")
         quit(1)
     if encrypt:
-        cprint("encryption not yet supported")
+        eprint("encryption not yet supported")
         quit(1)
     if c_std_lib == 'musl':
-        cprint("musl not supported yet")
+        eprint("musl not supported yet")
         quit(1)
     if c_std_lib == 'uclibc':
-        cprint("uclibc fails with efi grub because efivar fails to compile. See Note.")
+        eprint("uclibc fails with efi grub because efivar fails to compile. See Note.")
         quit(1)
 
     if len(root_devices) > 1:
@@ -77,23 +77,23 @@ def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_
     #if raid:
     #    assert root_filesystem == 'zfs'
 
-    cprint("installing gentoo on boot device:", boot_device, '(' + boot_device_partition_table + ')', '(' + boot_filesystem + ')')
+    eprint("installing gentoo on boot device:", boot_device, '(' + boot_device_partition_table + ')', '(' + boot_filesystem + ')')
     assert path_is_block_special(boot_device)
     assert not block_special_path_is_mounted(boot_device)
-    cprint("installing gentoo on root device(s):", root_devices, '(' + root_device_partition_table + ')', '(' + root_filesystem + ')')
+    eprint("installing gentoo on root device(s):", root_devices, '(' + root_device_partition_table + ')', '(' + root_filesystem + ')')
     for device in root_devices:
         assert path_is_block_special(device)
         assert not block_special_path_is_mounted(device)
 
     assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
-    cprint("using C library:", c_std_lib)
-    cprint("hostname:", hostname)
+    eprint("using C library:", c_std_lib)
+    eprint("hostname:", hostname)
 
     for device in root_devices:
-        cprint("boot_device:", boot_device)
-        cprint("device:", device)
-        cprint("get_file_size(boot_device)", get_file_size(boot_device))
-        cprint("get_file_size(device", get_file_size(device))
+        eprint("boot_device:", boot_device)
+        eprint("device:", device)
+        eprint("get_file_size(boot_device)", get_file_size(boot_device))
+        eprint("get_file_size(device", get_file_size(device))
         assert get_file_size(boot_device) <= get_file_size(device)
 
     first_root_device_size = get_file_size(root_devices[0])
@@ -101,11 +101,11 @@ def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_
         assert get_file_size(device) == first_root_device_size
 
     if not force:
-        cprint("THIS WILL DESTROY ALL DATA ON THIS COMPUTER, _REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO DELETE THE DATA ON")
+        eprint("THIS WILL DESTROY ALL DATA ON THIS COMPUTER, _REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO DELETE THE DATA ON")
         answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")
         if answer != 'YES':
             quit(1)
-        cprint("Sleeping 5 seconds")
+        eprint("Sleeping 5 seconds")
         time.sleep(1)
 
     try:
@@ -131,7 +131,7 @@ def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_
             root_mount_command = "mount " + root_devices[0] + "3 /mnt/gentoo"
             boot_mount_command = False
     else:
-        cprint("differing root and boot devices: (exclusive) root_devices[0]:", root_devices[0], "boot_device:", boot_device)
+        eprint("differing root and boot devices: (exclusive) root_devices[0]:", root_devices[0], "boot_device:", boot_device)
         create_boot_device(device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True)
         write_boot_partition(device=boot_device, force=True)
         create_root_device(devices=root_devices, exclusive=True, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid)
@@ -176,7 +176,7 @@ def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_
         chroot_gentoo_command = "/home/cfg/setup/gentoo_installer/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' native' + ' ' + root_filesystem
     elif march == 'nocona':
         chroot_gentoo_command = "/home/cfg/setup/gentoo_installer/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' nocona' + ' ' + root_filesystem
-    cprint("now run:", chroot_gentoo_command)
+    eprint("now run:", chroot_gentoo_command)
     return
 
 if __name__ == '__main__':

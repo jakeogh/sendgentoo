@@ -2,7 +2,7 @@
 import requests
 import click
 import sys
-from kcl.printops import cprint
+from kcl.printops import eprint
 
 HELP="temp"
 
@@ -15,7 +15,7 @@ def download_file(url):
                 if chunk:
                     fh.write(chunk)
     except FileExistsError:
-        cprint("skipping download, file exists:", local_filename)
+        eprint("skipping download, file exists:", local_filename)
     r.close()
 
 def get_stage3_url(c_std_lib, multilib):
@@ -28,24 +28,24 @@ def get_stage3_url(c_std_lib, multilib):
             latest = 'latest-stage3-amd64-hardened.txt'
     if c_std_lib == 'musl':
         latest = ''
-        cprint("cant use musl yet")
+        eprint("cant use musl yet")
         quit(1)
     if c_std_lib == 'uclibc':
         latest = 'latest-stage3-amd64-uclibc-hardened.txt'
-        cprint("uclibc wont compile efivars")
+        eprint("uclibc wont compile efivars")
         quit(1)
     r = requests.get(mirror + latest)
-    cprint(r)
+    eprint(r)
     autobuild_file_lines = r.text.split('\n')
     r.close()
     for line in autobuild_file_lines:
         if 'stage3-amd64' in line:
             path = line.split(' ')[0]
             break
-    #cprint('path:', path)
+    #eprint('path:', path)
     assert 'stage3' in path
     url = mirror + path
-    #cprint("url:", url)
+    #eprint("url:", url)
     return url
 
 
@@ -54,13 +54,13 @@ def get_stage3_url(c_std_lib, multilib):
 @click.option('--multilib', is_flag=True, required=False, help=HELP)
 def main(c_std_lib):
     url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib)
-    cprint(url)
+    eprint(url)
     #download_file(url)
 
 
 if __name__ == '__main__':
     main()
-    #cprint("url:", url)
+    #eprint("url:", url)
 
 
 #cd /mnt/gentoo || exit 1

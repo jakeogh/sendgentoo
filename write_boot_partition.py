@@ -9,20 +9,20 @@ from kcl.fileops import path_is_block_special
 from kcl.fileops import block_special_path_is_mounted
 from kcl.command import run_command
 from write_gpt import write_gpt
-from kcl.printops import cprint
+from kcl.printops import eprint
 
 def write_boot_partition(device, force, partition_number):
-    cprint("creating boot partition  (for grub config, stage2, vmlinuz) on:", device)
+    eprint("creating boot partition  (for grub config, stage2, vmlinuz) on:", device)
     assert not device[-1].isdigit()
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)
 
     if not force:
-        cprint("THIS WILL DESTROY ALL DATA ON:", device, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
+        eprint("THIS WILL DESTROY ALL DATA ON:", device, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
         answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")
         if answer != 'YES':
             quit(1)
-        cprint("Sleeping 5 seconds")
+        eprint("Sleeping 5 seconds")
         time.sleep(5)
 
     partition_number = '3'

@@ -6,7 +6,7 @@ import time
 import click
 import subprocess
 from kcl.fileops import path_is_block_special
-from kcl.fileops import block_special_path_is_mounted
+from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
 from kcl.printops import eprint
 

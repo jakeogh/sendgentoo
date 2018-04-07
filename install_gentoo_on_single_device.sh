@@ -26,6 +26,3 @@ mount | grep "${device}" && { echo "ERROR: device: ${device} appears to be mount
 
 # --force \
 
-
-#/home/cfg/setup/gentoo_installer/gentoo_setup_pre_chroot.py "${@}"
-

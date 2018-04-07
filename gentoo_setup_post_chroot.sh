@@ -404,7 +404,9 @@ install_pkg parted pyparted multipath-tools # unhappy on musl
 install_pkg cryptsetup hexedit ncdu app-text/tree pv dosfstools #mkfs.vfat for uefi partition
 install_pkg app-crypt/gnupg dev-util/dirdiff tmux app-misc/mc app-portage/gentoolkit #equery
 install_pkg sys-apps/smartmontools timer_entropyd  #ssh-keygen
-install_pkg hwinfo lshw lsof pfl     # e-file like qpkg for files that are in portage
+install_pkg hwinfo
+install_pkg sys-apps/lshw
+install_pkg lsof pfl     # e-file like qpkg for files that are in portage
 install_pkg patchutils # combinediff
 install_pkg libbsd # strlcpy https://en.wikibooks.org/wiki/C_Programming/C_Reference/nonstandard/strlcpy
 install_pkg debugedit gptfdisk #gdisk sgdisk cgdisk
@@ -416,6 +418,8 @@ install_pkg sshfs
 install_pkg syslinux #isohybrid
 install_pkg rdiff-backup
 install_pkg app-portage/repoman #gentoo dev
+install_pkg dev-vcs/hub
+install_pkg dev-util/android-tools #adb, fastboot, mkbootimg
 #install_pkg app-misc/screen #Can't locate Locale/Messages.pm in @INC
 
 #failing
@@ -459,6 +463,7 @@ rc-update add "postgresql-${pg_version}" default
 #sudo su postgres -c "psql -U postgres -c 'create extension adminpack;'" #makes pgadmin happy
 ##sudo su postgres -c "psql template1 -c 'create extension uint;'"
 install_pkg pydot paps #txt to pdf
+#install_pkg dev-db/pg_activity #too old to work anymore
 install_pkg ranpwd dnsgate weechat
 install_pkg pylint
 install_pkg dev-util/shellcheck
@@ -477,6 +482,24 @@ install_pkg net-dns/bind-tools #dig
 install_pkg net-misc/telnet-bsd
 install_pkg app-text/html2text
 install_pkg dev-python/dnspython #python dns lib
+install_pkg net-wireless/airtraf
+install_pkg net-wireless/airsnort
+install_pkg net-wireless/kismet
+install_pkg net-wireless/rfcat
+install_pkg net-wireless/aircrack-ng
+install_pkg net-wireless/chirp #radio programming interface
+install_pkg net-wireless/horst
+install_pkg net-misc/wol #wake on lan
+install_pkg sys-block/nbd
+install_pkg app-forensics/memdump
+install_pkg dev-util/diffuse #graphical diff like kdiff3
+install_pkg app-misc/hachoir-urwid # binary file analysis
+install_pkg net-proxy/mitmproxy
+install_pkg sys-firmware/intel-microcode
+install_pkg dev-python/netifaces # for arp scanning
+install_pkg net-analyzer/arp-scan
+install_pkg app-portage/gemato # Manifest gpg portage verification tool: https://github.com/gentoo/portage/commit/d30191b887bb3a3d896c2b8bbf57571e8821b413
+
 # forever compile time
 #install_pkg app-text/pandoc #doc processing, txt to pdf and everything else under the sun
 

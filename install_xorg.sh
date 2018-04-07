@@ -29,6 +29,8 @@ install_xorg()
     install_pkg ipython
     install_pkg x11-misc/clipster
     install_pkg xinput
+    install_pkg x11-apps/xwininfo
+    install_pkg audacity
 
     #CAN Bus Stuff
     install_pkg net-misc/socketcand cantoolz
@@ -36,8 +38,17 @@ install_xorg()
     #busmaster
     #install_pkg pulseview #logic analyzer
     install_pkg sys-firmware/sigrok-firmware-fx2lafw
-    #install_pkg gqrx #fails on gnuradio
+    install_pkg gqrx #fails on gnuradio
     #emerge_world
     install_pkg openoffice-bin
     install_pkg app-text/mupdf
+    install_pkg x11-libs/xosd #osd_cat
+    install_pkg x11-apps/appres
+    install_pkg x11-apps/xrandr #screen rotation
+    install_pkg sci-chemistry/avogadro #molecule drawing
+    install_pkg net-wireless/wpa_supplicant
+    install_pkg net-wireless/aircrack-ng
+    install_pkg net-wireless/wifi-radar
+    install_pkg net-wireless/inspectrum #read sdr capture files
+    install_pkg net-analyzer/wireshark
 }

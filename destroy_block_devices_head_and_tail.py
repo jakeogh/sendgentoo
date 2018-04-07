@@ -5,7 +5,7 @@ import time
 import subprocess
 import sys
 from kcl.fileops import path_is_block_special
-from kcl.fileops import block_special_path_is_mounted
+from kcl.mountops import block_special_path_is_mounted
 from kcl.fileops import get_file_size
 from backup_byte_range import backup_byte_range
 from kcl.printops import eprint

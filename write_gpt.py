@@ -5,7 +5,7 @@ import sys
 import click
 import time
 from kcl.fileops import path_is_block_special
-from kcl.fileops import block_special_path_is_mounted
+from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
 from destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
 from kcl.printops import eprint

@@ -56,42 +56,6 @@ queue_emerge()
         done
 }
 
-source /home/cfg/setup/gentoo_installer/install_xorg.sh
-
-#install_xorg()
-#{
-#    install_pkg_force_compile slock #Setting caps 'cap_dac_override,cap_setgid,cap_setuid,cap_sys_resource=ep' on file '/usr/bin/slock' failed usage: filecap
-#    install_pkg xf86-input-mouse xf86-input-evdev  # works with mdev mouse/kbd for eudev
-#    install_pkg xterm xlsfonts xfontsel xfd xtitle lsx redshift xdpyinfo wmctrl x11-misc/xclip xev mesa-progs xdotool dmenu xbindkeys xautomation xvkbd xsel xnee xkeycaps xfontsel terminus-font xlsfonts liberation-fonts xfd lsw evtest
-#    install_pkg gv xclock xpyb python-xlib
-#    install_pkg qtile dev-python/pygobject #temp qtile dep
-#    install_pkg feh
-#    install_pkg xmodmap
-#    install_pkg gimp
-#    install_pkg kde-misc/kdiff3 x11-misc/vdpauinfo app-admin/keepassx
-#    install_pkg media-gfx/imagemagick sci-electronics/xoscope app-emulation/qemu
-#    #install_pkg virt-manager
-#    #install_pkg app-emulation/virt-viewer #unhappy about PYTHON_SINGLE_TARGET being 3.4
-#    install_pkg iridb
-#    install_pkg mpv youtube-dl app-text/pdftk
-#    install_pkg app-mobilephone/dfu-util #to flash bootloaders
-#    install_pkg net-misc/tigervnc
-#    install_pkg rdesktop
-#    install_pkg transmission
-#    install_pkg ipython
-#    install_pkg x11-misc/clipster
-#
-#    #CAN Bus Stuff
-#    install_pkg net-misc/socketcand cantoolz
-#    #install_pkg net-misc/caringcaribou
-#    #busmaster
-#    #install_pkg pulseview #logic analyzer
-#    install_pkg sys-firmware/sigrok-firmware-fx2lafw
-#    #install_pkg gqrx #fails on gnuradio
-#    #emerge_world
-#    install_pkg openoffice-bin
-#    install_pkg app-text/mupdf
-#}
 
 stdlib="${1}"
 shift
@@ -112,10 +76,12 @@ export PS1="(chroot) $PS1"
 #here down is stuff that might not need to run every time
 # ---- begin run once, critical stuff ----
 
-echo "root:cayenneground~__" | chpasswd
+echo "root:cayenneground~__" | chpasswd  # todo prompt at install time
 chmod +x /home/cfg/sysskel/etc/local.d/*
-eselect python set --python3 python3.4
-eselect python set python3.4
+echo "PYTHON_TARGETS=\"python2_7 python3_6\"" >> /etc/portage/make.conf
+echo "PYTHON_SINGLE_TARGET=\"python3_6\"" >> /etc/portage/make.conf
+eselect python set --python3 python3.6 || exit 1
+eselect python set python3.6 || exit 1
 eselect python list
 eselect profile list
 
@@ -142,21 +108,24 @@ else
     exit 1
 fi
 
-# right here, portage needs to get configured... seems this stuff end sup at the end of the final make.conf
+# right here, portage needs to get configured... this stuff ends up at the end of the final make.conf
 echo "ACCEPT_KEYWORDS=\"~amd64\"" >> /etc/portage/make.conf
 echo "EMERGE_DEFAULT_OPTS=\"--quiet-build=y --tree --nospinner\"" >> /etc/portage/make.conf
 echo "FEATURES=\"parallel-fetch splitdebug buildpkg\"" >> /etc/portage/make.conf
 
+# cfg has not been symlinked yet, so /etc/portage/package.mask does not exist, and this is old anyway
+#echo "<=app-portage/layman-2.0.0-r3" >> /etc/portage/package.mask/layman
 
-echo "<=app-portage/layman-2.0.0-r3" >> /etc/portage/package.mask/layman
 echo "sys-devel/gcc fortran" > /etc/portage/package.use/gcc #otherwise gcc compiles twice
 
 #echo "USE=\"$USE -pcre\"" >> /etc/portage/make.conf #todo fix later. perl sux
 #echo "USE=\"$USE -perl\"" >> /etc/portage/make.conf #todo fix later. perl sux
-gcc-config x86_64-pc-linux-gnu-5.4.0 || exit 1
+# gcc-config x86_64-pc-linux-gnu-5.4.0 || exit 1 # ancient
+
 source /etc/profile
 emerge --oneshot sys-devel/libtool
-emerge world --newuse
+emerge world --newuse  # this could upgrade gcc and take a long time
+gcc-config 2
 
 #emerge -1 --usepkg=n dev-libs/icu
 emerge @preserved-rebuild
@@ -182,6 +151,11 @@ install_pkg kcl
 
 chmod +x /home/cfg/setup/symlink_tree #this depends on kcl
 /home/cfg/setup/symlink_tree /home/cfg/sysskel/ || exit 1
+
+# in case the old make.conf is not using the latest python, really the lines should be grabbed from the stock one in the stage 3
+echo "PYTHON_TARGETS=\"python2_7 python3_6\"" >> /etc/portage/make.conf
+echo "PYTHON_SINGLE_TARGET=\"python3_6\"" >> /etc/portage/make.conf
+
 /home/cfg/git/configure_git_global
 
 #bug way too late but depends on replace-text which depends on kcl which depends on layman
@@ -215,20 +189,23 @@ emerge @world --quiet-build=y --newuse --usepkg=y
 
 #install kernel and update symlink (via use flag)
 export KCONFIG_OVERWRITECONFIG=1 # https://www.mail-archive.com/lede-dev@lists.infradead.org/msg07290.html
-install_pkg hardened-sources || exit 1
-#mv /usr/src/linux/.config /usr/src/linux/.config.orig # hardened-sources was jut emerged, so there is no .config yet
+install_pkg gentoo-sources || exit 1
+#mv /usr/src/linux/.config /usr/src/linux/.config.orig # gentoo-sources was jut emerged, so there is no .config yet
 test -h /usr/src/linux/.config || ln -s /usr/src/linux_configs/.config /usr/src/linux/.config
 #cp /usr/src/linux_configs/.config /usr/src/linux/.config
 cores=`grep processor /proc/cpuinfo | wc -l`
 grep "CONFIG_TRIM_UNUSED_KSYMS is not set" /usr/src/linux/.config || { echo "Rebuild the kernel with CONFIG_TRIM_UNUSED_KSYMS must be =n" ; exit 1 ; }
 grep "CONFIG_FB_EFI is not set" /usr/src/linux/.config && { echo "Rebuild the kernel with CONFIG_FB_EFI=y" ; exit 1 ; }
 
+echo "=sys-kernel/spl-9999 **"  >> /etc/portage/package.accept_keywords
+echo "=sys-fs/zfs-9999 **"      >> /etc/portage/package.accept_keywords
+echo "=sys-fs/zfs-kmod-9999 **" >> /etc/portage/package.accept_keywords
 
 if [[ "${zfs_module_mode}" == "module" ]];
 then
     #cd /usr/src/linux && make menuconfig && make -j"${cores}" && make install && make modules_install || exit 1
     cd /usr/src/linux && make oldconfig && make -j"${cores}" && make install && make modules_install || exit 1
-    #USE="${USE} -kernel-builtin" emerge spl zfs zfs-kmod
+    #USE="${USE} -kernel-builtin" emerge zfs zfs-kmod
 else
     cd /usr/src/linux && make prepare || exit 1
     #cd /usr/src/linux && make -j"${cores}" && make install && make modules_install || exit 1
@@ -236,7 +213,7 @@ else
     grep "CONFIG_SPL=y" /usr/src/linux/.config || { echo "1 why did grep \"CONFIG_SPL=y\" /usr/src/linux/.config exit 1?" ; }
 
     env EXTRA_ECONF='--enable-linux-builtin' ebuild /usr/portage/sys-kernel/spl/spl-9999.ebuild clean configure || exit 1
-    (cd /var/tmp/portage/sys-kernel/spl-9999/work/spl-9999 && ./copy-builtin /usr/src/linux) || exit 1
+    #(cd /var/tmp/portage/sys-kernel/spl-9999/work/spl-9999 && ./copy-builtin /usr/src/linux) || exit 1
     env EXTRA_ECONF='--with-spl=/usr/src/linux --enable-linux-builtin --with-spl-obj=/usr/src/linux' ebuild /usr/portage/sys-fs/zfs-kmod/zfs-kmod-9999.ebuild clean configure || exit 1
     (cd /var/tmp/portage/sys-fs/zfs-kmod-9999/work/zfs-kmod-9999/ && ./copy-builtin /usr/src/linux) || exit 1
 
@@ -255,7 +232,6 @@ else
 
 fi
 
-install_pkg_force_compile spl || exit 1
 install_pkg_force_compile zfs || exit 1
 install_pkg_force_compile zfs-kmod || exit 1
 rc-update add zfs-mount boot || exit 1
@@ -332,8 +308,8 @@ rmdir /etc/portage/package.mask
 chmod +x /etc/local.d/export_cores.start
 /etc/local.d/export_cores.start
 
-mkdir /mnt/sda1 /mnt/sda2 /mnt/sda3
-mkdir /mnt/sdb1 /mnt/sdb2 /mnt/sdb3
+mkdir /mnt/sda1 /mnt/sda2 /mnt/sda3 /mnt/sda4 /mnt/sda5 /mnt/sda6
+mkdir /mnt/sdb1 /mnt/sdb2 /mnt/sdb3 /mnt/sdb4 /mnt/sdb5 /mnt/sdb6
 mkdir /mnt/sdc1 /mnt/sdc2 /mnt/sdc3
 mkdir /mnt/sdd1 /mnt/sdd2 /mnt/sdd3
 mkdir /mnt/sde1 /mnt/sde2 /mnt/sde3
@@ -376,7 +352,6 @@ rc-update add syslog-ng default
 install_pkg dhcpcd
 install_pkg cpio    #for better-initramfs
 
-#MAKEOPTS="-j1" emerge --usepkg unison
 install_pkg unison
 ln -s /usr/bin/unison-2.48 /usr/bin/unison
 
@@ -397,23 +372,63 @@ rc-update add dnsproxy default
 install_pkg eix
 eix-update
 
+install_pkg gpm
+rc-update add gpm default   #console mouse support
+
 install_pkg moreutils # vidir
-install_pkg dev-util/strace dev-util/ltrace iw wpa_supplicant linux-firmware htop iotop sudo vim nmap tcpdump pydf
-install_pkg sys-apps/usbutils psutil # python system info library
-install_pkg parted pyparted multipath-tools # unhappy on musl
-install_pkg cryptsetup hexedit ncdu app-text/tree pv dosfstools #mkfs.vfat for uefi partition
-install_pkg app-crypt/gnupg dev-util/dirdiff tmux app-misc/mc app-portage/gentoolkit #equery
-install_pkg sys-apps/smartmontools timer_entropyd  #ssh-keygen
+install_pkg dev-util/strace
+install_pkg dev-util/ltrace
+install_pkg iw
+#install_pkg wpa_supplicant
+install_pkg linux-firmware
+install_pkg htop
+install_pkg iotop
+install_pkg sudo
+install_pkg vim
+install_pkg nmap
+install_pkg tcpdump
+install_pkg pydf
+install_pkg sys-apps/usbutils
+install_pkg psutil # python system info library
+install_pkg parted
+install_pkg pyparted
+install_pkg multipath-tools # unhappy on musl
+install_pkg cryptsetup
+install_pkg hexedit
+install_pkg ncdu
+install_pkg app-text/tree
+install_pkg pv
+install_pkg dosfstools #mkfs.vfat for uefi partition
+install_pkg app-crypt/gnupg
+install_pkg dev-util/dirdiff
+install_pkg tmux
+install_pkg app-misc/mc
+install_pkg app-portage/gentoolkit #equery
+install_pkg sys-apps/smartmontools
+install_pkg timer_entropyd  #ssh-keygen
 install_pkg hwinfo
 install_pkg sys-apps/lshw
 install_pkg lsof pfl     # e-file like qpkg for files that are in portage
 install_pkg patchutils # combinediff
 install_pkg libbsd # strlcpy https://en.wikibooks.org/wiki/C_Programming/C_Reference/nonstandard/strlcpy
-install_pkg debugedit gptfdisk #gdisk sgdisk cgdisk
-install_pkg sys-block/gpart ddrescue dd-rescue python-gnupg vbindiff colordiff app-arch/unrar app-arch/p7zip app-arch/rzip app-arch/zip
+install_pkg debugedit
+install_pkg gptfdisk #gdisk sgdisk cgdisk
+install_pkg sys-block/gpart
+install_pkg ddrescue
+install_pkg dd-rescue
+install_pkg python-gnupg
+install_pkg vbindiff
+install_pkg colordiff
+install_pkg app-arch/unrar
+install_pkg app-arch/p7zip
+install_pkg app-arch/rzip
+install_pkg app-arch/zip
 install_pkg libisoburn # xorriso
 install_pkg dev-tcltk/expect # to script gdisk
-install_pkg sys-block/di sys-apps/hdparm app-benchmarks/iozone net-dialup/minicom
+install_pkg sys-block/di
+install_pkg sys-apps/hdparm
+install_pkg app-benchmarks/iozone
+install_pkg net-dialup/minicom
 install_pkg sshfs
 install_pkg syslinux #isohybrid
 install_pkg rdiff-backup
@@ -429,53 +444,71 @@ install_pkg dev-util/android-tools #adb, fastboot, mkbootimg
 #install_pkg dev-python/pybluez
 
 install_pkg app-misc/grc #colorizer for cmds
-install_pkg sys-power/acpi net-wireless/wireless-tools dev-python/sh net-fs/nfs-utils app-backup/bup net-proxy/sshuttle
+install_pkg sys-power/acpi
+install_pkg net-wireless/wireless-tools
+install_pkg dev-python/sh
+install_pkg net-fs/nfs-utils
+install_pkg app-backup/bup
+install_pkg net-proxy/sshuttle
 install_pkg sys-apps/kexec-tools #kernel crash dumping
 #install_pkg links #fails - media-libs/mesa-17.0.3 (Change USE: -vaapi)
 install_pkg app-misc/byobu #screen/tmux manager
 install_pkg app-admin/ccze # to make ctail(byobu) happy
-install_pkg sys-devel/distcc app-cdr/nrg2iso net-ftp/tftp-hpa
+install_pkg sys-devel/distcc
+install_pkg app-cdr/nrg2iso
+install_pkg net-ftp/tftp-hpa
 #install_pkg dev-python/pudb # nice python debugger (terminal)
 install_pkg testdisk
 install_pkg sys-fs/extundelete
-install_pkg net-fs/cifs-utils net-fs/samba
-install_pkg sys-devel/gdb dev-util/splint # c checker
+install_pkg net-fs/cifs-utils
+install_pkg net-fs/samba
+install_pkg sys-devel/gdb
+install_pkg dev-util/splint # c checker
 install_pkg gpgmda
 #emerge --onlydeps --quiet --tree --usepkg=y -u --ask n -n gpgmda
 chown root:mail /var/spool/mail/ #invalid group
 chmod 03775 /var/spool/mail/
 
-install_pkg net-misc/whois www-client/w3m www-client/elinks sys-apps/most
+install_pkg net-misc/whois
+install_pkg www-client/w3m
+install_pkg www-client/elinks
+install_pkg sys-apps/most
 #install_pkg rust
 install_pkg sys-fs/simple-mtpfs
 #install_pkg sqlalchemy # iridb dep in ebuild
 #install_pkg httplib2 # iridb dep in ebuild
 install_pkg dev-python/psycopg
-perl-cleaner modules # needed to avoid XML::Parser... configure: error
-perl-cleaner --reallyall
-install_pkg pgadmin3
-##echo "this is not supposed to ask for confirmation:" but it still does. commenting out
-#test -f /var/lib/postgresql/9.6/data/PG_VERSION || emerge --config --ask=n dev-db/postgresql
+
 pg_version=`/home/cfg/postgresql/get_version`
 rc-update add "postgresql-${pg_version}" default
+
+perl-cleaner modules # needed to avoid XML::Parser... configure: error
+perl-cleaner --reallyall
+
+##echo "this is not supposed to ask for confirmation:" but it still does. commenting out
+#test -f /var/lib/postgresql/9.6/data/PG_VERSION || emerge --config --ask=n dev-db/postgresql
 #/etc/init.d/postgresql-9.6 start
 #sudo su postgres -c "psql template1 -c 'create extension hstore;'"
 #sudo su postgres -c "psql -U postgres -c 'create extension adminpack;'" #makes pgadmin happy
 ##sudo su postgres -c "psql template1 -c 'create extension uint;'"
-install_pkg pydot paps #txt to pdf
+
+install_pkg pydot
+install_pkg paps #txt to pdf
 #install_pkg dev-db/pg_activity #too old to work anymore
-install_pkg ranpwd dnsgate weechat
+install_pkg ranpwd
+install_pkg dnsgate
+install_pkg weechat
 install_pkg pylint
 install_pkg dev-util/shellcheck
 install_pkg dev-vcs/tig #text interface for git
 install_pkg sys-fs/squashfs-tools
 install_pkg sys-power/acpid
 install_pkg sys-process/glances
-install_pkg net-firewall/firehol
+#install_pkg net-firewall/firehol # broken
 install_pkg media-libs/netpbm
 install_pkg dev-python/pyinotify # predictit api
 install_pkg dev-python/pandas #data analysis
-install_pkg sci-libs/scikits_learn
+#install_pkg sci-libs/scikits_learn # fails
 install_pkg sys-fs/inotify-tools
 install_pkg media-libs/exiftool
 install_pkg net-dns/bind-tools #dig
@@ -484,11 +517,11 @@ install_pkg app-text/html2text
 install_pkg dev-python/dnspython #python dns lib
 install_pkg net-wireless/airtraf
 install_pkg net-wireless/airsnort
-install_pkg net-wireless/kismet
+#install_pkg net-wireless/kismet # wants networkmanager even with that USE disabled
 install_pkg net-wireless/rfcat
 install_pkg net-wireless/aircrack-ng
 install_pkg net-wireless/chirp #radio programming interface
-install_pkg net-wireless/horst
+#install_pkg net-wireless/horst # fails
 install_pkg net-misc/wol #wake on lan
 install_pkg sys-block/nbd
 install_pkg app-forensics/memdump
@@ -499,11 +532,14 @@ install_pkg sys-firmware/intel-microcode
 install_pkg dev-python/netifaces # for arp scanning
 install_pkg net-analyzer/arp-scan
 install_pkg app-portage/gemato # Manifest gpg portage verification tool: https://github.com/gentoo/portage/commit/d30191b887bb3a3d896c2b8bbf57571e8821b413
+install_pkg net-misc/ipcalc
+install_pkg sys-power/upower
+install_pkg sys-apps/flashrom
+install_pkg dev-python/parsedatetime
 
 # forever compile time
 #install_pkg app-text/pandoc #doc processing, txt to pdf and everything else under the sun
 
-#install_pkg dev-python/beautifulsoup # should be a dep
 install_pkg app-cdr/cdrtools
 #lspci | grep -i nvidia | grep -i vga && install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
 install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
@@ -516,15 +552,12 @@ mkdir /sys/fs/cgroup/memory/0
 #echo -e '''#!/bin/sh\necho 1 > /sys/fs/cgroup/memory/0/memory.oom_control''' > /etc/local.d/memory.oom_control.start #done in sysskel
 #chmod +x /etc/local.d/memory.oom_control.start
 
-install_pkg gpm
-rc-update add gpm default   #console mouse support
 
 install_pkg alsa-utils #alsamixer
 rc-update add alsasound boot
 install_pkg media-plugins/alsaequal
 
 # /home/cfg/setup/gentoo_installer/gentoo_setup_post_chroot_build_initramfs
-
 
 if [[ -d '/usr/src/linux/.git' ]];
 then
@@ -539,5 +572,7 @@ ln -s -r /boot/vmlinuz-"${kernel_version}" /boot/vmlinuz
 
 /home/cfg/setup/fix_cfg_perms
 /home/cfg/git/configure_git_global
+
+source /home/cfg/setup/gentoo_installer/install_xorg.sh
 install_xorg
 

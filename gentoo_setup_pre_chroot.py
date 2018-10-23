@@ -92,8 +92,8 @@ def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_
     for device in root_devices:
         eprint("boot_device:", boot_device)
         eprint("device:", device)
-        eprint("get_file_size(boot_device)", get_file_size(boot_device))
-        eprint("get_file_size(device", get_file_size(device))
+        eprint("get_file_size(boot_device):", get_file_size(boot_device))
+        eprint("get_file_size(device):     ", get_file_size(device))
         assert get_file_size(boot_device) <= get_file_size(device)
 
     first_root_device_size = get_file_size(root_devices[0])

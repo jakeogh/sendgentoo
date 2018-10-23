@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import requests
+#import requests
 import click
 #import sys
 import os
@@ -10,7 +10,7 @@ from kcl.mountops import path_is_mounted
 from kcl.fileops import file_exists
 from kcl.command import run_command
 import gnupg
-from kcl.printops import eprint
+from kcl.printops import ceprint
 
 HELP="temp"
 
@@ -23,10 +23,10 @@ def install_stage3(c_std_lib, multilib):
     assert file_exists(stage3_file)
     gpg = gnupg.GPG(verbose=True)
     #import_result = gpg.recv_keys('keyserver.ubuntu.com', '0x2D182910')
-    #eprint(import_result)
+    #ceprint(import_result)
     run_command('gpg --keyserver keyserver.ubuntu.com --recv-key 0x2D182910', verbose=True)
-    eprint("stage3_file:", stage3_file)
-    command = 'tar xjpf ' + stage3_file + ' -C /mnt/gentoo'
+    ceprint("stage3_file:", stage3_file)
+    command = 'tar --xz -xpf ' + stage3_file + ' -C /mnt/gentoo'
     run_command(command, verbose=True)
 
 @click.command()

@@ -11,7 +11,7 @@ test -e /usr/src/linux/.config || ln -s /home/cfg/sysskel/usr/src/linux_configs/
 
 cd /usr/src/linux || exit 1
 
-if [ "${1}" == 'menuconfig' ];
+if [ "${1}" == '--menuconfig' ];
 then
     make menuconfig && ~/cfg/pause && make -j12 && make install && make modules_install || exit 1
 else

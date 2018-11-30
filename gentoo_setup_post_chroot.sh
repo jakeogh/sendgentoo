@@ -149,6 +149,11 @@ install_pkg psutil #hm temp
 #install_pkg_force_compile kcl #seems the binary didnt pull the deps?
 install_pkg kcl
 
+install_pkg dev-db/redis
+#ln -s /home/cfg/sysskel/etc/conf.d/redis redis # symlink_tree does this below
+rc-update add redis default
+
+
 chmod +x /home/cfg/setup/symlink_tree #this depends on kcl
 /home/cfg/setup/symlink_tree /home/cfg/sysskel/ || exit 1
 
@@ -264,9 +269,12 @@ fi
 
 cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
 mkdir /mnt/t420s_160GB_intel_ssd_SSDSA2M160G2LE
+mkdir /mnt/t420s_256GB_samsung_ssd_S2R5NX0J707260P
 mkdir /mnt/t420s_160GB_kingston_ssd_SNM225
 mkdir /mnt/t420s_2TB_seagate
 mkdir /poolz3_8x5TB_A
+mkdir /poolz3_8x2TB_A
+mkdir /poolz3_16x3TB_A
 
 ln -sf /proc/self/mounts /etc/mtab
 #touch /etc/mtab
@@ -370,14 +378,18 @@ install_pkg dnsproxy
 rc-update add dnsproxy default
 
 install_pkg eix
+chown portage:portage /var/cache/eix
 eix-update
 
 install_pkg gpm
 rc-update add gpm default   #console mouse support
 
+
+install_pkg smartmove
 install_pkg moreutils # vidir
 install_pkg dev-util/strace
 install_pkg dev-util/ltrace
+install_pkg sys-libs/freeipmi #ipmi-power
 install_pkg iw
 #install_pkg wpa_supplicant
 install_pkg linux-firmware
@@ -446,6 +458,7 @@ install_pkg dev-util/android-tools #adb, fastboot, mkbootimg
 install_pkg app-misc/grc #colorizer for cmds
 install_pkg sys-power/acpi
 install_pkg net-wireless/wireless-tools
+install_pkg dev-python/pint  # python units conversion
 install_pkg dev-python/sh
 install_pkg net-fs/nfs-utils
 install_pkg app-backup/bup
@@ -481,6 +494,7 @@ install_pkg dev-python/psycopg
 
 pg_version=`/home/cfg/postgresql/get_version`
 rc-update add "postgresql-${pg_version}" default
+emerge --config dev-db/postgresql:"${pg_version}"
 
 perl-cleaner modules # needed to avoid XML::Parser... configure: error
 perl-cleaner --reallyall
@@ -492,50 +506,56 @@ perl-cleaner --reallyall
 #sudo su postgres -c "psql -U postgres -c 'create extension adminpack;'" #makes pgadmin happy
 ##sudo su postgres -c "psql template1 -c 'create extension uint;'"
 
-install_pkg pydot
-install_pkg paps #txt to pdf
-#install_pkg dev-db/pg_activity #too old to work anymore
-install_pkg ranpwd
-install_pkg dnsgate
-install_pkg weechat
-install_pkg pylint
-install_pkg dev-util/shellcheck
-install_pkg dev-vcs/tig #text interface for git
-install_pkg sys-fs/squashfs-tools
-install_pkg sys-power/acpid
-install_pkg sys-process/glances
-#install_pkg net-firewall/firehol # broken
-install_pkg media-libs/netpbm
-install_pkg dev-python/pyinotify # predictit api
-install_pkg dev-python/pandas #data analysis
-#install_pkg sci-libs/scikits_learn # fails
-install_pkg sys-fs/inotify-tools
-install_pkg media-libs/exiftool
-install_pkg net-dns/bind-tools #dig
-install_pkg net-misc/telnet-bsd
-install_pkg app-text/html2text
-install_pkg dev-python/dnspython #python dns lib
-install_pkg net-wireless/airtraf
-install_pkg net-wireless/airsnort
-#install_pkg net-wireless/kismet # wants networkmanager even with that USE disabled
-install_pkg net-wireless/rfcat
-install_pkg net-wireless/aircrack-ng
-install_pkg net-wireless/chirp #radio programming interface
-#install_pkg net-wireless/horst # fails
-install_pkg net-misc/wol #wake on lan
-install_pkg sys-block/nbd
-install_pkg app-forensics/memdump
-install_pkg dev-util/diffuse #graphical diff like kdiff3
-install_pkg app-misc/hachoir-urwid # binary file analysis
-install_pkg net-proxy/mitmproxy
-install_pkg sys-firmware/intel-microcode
-install_pkg dev-python/netifaces # for arp scanning
-install_pkg net-analyzer/arp-scan
-install_pkg app-portage/gemato # Manifest gpg portage verification tool: https://github.com/gentoo/portage/commit/d30191b887bb3a3d896c2b8bbf57571e8821b413
-install_pkg net-misc/ipcalc
-install_pkg sys-power/upower
-install_pkg sys-apps/flashrom
-install_pkg dev-python/parsedatetime
+emerge @laptopbase -pv
+emerge @laptopbase
+
+#install_pkg sys-auth/elogind #consolekit replacement
+#install_pkg pydot
+#install_pkg paps #txt to pdf
+##install_pkg dev-db/pg_activity #too old to work anymore
+#install_pkg ranpwd
+#install_pkg dnsgate
+#install_pkg weechat
+#install_pkg pylint
+#install_pkg www-client/links
+#install_pkg dev-util/shellcheck
+#install_pkg dev-vcs/tig #text interface for git
+#install_pkg sys-fs/squashfs-tools
+#install_pkg sys-power/acpid
+#install_pkg sys-process/glances
+##install_pkg net-firewall/firehol # broken
+#install_pkg media-libs/netpbm
+#install_pkg dev-python/pyinotify # predictit api
+#install_pkg dev-python/pandas #data analysis
+##install_pkg sci-libs/scikits_learn # fails
+#install_pkg sys-fs/inotify-tools
+#install_pkg media-libs/exiftool
+#install_pkg net-dns/bind-tools #dig
+#install_pkg net-misc/telnet-bsd
+#install_pkg app-text/html2text
+#install_pkg dev-python/dnspython #python dns lib
+#install_pkg net-wireless/airtraf
+#install_pkg net-wireless/airsnort
+##install_pkg net-wireless/kismet # wants networkmanager even with that USE disabled
+#install_pkg net-wireless/rfcat
+#install_pkg net-wireless/aircrack-ng
+#install_pkg net-wireless/chirp #radio programming interface
+##install_pkg net-wireless/horst # fails
+#install_pkg net-misc/wol #wake on lan
+#install_pkg dev-python/youtube-dl-wrapper
+#install_pkg sys-block/nbd
+#install_pkg app-forensics/memdump
+#install_pkg dev-util/diffuse #graphical diff like kdiff3
+#install_pkg app-misc/hachoir-urwid # binary file analysis
+#install_pkg net-proxy/mitmproxy
+#install_pkg sys-firmware/intel-microcode
+#install_pkg dev-python/netifaces # for arp scanning
+#install_pkg net-analyzer/arp-scan
+#install_pkg app-portage/gemato # Manifest gpg portage verification tool: https://github.com/gentoo/portage/commit/d30191b887bb3a3d896c2b8bbf57571e8821b413
+#install_pkg net-misc/ipcalc
+#install_pkg sys-power/upower
+#install_pkg sys-apps/flashrom
+#install_pkg dev-python/parsedatetime
 
 # forever compile time
 #install_pkg app-text/pandoc #doc processing, txt to pdf and everything else under the sun

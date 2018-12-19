@@ -6,7 +6,7 @@ from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
 from kcl.printops import ceprint
-from format_fat16_partition import format_fat16_partition
+from format_partition import format_partition
 
 
 def write_efi_partition(device, force, start, end, partition_number):
@@ -33,7 +33,7 @@ def write_efi_partition(device, force, start, end, partition_number):
         ceprint("fat16_partition_device", fat16_partition_device, "is not block special yet, waiting a second.")
         time.sleep(1)
 
-    format_fat16_partition(device=fat16_partition_device, force=True)
+    format_partition(device=fat16_partition_device, partition_type='fat16', force=True)
 
     # 127488 /mnt/sdb2/EFI/BOOT/BOOTX64.EFI
 

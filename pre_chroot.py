@@ -14,7 +14,6 @@ from create_boot_device import create_boot_device
 from create_root_device import create_root_device
 from kcl.printops import eprint
 from write_boot_partition import write_boot_partition
-from format_fat32_partition import format_fat32_partition
 
 def get_file_size(filename):
     fd = os.open(filename, os.O_RDONLY)

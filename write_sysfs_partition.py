@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 
-import os
-import sys
 import time
 import click
-import subprocess
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
@@ -64,8 +61,8 @@ def write_sysfs_partition(devices, force, exclusive, filesystem, raid, raid_grou
 @click.option('--raid',       is_flag=False, required=True, type=click.Choice(RAID_LIST))
 @click.option('--raid-group-size',       is_flag=False, required=True, type=int)
 @click.option('--pool-name',  is_flag=False, required=False, type=str)
-def main(devices, filesystem, force, exclusive, raid):
-    write_sysfs_partition(devices=devices, filesystem=filesystem, force=force, exclusive=exclusive, raid=raid, raid_group_size=raid_group_size)
+def main(devices, filesystem, force, exclusive, raid, raid_group_size, pool_name):
+    write_sysfs_partition(devices=devices, filesystem=filesystem, force=force, exclusive=exclusive, raid=raid, raid_group_size=raid_group_size, pool_name=pool_name)
 
 if __name__ == '__main__':
     main()

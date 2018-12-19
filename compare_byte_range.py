@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import sys
+
+#import sys
 import click
 #import time
 #from kcl.time import timestamp
@@ -34,6 +35,3 @@ def main(device, backup_file, start, end):
 
 if __name__ == '__main__':
     main()
-    quit(0)
-
-

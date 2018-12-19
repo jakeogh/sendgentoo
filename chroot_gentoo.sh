@@ -1,7 +1,7 @@
 #!/bin/bash
 
-argcount=5
-usage="stdlib boot_device hostname cflags root_filesystem"
+argcount=6
+usage="stdlib boot_device hostname cflags root_filesystem newpasswd"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" > /dev/stderr && exit 1 ; } #"-ge=>=" "-gt=>" "-le=<=" "-lt=<" "-ne=!="
 
 stdlib="${1}"
@@ -9,6 +9,7 @@ boot_device="${2}"
 hostname="${3}"
 cflags="${4}"
 root_filesystem="${5}"
+newpasswd="${6}"
 
 echo "checking /proc /sys and /dev mounts in prep to chroot"
 mount | grep '/mnt/gentoo/proc' || { mount -t proc none /mnt/gentoo/proc || exit 1 ; }
@@ -27,7 +28,9 @@ test -d /mnt/gentoo/usr/local/portage || { mkdir -p /mnt/gentoo/usr/local/portag
 
 echo "cp -ar /home/cfg /mnt/gentoo/home/"
 #time cp -ar /home/cfg /mnt/gentoo/home/ || exit 1
-time (cd /home && tar --one-file-system -z -c -f - cfg ) | pv -trabT -B 600M | (cd /mnt/gentoo/home && tar zxpSf - )
+#time (cd /home && tar --one-file-system -z -c -f --exclude "/home/cfg/_priv" - cfg ) | pv -trabT -B 600M | (cd /mnt/gentoo/home && tar zxpSf - )
+cd /home || exit 1
+tar --exclude="_priv" --one-file-system -z -c -f - cfg | pv -trabT -B 600M | tar -C /mnt/gentoo/home -zxpSf -
 
 #test -h /mnt/gentoo/boot/vmlinuz || { cp -af /boot/* /mnt/gentoo/boot/ || exit 1 ; }
 
@@ -39,8 +42,7 @@ fi
 
 echo "Entering chroot"
 #chroot /mnt/gentoo /bin/bash -c "su - -c '/home/cfg/setup/gentoo_installer/gentoo_setup_post_chroot.sh ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem}'"
-env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l -c "su - -c '/home/cfg/setup/gentoo_installer/gentoo_setup_post_chroot.sh ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem}'" || { echo "gentoo_setup_post_chroot.sh exited $?" ; exit 1 ; }
-#chroot /mnt/gentoo /bin/bash -c "su - -c '/bin/bash'"
+env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l -c "su - -c '/home/cfg/setup/gentoo_installer/gentoo_setup_post_chroot.sh ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem} ${newpasswd}'" || { echo "gentoo_setup_post_chroot.sh exited $?" ; exit 1 ; }
 
 #eclean-pkg -d #remove outdated binary packages before cp #hm, deletes stuff it shouldnt...
 

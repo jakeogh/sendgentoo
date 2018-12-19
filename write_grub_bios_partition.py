@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
 
-import os
-import sys
 import time
 import click
-import subprocess
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.printops import eprint
 from kcl.command import run_command
-from write_gpt import write_gpt
 
 def write_grub_bios_partition(device, force, start, end, partition_number):
     eprint("creating grub_bios partition on device:", device, "partition_number:", partition_number, "start:", start, "end:", end)
@@ -55,7 +51,6 @@ def write_grub_bios_partition(device, force, start, end, partition_number):
 def main(device, start, end, force, partition_number):
     write_grub_bios_partition(device=device, start=start, end=end, force=force, partition_number=partition_number)
 
+
 if __name__ == '__main__':
     main()
-    quit(0)
-

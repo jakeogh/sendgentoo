@@ -31,6 +31,3 @@ test -z "${hostname}" && { echo "ERROR: hostname: ${hostname} is length zero" ; 
 
 # --force \
 
-
-#/home/cfg/setup/gentoo_installer/gentoo_setup_pre_chroot.py "${@}"
-

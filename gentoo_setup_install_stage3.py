@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-#import requests
 import click
-#import sys
 import os
 from gentoo_setup_get_stage3_url import get_stage3_url
 from gentoo_setup_download_stage3 import download_stage3
@@ -15,6 +13,7 @@ from kcl.printops import ceprint
 HELP="temp"
 
 def install_stage3(c_std_lib, multilib):
+    ceprint("c_std_lib:", c_std_lib, "multilib:", multilib)
     os.chdir('/mnt/gentoo')
     assert os.getcwd() == '/mnt/gentoo'
     assert path_is_mounted('/mnt/gentoo')
@@ -32,24 +31,9 @@ def install_stage3(c_std_lib, multilib):
 @click.command()
 @click.option('--c-std-lib', is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']), help=HELP)
 @click.option('--multilib', is_flag=True, required=False, help=HELP)
-def main(c_std_lib):
+def main(c_std_lib, multilib):
     install_stage3(c_std_lib=c_std_lib, multilib=multilib)
+
 
 if __name__ == '__main__':
     main()
-
-
-#cd /mnt/gentoo || exit 1
-#stage_path=`curl -s http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/latest-stage3-amd64-hardened+nomultilib.txt | tail -n 1 | cut -d ' ' -f 1`
-#stage_file=`curl -s http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/latest-stage3-amd64-hardened+nomultilib.txt | tail -n 1 | cut -d '/' -f 3 | cut -d ' ' -f 1`
-#
-#echo "stage_file: ${stage_file}"
-#
-#wget "http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/${stage_path}" || exit 1
-#wget "http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/${stage_path}.CONTENTS" || exit 1
-#wget "http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/${stage_path}.DIGESTS" || exit 1
-#wget "http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/${stage_path}.DIGESTS.asc" || exit 1
-#gpg --keyserver keyserver.ubuntu.com --recv-key 0x2D182910
-#gpg --verify "${stage_file}.DIGESTS.asc"
-#tar xjpf stage3-*.tar.bz2 || exit 1
-

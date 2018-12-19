@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
 import os
-import sys
 import click
 import time
-import subprocess
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.mountops import path_is_mounted
@@ -12,8 +10,6 @@ from kcl.command import run_command
 from gentoo_setup_install_stage3 import install_stage3
 from destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
 from destroy_block_devices_head_and_tail import destroy_block_devices_head_and_tail
-#from write_gpt import write_gpt
-#from write_sysfs_partition import write_sysfs_partition
 from create_boot_device import create_boot_device
 from create_root_device import create_root_device
 from kcl.printops import eprint
@@ -40,10 +36,11 @@ def get_file_size(filename):
 @click.option('--march',                       is_flag=False, required=True, type=click.Choice(['native', 'nocona']))
 #@click.option('--pool-name',                   is_flag=False, required=True, type=str)
 @click.option('--hostname',                    is_flag=False, required=True)
+@click.option('--newpasswd',                   is_flag=False, required=True)
 @click.option('--force',                       is_flag=True,  required=False)
 @click.option('--encrypt',                     is_flag=True,  required=False)
 @click.option('--multilib',                    is_flag=True,  required=False)
-def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, raid, raid_group_size, march, hostname, force, encrypt, multilib):
+def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, raid, raid_group_size, march, hostname, newpasswd, force, encrypt, multilib):
 
     if not os.path.isdir('/usr/portage/distfiles'):
         os.makedirs('/usr/portage/distfiles')
@@ -115,7 +112,7 @@ def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_
 
     if boot_device == root_devices[0]:
         #assert root_filesystem != 'zfs' # cant do zfs root on a single disk #can now
-        assert boot_filesystem  == root_filesystem
+        assert boot_filesystem == root_filesystem
         assert boot_device_partition_table == root_device_partition_table
         if boot_filesystem == 'zfs':
             destroy_block_devices_head_and_tail(root_devices, force=True, no_backup=True, size=(1024*1024*128), note=False)
@@ -168,18 +165,15 @@ def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_
     else:
         efi_mount_command = "mount " + boot_device + "2 /mnt/gentoo/boot/efi"
 
-    #run_command("mount " + boot_device + "2 /mnt/gentoo/boot/efi")
     run_command(efi_mount_command)
     install_stage3(c_std_lib=c_std_lib, multilib=multilib)
 
     if march == 'native':
-        chroot_gentoo_command = "/home/cfg/setup/gentoo_installer/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' native' + ' ' + root_filesystem
-    elif march == 'nocona':
-        chroot_gentoo_command = "/home/cfg/setup/gentoo_installer/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' nocona' + ' ' + root_filesystem
+        chroot_gentoo_command = "/home/cfg/setup/gentoo_installer/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' ' + march + ' ' + root_filesystem + ' ' + newpasswd
     eprint("now run:", chroot_gentoo_command)
     return
 
+
 if __name__ == '__main__':
     install_gentoo()
-    quit(0)
 

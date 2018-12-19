@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import requests
 import click
-import sys
 from kcl.printops import eprint
 
 HELP="temp"
@@ -52,41 +51,10 @@ def get_stage3_url(c_std_lib, multilib):
 @click.command()
 @click.option('--c-std-lib', is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']), help=HELP)
 @click.option('--multilib', is_flag=True, required=False, help=HELP)
-def main(c_std_lib):
+def main(c_std_lib, multilib):
     url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib)
     eprint(url)
-    #download_file(url)
 
 
 if __name__ == '__main__':
     main()
-    #eprint("url:", url)
-
-
-#cd /mnt/gentoo || exit 1
-#stage_path=`curl -s http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/latest-stage3-amd64-hardened+nomultilib.txt | tail -n 1 | cut -d ' ' -f 1`
-#stage_file=`curl -s http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/latest-stage3-amd64-hardened+nomultilib.txt | tail -n 1 | cut -d '/' -f 3 | cut -d ' ' -f 1`
-#
-#echo "stage_file: ${stage_file}"
-#
-#wget "http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/${stage_path}" || exit 1
-#wget "http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/${stage_path}.CONTENTS" || exit 1
-#wget "http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/${stage_path}.DIGESTS" || exit 1
-#wget "http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/${stage_path}.DIGESTS.asc" || exit 1
-#gpg --keyserver keyserver.ubuntu.com --recv-key 0x2D182910
-#gpg --verify "${stage_file}.DIGESTS.asc"
-#tar xjpf stage3-*.tar.bz2 || exit 1
-
-
-#cd /mnt/gentoo || exit 1
-#file_name=`curl -s http://distfiles.gentoo.org/experimental/amd64/musl/ 2>&1 | grep -o -E 'href="([^"#]+)"' | cut -d'"' -f2 | grep "hardened-*.*.bz2$"`
-#stage_file="http://distfiles.gentoo.org/experimental/amd64/musl/${file_name}"
-#echo "stage_file: ${stage_file}"
-#
-#wget "${stage_file}"
-#wget "${stage_file}.CONTENTS"
-#wget "${stage_file}.DIGESTS"
-#echo "decompressing stage3..."
-#tar xjpf stage3-*.tar.bz2 || exit 1
-
-

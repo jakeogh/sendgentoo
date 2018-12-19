@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-import os
+
 import click
 import time
-import subprocess
-import sys
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.fileops import get_file_size
@@ -75,7 +73,7 @@ def destroy_block_device_head_and_tail(device, size=(512), note=False, force=Fal
 @click.option('--force',  is_flag=True,  required=False)
 @click.option('--no-backup', is_flag=True,  required=False)
 def main(device, size, note, force, no_backup):
-    destroy_block_device_head_and_tail(device, size, note, force, no_backup)
+    destroy_block_device_head_and_tail(device=device, size=size, note=note, force=force, no_backup=no_backup)
 
 if __name__ == '__main__':
     main()

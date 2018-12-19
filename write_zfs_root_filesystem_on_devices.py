@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-import os
-import sys
+
 import click
-import time
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
@@ -140,8 +138,9 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid, raid_group_size, 
 @click.option('--raid-group-size', is_flag=False, required=True, type=int)
 @click.option('--pool-name', is_flag=False, required=True, type=str)
 @click.option('--mount-point', is_flag=False, required=False, type=str)
-def main(devices, force, raid, raid_group_size, pool_name):
+def main(devices, force, raid, raid_group_size, pool_name, mount_point):
     write_zfs_root_filesystem_on_devices(devices=devices, force=force, raid=raid, raid_group_size=raid_group_size, pool_name=pool_name, mount_point=mount_point)
+
 
 if __name__ == '__main__':
     main()

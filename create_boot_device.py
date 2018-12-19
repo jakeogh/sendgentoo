@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 
 import os
-import sys
 import click
 import time
-import subprocess
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
-from kcl.command import run_command
-#from destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
 from write_gpt import write_gpt
 from write_grub_bios_partition import write_grub_bios_partition
 from write_efi_partition import write_efi_partition
@@ -59,15 +55,3 @@ def main(device, partition_table, filesystem, force):
 if __name__ == '__main__':
     main()
     quit(0)
-
-#boot_partition_command = "parted -a optimal " + boot_device + " --script -- mkpart primary 200MiB 331MiB"
-#run_command(boot_partition_command)
-#set_boot_name_command = "parted -a optimal " + boot_device + " --script -- name 2 grub"
-#run_command(set_boot_name_command)
-#command = "mkfs.ext4 " + boot_device + "2"
-#run_command(command)
-
-#set_boot_on_command = "parted -a optimal " + boot_device + " --script -- set 2 boot on"
-#run_command(set_boot_on_command)
-#root_partition_boot_flag_command = "parted -a optimal " + boot_device + " --script -- set 2 boot on"
-#run_command(root_partition_boot_flag_command)

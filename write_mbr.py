@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import os
 import click
 import time
 from kcl.fileops import path_is_block_special
@@ -38,7 +37,6 @@ def write_mbr(device, no_wipe, force, no_backup):
 def main(device, force, no_wipe, no_backup):
     write_mbr(device=device, force=force, no_wipe=no_wipe, no_backup=no_backup)
 
+
 if __name__ == '__main__':
     main()
-    quit(0)
-

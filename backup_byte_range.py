@@ -33,8 +33,6 @@ def main(device, start, end, note):
     backup_file = backup_byte_range(device, start, end, note)
     print(backup_file)
 
+
 if __name__ == '__main__':
     main()
-    quit(0)
-
-

@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 
-import os
-import sys
 import time
 import click
-import subprocess
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
@@ -42,5 +39,3 @@ def main(device, force):
 
 if __name__ == '__main__':
     main()
-    quit(0)
-

@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
-import os
-import sys
+
 import click
-import time
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
@@ -82,7 +80,6 @@ def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_poin
     -O utf8only=off \
     -m """ + mount_point + """ \
     """ + alt_root + ' ' + pool_name + ' ' + device_string
-
 
     run_command(zpool_command)
 

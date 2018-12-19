@@ -8,12 +8,6 @@ device="${1}"
 test -b "${device}" || { echo "${device} not found or is not a block device. Exiting." > /dev/stderr ; exit 1 ; }
 mount | grep "${device}" && { echo "${device} is mounted. Exiting." ; exit 1 ; }
 
-#grep "${device}" gpart_make_hybrid_mbr.exp || { echo "gpart_makr_hybrid_mbr.exp does not contain ${device}, exiting." ; exit 1 ; }
-
 echo "making hybrid MBR"
-
 ./gpart_make_hybrid_mbr.exp "${device}" || exit 1
-
 echo "making hybrid MBR exited 0, should be good to go."
-
-

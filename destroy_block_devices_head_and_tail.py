@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
-import os
+
 import click
 import time
-import subprocess
-import sys
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.fileops import get_file_size
@@ -41,5 +39,3 @@ def main(devices, size, note, force, no_backup):
 
 if __name__ == '__main__':
     main()
-    quit(0)
-

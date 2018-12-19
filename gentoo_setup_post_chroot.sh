@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo -n "gentoo_setup_post_chroot.sh args: "
+echo -n "post_chroot.sh args: "
 echo "$@"
 argcount=6
 usage="stdlib boot_device hostname cflags root_filesystem newpasswd"
@@ -241,10 +241,10 @@ rc-update add gpm default   #console mouse support
 
 grep noclear /etc/inittab || { /home/cfg/_myapps/replace-text/replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1 ; }
 
-#/home/cfg/setup/gentoo_installer/gentoo_setup_post_chroot_build_initramfs
+#/home/cfg/setup/gentoo_installer/post_chroot_build_initramfs
 
 
-echo "gentoo_setup_post_chroot.sh is done, exiting 0"
+echo "post_chroot.sh is done, exiting 0"
 exit 0
 
 #stuff below can happen on reboot

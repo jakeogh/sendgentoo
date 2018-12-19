@@ -2,7 +2,7 @@
 
 import requests
 import click
-from gentoo_setup_get_stage3_url import get_stage3_url
+from get_stage3_url import get_stage3_url
 from kcl.printops import eprint
 
 HELP="temp"

@@ -22,7 +22,7 @@ test -b "${device}" || { echo "ERROR: device: ${device} is not block special. Ex
 echo -n "Enter new password: "
 read newpasswd
 
-/home/cfg/setup/gentoo_installer/gentoo_setup_pre_chroot.py "${device}" \
+/home/cfg/setup/gentoo_installer/pre_chroot.py "${device}" \
  --boot-device "${device}" \
  --boot-device-partition-table gpt \
  --root-device-partition-table gpt \

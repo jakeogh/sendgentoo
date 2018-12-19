@@ -20,9 +20,9 @@ mount | grep '/mnt/gentoo/usr/portage' || { mount --rbind /usr/portage /mnt/gent
 
 
 echo "Entering chroot"
-#chroot /mnt/gentoo /bin/bash -c "su - -c '/home/cfg/setup/gentoo_installer/gentoo_setup_post_chroot.sh ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem}'"
-#env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l -c "su - -c '/home/cfg/setup/gentoo_installer/gentoo_setup_post_chroot.sh ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem}'" || { echo "gentoo_setup_post_chroot.sh exited $?" ; exit 1 ; }
-env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l || { echo "gentoo_setup_post_chroot.sh exited $?" ; exit 1 ; }
+#chroot /mnt/gentoo /bin/bash -c "su - -c '/home/cfg/setup/gentoo_installer/post_chroot.sh ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem}'"
+#env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l -c "su - -c '/home/cfg/setup/gentoo_installer/post_chroot.sh ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem}'" || { echo "post_chroot.sh exited $?" ; exit 1 ; }
+env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l || { echo "post_chroot.sh exited $?" ; exit 1 ; }
 #chroot /mnt/gentoo /bin/bash -c "su - -c '/bin/bash'"
 
 #eclean-pkg -d #remove outdated binary packages before cp

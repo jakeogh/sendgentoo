@@ -2,8 +2,8 @@
 
 import click
 import os
-from gentoo_setup_get_stage3_url import get_stage3_url
-from gentoo_setup_download_stage3 import download_stage3
+from get_stage3_url import get_stage3_url
+from download_stage3 import download_stage3
 from kcl.mountops import path_is_mounted
 from kcl.fileops import file_exists
 from kcl.command import run_command

@@ -12,7 +12,7 @@ mount | grep "${device}" && { echo "ERROR: device: ${device} appears to be mount
 ./umount_mnt_gentoo.sh || ./umount_mnt_gentoo.sh
 ./umount_mnt_gentoo.sh || ./umount_mnt_gentoo.sh
 
-/home/cfg/setup/gentoo_installer/gentoo_setup_pre_chroot.py "${device}" \
+/home/cfg/setup/gentoo_installer/pre_chroot.py "${device}" \
  --boot-device "${device}" \
  --boot-device-partition-table gpt \
  --root-device-partition-table gpt \

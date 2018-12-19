@@ -4,7 +4,7 @@ import click
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
-from gentoo_setup_globals import RAID_LIST
+from setup_globals import RAID_LIST
 from kcl.iterops import grouper
 from kcl.printops import eprint
 

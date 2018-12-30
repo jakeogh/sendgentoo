@@ -1,7 +1,7 @@
 #!/bin/bash
 
-argcount=6
-usage="stdlib boot_device hostname cflags root_filesystem newpasswd"
+argcount=7
+usage="stdlib boot_device hostname cflags root_filesystem newpasswd ip"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" > /dev/stderr && exit 1 ; } #"-ge=>=" "-gt=>" "-le=<=" "-lt=<" "-ne=!="
 
 stdlib="${1}"
@@ -10,6 +10,7 @@ hostname="${3}"
 cflags="${4}"
 root_filesystem="${5}"
 newpasswd="${6}"
+ip="${7}"
 
 echo "checking /proc /sys and /dev mounts in prep to chroot"
 mount | grep '/mnt/gentoo/proc' || { mount -t proc none /mnt/gentoo/proc || exit 1 ; }
@@ -41,8 +42,7 @@ then
 fi
 
 echo "Entering chroot"
-#chroot /mnt/gentoo /bin/bash -c "su - -c '/home/cfg/setup/gentoo_installer/post_chroot.sh ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem}'"
-env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l -c "su - -c '/home/cfg/setup/gentoo_installer/chroot.sh ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem} ${newpasswd}'" || { echo "post_chroot.sh exited $?" ; exit 1 ; }
+env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l -c "su - -c '/home/cfg/setup/gentoo_installer/post_chroot.sh ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem} ${newpasswd} ${ip}'" || { echo "post_chroot.sh exited $?" ; exit 1 ; }
 
 #eclean-pkg -d #remove outdated binary packages before cp #hm, deletes stuff it shouldnt...
 

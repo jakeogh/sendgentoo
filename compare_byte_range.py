@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
-#import sys
 import click
-#import time
-#from kcl.time import timestamp
 import os
 from backup_byte_range import backup_byte_range
 from kcl.printops import eprint
@@ -26,12 +23,13 @@ def compare_byte_range(device, backup_file, start, end):
     os.system(vbindiff_command)
 
 @click.command()
-@click.option('--device',      is_flag=False, required=True)
+@click.option('--device', is_flag=False, required=True)
 @click.option('--backup-file', is_flag=False, required=True)
-@click.option('--start',       is_flag=False, required=False, type=int)
-@click.option('--end',         is_flag=False, required=False, type=int)
+@click.option('--start', is_flag=False, required=False, type=int)
+@click.option('--end', is_flag=False, required=False, type=int)
 def main(device, backup_file, start, end):
     compare_byte_range(device, backup_file, start, end)
+
 
 if __name__ == '__main__':
     main()

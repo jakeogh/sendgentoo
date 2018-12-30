@@ -3,6 +3,7 @@
 umount /mnt/gentoo/dev/shm
 umount /mnt/gentoo/dev/pts
 umount /mnt/gentoo/dev
+umount /mnt/gentoo/sys/fs/cgroup/unified
 umount /mnt/gentoo/sys/fs/cgroup/net_prio
 umount /mnt/gentoo/sys/fs/cgroup/net_cls
 umount /mnt/gentoo/sys/fs/cgroup/memory
@@ -16,6 +17,7 @@ umount /mnt/gentoo/sys
 umount /mnt/gentoo/proc
 umount /mnt/gentoo/boot/efi
 umount /mnt/gentoo/usr/portage
+umount /mnt/gentoo/sys
 umount /mnt/gentoo
 
 exit 0

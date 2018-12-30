@@ -4,7 +4,6 @@ import click
 from kcl.timeops import timestamp
 
 def backup_byte_range(device, start, end, note):
-    #print("backup_byte_range()")
     with open(device, 'rb') as dfh:
         bytes_to_read = end - start
         assert bytes_to_read > 0
@@ -15,7 +14,11 @@ def backup_byte_range(device, start, end, note):
     time_stamp = str(timestamp())
     running_on_hostname = os.uname()[1]
     device_string = device.replace('/', '_')
-    backup_file_tail = '_.' + device_string + '.' + time_stamp + '.' + running_on_hostname +  '_start_' + str(start) + '_end_' + str(end) + '.bak'
+    backup_file_tail = '_.' \
+        + device_string + '.' \
+        + time_stamp + '.' \
+        + running_on_hostname \
+        + '_start_' + str(start) + '_end_' + str(end) + '.bak'
     if note:
         backup_file = '_backup_' + note + backup_file_tail
     else:
@@ -26,9 +29,9 @@ def backup_byte_range(device, start, end, note):
 
 @click.command()
 @click.option('--device', is_flag=False, required=True)
-@click.option('--start',  is_flag=False, required=True, type=int)
-@click.option('--end',    is_flag=False, required=True, type=int)
-@click.option('--note',   is_flag=False, required=False, type=str)
+@click.option('--start', is_flag=False, required=True, type=int)
+@click.option('--end', is_flag=False, required=True, type=int)
+@click.option('--note', is_flag=False, required=False, type=str)
 def main(device, start, end, note):
     backup_file = backup_byte_range(device, start, end, note)
     print(backup_file)

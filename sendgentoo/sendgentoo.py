@@ -13,7 +13,7 @@ from .pre_chroot import pre_chroot
 @click.argument("device")
 @click.argument("ip")
 @click.pass_context
-def sendgentoo(device, ip):
+def sendgentoo(ctx, device, ip):
     device = device.strip()
     if not os.getenv('TMUX'):
         print("Start a Tmux session first. Exiting.", file=sys.stderr)

@@ -31,6 +31,10 @@ def sendgentoo(ctx, device, hostname, ip):
             print("device:", device, "is not a block device. Exiting.", file=sys.stderr)
             quit(1)
 
+    if not os.geteuid() == 0:
+        print("you ned to be root. Exiting.", file=sys.stderr)
+        quit(1)
+
     password = input("Enter new password:")
     assert len(password) > 0
 

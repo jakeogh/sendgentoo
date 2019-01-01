@@ -28,8 +28,8 @@ def install_stage3(c_std_lib, multilib):
     run_command(command, verbose=True)
 
 @click.command()
-@click.option('--c-std-lib', is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']), help=HELP)
-@click.option('--multilib', is_flag=True, required=False, help=HELP)
+@click.option('--c-std-lib', is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']))
+@click.option('--multilib', is_flag=True, required=False)
 def main(c_std_lib, multilib):
     install_stage3(c_std_lib=c_std_lib, multilib=multilib)
 

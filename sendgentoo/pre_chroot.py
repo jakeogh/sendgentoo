@@ -8,7 +8,7 @@ from kcl.mountops import block_special_path_is_mounted
 from kcl.mountops import path_is_mounted
 from kcl.command import run_command
 from kcl.printops import eprint
-from install_stage3 import install_stage3
+from .install_stage3 import install_stage3
 from .destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
 from .destroy_block_devices_head_and_tail import destroy_block_devices_head_and_tail
 from .create_boot_device import create_boot_device

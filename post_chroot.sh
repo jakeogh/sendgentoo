@@ -206,25 +206,26 @@ rc-update add gpm default   #console mouse support
 
 grep noclear /etc/inittab || { /home/cfg/_myapps/replace-text/replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1 ; }
 
+install_pkg sys-apps/moreutils # need sponge for the next command
+grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/inittab | ~/cfg/text/insert_line_after_match "c6:2345:respawn:/sbin/agetty 38400 tty6 linux" "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" | sponge /etc/inittab ; }
+
 mkdir /etc/portage/package.mask
 echo ">net-misc/unison-2.48.4" > /etc/portage/package.mask/unison
 install_pkg unison
 #ln -s /usr/bin/unison-2.48 /usr/bin/unison
 eselect unison list #todo
 
-test -d /home/user || { useradd --create-home user || exit 1 ; }
-echo "user:$newpasswd" | chpasswd || exit 1
-for x in cdrom cdrw usb audio plugdev video wheel; do gpasswd -a user $x ; done
-/home/cfg/setup/fix_cfg_perms #must happen when user exists
 
-test -h /home/user/cfg || { ln -s /home/cfg /home/user/cfg || exit 1 ; }
-test -h /root/cfg      || { ln -s /home/cfg /root/cfg      || exit 1 ; }
-
+install_pkg lsof
+install_pkg pydf
+install_pkg app-portage/gentoolkit #equery
+install_pkg sys-process/htop
 
 install_pkg app-eselect/eselect-repository
 #eselect repository add jakeogh https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml
-eselect repository add jakeogh /home/cfg/_myapps/jakeogh/jakeogh.xml
+#eselect repository add jakeogh git /home/cfg/_myapps/jakeogh/jakeogh.xml || exit 1
 install_pkg layman
+layman -o "https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml" -f -a jakeogh
 layman -S # update layman trees
 
 echo "chroot_gentoo.sh complete" > /install_status

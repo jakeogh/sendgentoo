@@ -40,7 +40,7 @@ def get_file_size(filename):
 @click.option('--force',                       is_flag=True,  required=False)
 @click.option('--encrypt',                     is_flag=True,  required=False)
 @click.option('--multilib',                    is_flag=True,  required=False)
-def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, raid, raid_group_size, march, hostname, newpasswd, ip, force, encrypt, multilib):
+def pre_chroot(root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, raid, raid_group_size, march, hostname, newpasswd, ip, force, encrypt, multilib):
 
     if not os.path.isdir('/usr/portage/distfiles'):
         os.makedirs('/usr/portage/distfiles')
@@ -175,5 +175,5 @@ def install_gentoo(root_devices, boot_device, boot_device_partition_table, root_
 
 
 if __name__ == '__main__':
-    install_gentoo()
+    pre_chroot()
 

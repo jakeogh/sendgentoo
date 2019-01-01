@@ -26,6 +26,7 @@ def sendgentoo(device, ip):
 
     if not pathlib.Path(device).is_block_device():
             print("device:", device, "is not a block device. Exiting.", file=sys.stderr)
+            quit(1)
 
     password = input("Enter new password:")
     assert len(password) > 0

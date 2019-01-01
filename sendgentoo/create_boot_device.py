@@ -17,7 +17,7 @@ def create_boot_device(device, partition_table, filesystem, force):
     eprint("installing gpt/grub/efi on boot device:", device, '(' + partition_table + ')', '(' + filesystem + ')')
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)
-    assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
+    #assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
 
     if not force:
         eprint("THIS WILL DESTROY ALL DATA ON", device, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")

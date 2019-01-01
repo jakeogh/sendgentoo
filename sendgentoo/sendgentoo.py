@@ -23,7 +23,7 @@ def sendgentoo(ctx, device, hostname, ip):
     partitions = psutil.disk_partitions()
     for partition in partitions:
         if device in partition.device:
-            print("device:", device, "was found in:", partition.device, file=sys.stderr)
+            print("device:", device, "was found:", partition.device, "mounted at:", device.mountpoint, file=sys.stderr)
             print("Refusing to operate on mounted device. Exiting.", file=sys.stderr)
             quit(1)
 

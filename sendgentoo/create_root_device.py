@@ -17,7 +17,7 @@ def create_root_device(devices, partition_table, filesystem, force, exclusive, r
         assert path_is_block_special(device)
         assert not block_special_path_is_mounted(device)
 
-    assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
+    #assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
     if not force:
         eprint("THIS WILL DESTROY ALL DATA ON", ' '.join(devices), "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
         answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")

@@ -10,7 +10,6 @@ from kcl.printops import ceprint
 from .get_stage3_url import get_stage3_url
 from .download_stage3 import download_stage3
 
-HELP="temp"
 
 def install_stage3(c_std_lib, multilib):
     ceprint("c_std_lib:", c_std_lib, "multilib:", multilib)

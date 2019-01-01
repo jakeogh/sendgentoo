@@ -33,6 +33,5 @@ def sendgentoo(device, ip):
     pre_chroot()
 
 
-
 if __name__ == '__main__':
     sendgentoo()

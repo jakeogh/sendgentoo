@@ -35,7 +35,7 @@ def sendgentoo(ctx, device, hostname, ip):
     assert len(password) > 0
 
     ctx.invoke(pre_chroot,
-               root_devices=(device,)
+               root_devices=(device,),
                boot_device=device,
                boot_device_partition_table='gpt',
                root_device_partition_table='gpt',

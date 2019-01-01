@@ -5,8 +5,8 @@ import time
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
-from destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
 from kcl.printops import eprint
+from .destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
 
 def write_gpt(device, no_wipe, force, no_backup):
     eprint("writing GPT to:", device)

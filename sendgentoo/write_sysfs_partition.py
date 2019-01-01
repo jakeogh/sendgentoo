@@ -5,10 +5,10 @@ import click
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
-from write_gpt import write_gpt
-from write_zfs_root_filesystem_on_devices import write_zfs_root_filesystem_on_devices
 from kcl.printops import eprint
-from setup_globals import RAID_LIST
+from .write_gpt import write_gpt
+from .write_zfs_root_filesystem_on_devices import write_zfs_root_filesystem_on_devices
+from .setup_globals import RAID_LIST
 
 def write_sysfs_partition(devices, force, exclusive, filesystem, raid, raid_group_size, pool_name=False):
     eprint("creating sysfs partition on:", devices)

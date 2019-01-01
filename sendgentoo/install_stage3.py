@@ -2,13 +2,13 @@
 
 import click
 import os
-from get_stage3_url import get_stage3_url
-from download_stage3 import download_stage3
+import gnupg
 from kcl.mountops import path_is_mounted
 from kcl.fileops import file_exists
 from kcl.command import run_command
-import gnupg
 from kcl.printops import ceprint
+from .get_stage3_url import get_stage3_url
+from .download_stage3 import download_stage3
 
 HELP="temp"
 

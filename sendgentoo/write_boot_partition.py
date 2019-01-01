@@ -5,8 +5,8 @@ import click
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
-from write_gpt import write_gpt
 from kcl.printops import eprint
+from .write_gpt import write_gpt
 
 def write_boot_partition(device, force, partition_number):
     eprint("creating boot partition  (for grub config, stage2, vmlinuz) on:", device)

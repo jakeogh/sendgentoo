@@ -4,11 +4,11 @@ import click
 import time
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
-from destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
-from write_gpt import write_gpt
-from write_sysfs_partition import write_sysfs_partition
 from kcl.printops import eprint
-from setup_globals import RAID_LIST
+from .destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
+from .write_gpt import write_gpt
+from .write_sysfs_partition import write_sysfs_partition
+from .setup_globals import RAID_LIST
 
 def create_root_device(devices, partition_table, filesystem, force, exclusive, raid, raid_group_size, pool_name=False):
     eprint("installing gentoo on root devices:", ' '.join(devices), '(' + partition_table + ')', '(' + filesystem + ')', '(', pool_name, ')')

@@ -2,8 +2,8 @@
 
 import click
 import os
-from backup_byte_range import backup_byte_range
 from kcl.printops import eprint
+from .backup_byte_range import backup_byte_range
 
 def compare_byte_range(device, backup_file, start, end):
     #eprint("backup_byte_range()")

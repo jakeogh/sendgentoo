@@ -4,9 +4,9 @@ import click
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
-from setup_globals import RAID_LIST
 from kcl.iterops import grouper
 from kcl.printops import eprint
+from .setup_globals import RAID_LIST
 
 def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_point='none', alt_root=False):
     eprint("make_zfs_filesystem_on_devices()")

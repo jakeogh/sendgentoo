@@ -6,7 +6,7 @@ from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
 from kcl.printops import ceprint
-from format_partition import format_partition
+from .format_partition import format_partition
 
 
 def write_efi_partition(device, force, start, end, partition_number):

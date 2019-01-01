@@ -2,8 +2,8 @@
 
 import requests
 import click
-from get_stage3_url import get_stage3_url
 from kcl.printops import eprint
+from .get_stage3_url import get_stage3_url
 
 HELP="temp"
 

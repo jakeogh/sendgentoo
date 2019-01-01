@@ -5,9 +5,9 @@ import time
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.fileops import get_file_size
-from backup_byte_range import backup_byte_range
 from kcl.printops import eprint
-from destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
+from .backup_byte_range import backup_byte_range
+from .destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
 
 def destroy_block_devices_head_and_tail(devices, size, note, force, no_backup):
     for device in devices:

@@ -11,9 +11,10 @@ from .pre_chroot import pre_chroot
 
 @click.command()
 @click.argument("device")
+@click.argument("hostname")
 @click.argument("ip")
 @click.pass_context
-def sendgentoo(ctx, device, ip):
+def sendgentoo(ctx, device, hostname, ip):
     device = device.strip()
     if not os.getenv('TMUX'):
         print("Start a Tmux session first. Exiting.", file=sys.stderr)
@@ -33,7 +34,22 @@ def sendgentoo(ctx, device, ip):
     password = input("Enter new password:")
     assert len(password) > 0
 
-    ctx.forward(pre_chroot)
+    ctx.invoke(pre_chroot,
+               boot_device=device,
+               boot_device_partition_table='gpt',
+               root_device_partition_table='gpt',
+               boot_filesystem='ext4',
+               root_filesystem='ext4',
+               c_std_lib='glibc',
+               raid='disk',
+               raid_group_size='1',
+               march='native',
+               hostname=hostname,
+               newpasswd=passwd,
+               ip=ip,
+               force=False,
+               encrypt=False,
+               multilib=False)
 
 
 if __name__ == '__main__':

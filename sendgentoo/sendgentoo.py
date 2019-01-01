@@ -5,12 +5,14 @@ import os
 import psutil
 import sys
 import pathlib
+
 from .pre_chroot import pre_chroot
 
 
 @click.command()
 @click.argument("device")
 @click.argument("ip")
+@click.pass_context
 def sendgentoo(device, ip):
     device = device.strip()
     if not os.getenv('TMUX'):

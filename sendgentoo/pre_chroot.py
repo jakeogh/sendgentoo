@@ -82,7 +82,7 @@ def pre_chroot(root_devices, boot_device, boot_device_partition_table, root_devi
         assert path_is_block_special(device)
         assert not block_special_path_is_mounted(device)
 
-    assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
+    #assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
     eprint("using C library:", c_std_lib)
     eprint("hostname:", hostname)
 

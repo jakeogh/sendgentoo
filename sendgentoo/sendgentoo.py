@@ -45,7 +45,7 @@ def sendgentoo(ctx, device, hostname, ip):
                raid_group_size='1',
                march='native',
                hostname=hostname,
-               newpasswd=passwd,
+               newpasswd=password,
                ip=ip,
                force=False,
                encrypt=False,

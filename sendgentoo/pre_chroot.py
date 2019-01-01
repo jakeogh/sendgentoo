@@ -141,7 +141,6 @@ def pre_chroot(root_devices, boot_device, boot_device_partition_table, root_devi
     if root_mount_command:
         run_command(root_mount_command)
 
-    #from IPython import embed; embed()
     assert path_is_mounted('/mnt/gentoo')
 
     try:

@@ -33,7 +33,7 @@ def sendgentoo(ctx, device, ip):
     password = input("Enter new password:")
     assert len(password) > 0
 
-    pre_chroot()
+    ctx.forward(pre_chroot)
 
 
 if __name__ == '__main__':

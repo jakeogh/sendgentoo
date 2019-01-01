@@ -7,13 +7,13 @@ from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.mountops import path_is_mounted
 from kcl.command import run_command
-from install_stage3 import install_stage3
-from destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
-from destroy_block_devices_head_and_tail import destroy_block_devices_head_and_tail
-from create_boot_device import create_boot_device
-from create_root_device import create_root_device
 from kcl.printops import eprint
-from write_boot_partition import write_boot_partition
+from install_stage3 import install_stage3
+from .destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
+from .destroy_block_devices_head_and_tail import destroy_block_devices_head_and_tail
+from .create_boot_device import create_boot_device
+from .create_root_device import create_root_device
+from .write_boot_partition import write_boot_partition
 
 def get_file_size(filename):
     fd = os.open(filename, os.O_RDONLY)

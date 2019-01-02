@@ -80,12 +80,22 @@ chown -R portage:portage /usr/portage
 
 emerge -u -1 portage
 
+mkdir /etc/dnsmasq.d
+install_pkg dnsmasq
+install_pkg dnsproxy
+
 echo "dev-lang/python sqlite" > /etc/portage/package.use/python
 echo "media-libs/gd fontconfig jpeg png truetype" > /etc/portage/package.use/gd
 install_pkg kcl
 
 chmod +x /home/cfg/setup/symlink_tree #this depends on kcl
 /home/cfg/setup/symlink_tree /home/cfg/sysskel/ || exit 1
+
+rc-update add dnsmasq default
+rc-update add dnsproxy default
+/etc/init.d/dnsmasq start
+/etc/init.d/dnsproxy start
+
 
 #must be done after symlink_tree so etc/skel gets populated
 test -d /home/user || { useradd --create-home user || exit 1 ; }
@@ -178,18 +188,12 @@ rc-update add netmount default
 install_pkg syslog-ng
 rc-update add syslog-ng default
 
-mkdir /etc/dnsmasq.d
-install_pkg dnsmasq
-rc-update add dnsmasq default
-
-install_pkg dnsproxy
-rc-update add dnsproxy default
 
 install_pkg eix
 chown portage:portage /var/cache/eix
 eix-update
 
-pg_version=`/home/cfg/postgresql/get_version`
+pg_version=`/home/cfg/postgresql/version`
 rc-update add "postgresql-${pg_version}" default
 emerge --config dev-db/postgresql:"${pg_version}"
 

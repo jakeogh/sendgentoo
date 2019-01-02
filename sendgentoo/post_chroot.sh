@@ -215,7 +215,9 @@ install_pkg unison
 #ln -s /usr/bin/unison-2.48 /usr/bin/unison
 eselect unison list #todo
 
-
+install_pkg tmux
+install_pkg redis #later on, fix_cfg_perms will try to use the redis:redis user
+install_pkg sudo
 install_pkg lsof
 install_pkg pydf
 install_pkg app-portage/gentoolkit #equery

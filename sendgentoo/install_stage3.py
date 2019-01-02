@@ -24,6 +24,8 @@ def install_stage3(c_std_lib, multilib):
     #ceprint(import_result)
     run_command('gpg --keyserver keyserver.ubuntu.com --recv-key 0x2D182910', verbose=True)
     ceprint("stage3_file:", stage3_file)
+    if not gpg.verify_file(stage3_file):
+        assert False
     command = 'tar --xz -xpf ' + stage3_file + ' -C /mnt/gentoo'
     run_command(command, verbose=True)
 

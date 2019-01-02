@@ -5,11 +5,11 @@ import click
 from kcl.printops import eprint
 from .get_stage3_url import get_stage3_url
 
-HELP="temp"
-
-def download_file(url):
+def download_file(url, force=False):
     eprint("downloading:", url)
     local_filename = '/usr/portage/distfiles/' + url.split('/')[-1]
+    #if force:
+    #    os.unlink(local_filename)
     r = requests.get(url, stream=True)
     try:
         with open(local_filename, 'bx') as fh:
@@ -32,7 +32,7 @@ def download_stage3(c_std_lib, multilib, url=False):
     return stage3_file
 
 @click.command()
-@click.option('--c-std-lib', is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']), help=HELP)
+@click.option('--c-std-lib', is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']))
 @click.option('--multilib', is_flag=True, required=False, help=HELP)
 def main(c_std_lib, multilib):
     download_stage3(c_std_lib=c_std_lib, multilib=multilib)

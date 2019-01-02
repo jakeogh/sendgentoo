@@ -25,6 +25,8 @@ def install_stage3(c_std_lib, multilib):
     run_command('gpg --keyserver keyserver.ubuntu.com --recv-key 0x2D182910', verbose=True)
     ceprint("stage3_file:", stage3_file)
     run_command('gpg --verify ' + stage3_file + '.DIGESTS.asc', verbose=True)
+    whirlpool = run_command("openssl dgst -r -whirlpool " + stage3_file + '| cut -d ' ' -f 1')
+    run_command("grep " + whirpool + ' ' + stage3_file + '.DIGESTS')
     command = 'tar --xz -xpf ' + stage3_file + ' -C /mnt/gentoo'
     run_command(command, verbose=True)
 

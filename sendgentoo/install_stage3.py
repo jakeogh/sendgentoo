@@ -19,11 +19,12 @@ def install_stage3(c_std_lib, multilib):
     url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib)
     stage3_file = download_stage3(c_std_lib=c_std_lib, multilib=multilib, url=url)
     assert file_exists(stage3_file)
-    gpg = gnupg.GPG(verbose=True)
+    #gpg = gnupg.GPG(verbose=True)
     #import_result = gpg.recv_keys('keyserver.ubuntu.com', '0x2D182910')
     #ceprint(import_result)
     run_command('gpg --keyserver keyserver.ubuntu.com --recv-key 0x2D182910', verbose=True)
     ceprint("stage3_file:", stage3_file)
+    run_command('gpg --verify ' + stage3_file + 'DIGESTS.asc')
     if not gpg.verify_file(stage3_file):
         assert False
     command = 'tar --xz -xpf ' + stage3_file + ' -C /mnt/gentoo'

@@ -31,7 +31,7 @@ echo "cp -ar /home/cfg /mnt/gentoo/home/"
 #time cp -ar /home/cfg /mnt/gentoo/home/ || exit 1
 #time (cd /home && tar --one-file-system -z -c -f --exclude "/home/cfg/_priv" - cfg ) | pv -trabT -B 600M | (cd /mnt/gentoo/home && tar zxpSf - )
 cd /home || exit 1
-tar --exclude="_priv" --one-file-system -z -c -f - cfg | pv -trabT -B 600M | tar -C /mnt/gentoo/home -zxpSf -
+tar --exclude="_priv" --one-file-system -z -c -f - cfg | pv -trabT -B 600M | tar -C /mnt/gentoo/home -zxpSf - || exit 1
 
 #test -h /mnt/gentoo/boot/vmlinuz || { cp -af /boot/* /mnt/gentoo/boot/ || exit 1 ; }
 
@@ -42,7 +42,7 @@ then
 fi
 
 echo "Entering chroot"
-env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l -c "su - -c '/home/cfg/setup/gentoo_installer/post_chroot.sh ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem} ${newpasswd} ${ip}'" || { echo "post_chroot.sh exited $?" ; exit 1 ; }
+env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l -c "su - -c '/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem} ${newpasswd} ${ip}'" || { echo "post_chroot.sh exited $?" ; exit 1 ; }
 
 #eclean-pkg -d #remove outdated binary packages before cp #hm, deletes stuff it shouldnt...
 
@@ -62,10 +62,11 @@ else
     echo "skipping /usr/portage copy"
 fi
 
-/home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh
-/home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh
-/home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh
-/home/cfg/setup/gentoo_installer/umount_mnt_gentoo.sh
-/home/cfg/setup/gentoo_installer/gpart_make_hybrid_mbr.sh "${boot_device}" #would be nice to do this earlier
+/home/cfg/_myapps/sendgentoo/sendgentoo/umount_mnt_gentoo.sh
+/home/cfg/_myapps/sendgentoo/sendgentoo/umount_mnt_gentoo.sh
+/home/cfg/_myapps/sendgentoo/sendgentoo/umount_mnt_gentoo.sh
+/home/cfg/_myapps/sendgentoo/sendgentoo/umount_mnt_gentoo.sh
+
+/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh "${boot_device}" #would be nice to do this earlier
 
 echo "gentoo install complete! might need to fix grub.cfg"

@@ -2,7 +2,8 @@
 
 import click
 import os
-import gnupg
+#import gnupg
+from subprocess import CalledProcessError
 from kcl.mountops import path_is_mounted
 from kcl.fileops import file_exists
 from kcl.command import run_command
@@ -26,7 +27,13 @@ def install_stage3(c_std_lib, multilib):
     ceprint("stage3_file:", stage3_file)
     run_command('gpg --verify ' + stage3_file + '.DIGESTS.asc', verbose=True)
     whirlpool = run_command("openssl dgst -r -whirlpool " + stage3_file + "| cut -d ' ' -f 1", verbose=True).decode('utf8').strip()
-    run_command("/bin/grep " + whirlpool + ' ' + stage3_file + '.DIGESTS', verbose=True)
+    try:
+        run_command("/bin/grep " + whirlpool + ' ' + stage3_file + '.DIGESTS', verbose=True)
+    except CalledProcessError:
+        ceprint("BAD WHIRPOOL HASH:", whirlpool)
+        ceprint("For file:", stage3_file)
+        ceprint("File is corrupt (most likely partially downloaded). Delete it and try again.")
+        quit(1)
     command = 'tar --xz -xpf ' + stage3_file + ' -C /mnt/gentoo'
     run_command(command, verbose=True)
 

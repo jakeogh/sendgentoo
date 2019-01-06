@@ -108,6 +108,12 @@ test -h /root/cfg      || { ln -s /home/cfg /root/cfg      || exit 1 ; }
 test -h /home/user/_myapps || { ln -s /home/cfg/_myapps /home/user/_myapps || exit 1 ; }
 test -h /root/_myapps      || { ln -s /home/cfg/_myapps /root/_myapps      || exit 1 ; }
 
+test -h /home/user/_repos || { ln -s /home/cfg/_repos /home/user/_repos || exit 1 ; }
+test -h /root/_repos      || { ln -s /home/cfg/_repos /root/_repos || exit 1 ; }
+
+touch /home/user/.lesshst
+chattr +i /home/user/.lesshst
+
 # in case the old make.conf is not using the latest python, really the lines should be grabbed from the stock one in the stage 3
 echo "PYTHON_TARGETS=\"python2_7 python3_6\"" >> /etc/portage/make.conf
 echo "PYTHON_SINGLE_TARGET=\"python3_6\"" >> /etc/portage/make.conf
@@ -195,7 +201,7 @@ eix-update
 
 pg_version=`/home/cfg/postgresql/version`
 rc-update add "postgresql-${pg_version}" default
-emerge --config dev-db/postgresql:"${pg_version}"
+emerge --config dev-db/postgresql:"${pg_version}" # didnt work ?
 
 #perl-cleaner modules # needed to avoid XML::Parser... configure: error
 #perl-cleaner --reallyall

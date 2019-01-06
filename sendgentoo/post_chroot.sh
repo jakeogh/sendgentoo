@@ -222,6 +222,10 @@ install_pkg lsof
 install_pkg pydf
 install_pkg app-portage/gentoolkit #equery
 install_pkg sys-process/htop
+install_pkg ddrescue
+install_pkg sys-process/vixie-cron
+install_pkg sendgentoo #yep
+install_pkg net-dns/bind-tools
 
 install_pkg app-eselect/eselect-repository
 #eselect repository add jakeogh https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml

@@ -27,7 +27,6 @@ test -e /usr/src/linux/.config || ln -s /home/cfg/sysskel/usr/src/linux_configs/
 
 cd /usr/src/linux || exit 1
 
-
 if [ "${1}" == '--menuconfig' ];
 then
     genkernel all \
@@ -45,43 +44,6 @@ else
     --makeopts="-j12" \
     --callback="/usr/bin/emerge zfs zfs-kmod @module-rebuild" || exit 1
 fi
-
-
-
-#if [ "${1}" == '--menuconfig' ];
-#then
-#    qpkg zfs && \
-#        genkernel all \
-#        --menuconfig \
-#        --no-clean \
-#        --zfs \
-#        --symlink \
-#        --makeopts="-j12" \
-#        --callback="/usr/bin/emerge zfs zfs-kmod @module-rebuild" || exit 1
-#
-#    qpkg zfs || \
-#        genkernel all \
-#        --menuconfig \
-#        --no-clean \
-#        --symlink \
-#        --makeopts="-j12" || exit 1
-#
-#else
-#    qpkg zfs && \
-#        genkernel all \
-#        --no-clean \
-#        --zfs \
-#        --symlink \
-#        --makeopts="-j12" \
-#        --callback="/usr/bin/emerge zfs zfs-kmod @module-rebuild" || exit 1
-#
-#    qpkg zfs || \
-#        genkernel all \
-#        --no-clean \
-#        --symlink \
-#        --makeopts="-j12" || exit 1
-#
-#fi
 
 grub-mkconfig -o /boot/grub/grub.cfg
 echo "kernel compile and install completed OK"

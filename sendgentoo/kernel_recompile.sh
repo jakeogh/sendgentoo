@@ -14,6 +14,12 @@ am_i_root()
 
 am_i_root
 
+if [ -e "/usr/src/linux/init/.init_task.o.cmd" ];
+then
+    echo "found previously compiled kernel tree, checking is the current gcc version was used"
+    grep gcc/x86_64-pc-linux-gnu/`gcc-config -l | cut -d '-' -f 5 | cut -d ' ' -f 1` /usr/src/linux-4.20.0-gentoo/init/.init_task.o.cmd || { echo "old gcc version detected, make clean required" && cd /usr/src/linux && echo "make clean" ; }
+fi
+
 # these fail on the first compile. fixme
 #test -s /boot/grub/grub.cfg || { echo "/boot/grub/grub.cfg not found. Exiting." ; exit 1 ; }
 #ls /boot/vmlinuz || { echo "mount /boot first. Exiting." && exit 1 ; }

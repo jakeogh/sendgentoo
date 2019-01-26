@@ -41,18 +41,15 @@ def get_file_size(filename):
 @click.option('--encrypt',                     is_flag=True,  required=False)
 @click.option('--multilib',                    is_flag=True,  required=False)
 def sendgentoo(root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, raid, raid_group_size, march, hostname, newpasswd, ip, force, encrypt, multilib):
-
     assert isinstance(root_devices, tuple)
-
     if not os.path.isdir('/usr/portage/distfiles'):
         os.makedirs('/usr/portage/distfiles')
-
     if not os.path.isdir('/usr/portage/sys-kernel'):
         eprint("run emerge--sync first")
         quit(1)
     if encrypt:
         eprint("encryption not yet supported")
-        quit(1)
+        #quit(1)
     if c_std_lib == 'musl':
         eprint("musl not supported yet")
         quit(1)
@@ -84,7 +81,6 @@ def sendgentoo(root_devices, boot_device, boot_device_partition_table, root_devi
         assert path_is_block_special(device)
         assert not block_special_path_is_mounted(device)
 
-    #assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
     eprint("using C library:", c_std_lib)
     eprint("hostname:", hostname)
 
@@ -113,12 +109,12 @@ def sendgentoo(root_devices, boot_device, boot_device_partition_table, root_devi
         pass
 
     if boot_device == root_devices[0]:
-        #assert root_filesystem != 'zfs' # cant do zfs root on a single disk #can now
         assert boot_filesystem == root_filesystem
         assert boot_device_partition_table == root_device_partition_table
         if boot_filesystem == 'zfs':
             destroy_block_devices_head_and_tail(root_devices, force=True, no_backup=True, size=(1024*1024*128), note=False)
-            create_root_device(devices=root_devices, exclusive=True, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=hostname) # if this is zfs, it will make a gpt table, / and EFI partition
+            # if this is zfs, it will make a gpt table, / and EFI partition
+            create_root_device(devices=root_devices, exclusive=True, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=hostname)
             create_boot_device(device=boot_device, partition_table='none', filesystem=boot_filesystem, force=True) # dont want to delete the gpt that zfs made
             boot_mount_command = False
             root_mount_command = False
@@ -129,6 +125,8 @@ def sendgentoo(root_devices, boot_device, boot_device_partition_table, root_devi
             create_root_device(devices=root_devices, exclusive=False, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=hostname)
             root_mount_command = "mount " + root_devices[0] + "3 /mnt/gentoo"
             boot_mount_command = False
+        else:  # unknown case
+            assert False
     else:
         eprint("differing root and boot devices: (exclusive) root_devices[0]:", root_devices[0], "boot_device:", boot_device)
         create_boot_device(device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True)

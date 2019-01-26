@@ -111,6 +111,8 @@ test -h /root/_myapps      || { ln -s /home/cfg/_myapps /root/_myapps      || ex
 test -h /home/user/_repos || { ln -s /home/cfg/_repos /home/user/_repos || exit 1 ; }
 test -h /root/_repos      || { ln -s /home/cfg/_repos /root/_repos || exit 1 ; }
 
+test -h /home/user/__email_folders || { ln -s /mnt/t420s_160GB_kingston_ssd_SNM225/__email_folders /home/user/__email_folders || exit 1 ; }
+
 touch /home/user/.lesshst
 chattr +i /home/user/.lesshst
 
@@ -144,6 +146,9 @@ then
     layman -a musl || exit 1
     echo "source /var/lib/layman/make.conf" >> /etc/portage/make.conf # musl specific # need to switch to repos.d https://wiki.gentoo.org/wiki/Overlay
 fi
+
+install_pkg cpuid2cpuflags
+echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpu-flags
 
 install_pkg dev-vcs/git # need this for any -9999 packages (zfs)
 #emerge @preserved-rebuild # good spot to do this as a bunch of flags just changed

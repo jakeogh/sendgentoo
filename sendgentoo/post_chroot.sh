@@ -226,6 +226,7 @@ install_pkg ddrescue
 install_pkg sys-process/vixie-cron
 install_pkg sendgentoo #yep
 install_pkg net-dns/bind-tools
+install_pkg app-admin/sysstat   #mpstat
 
 install_pkg app-eselect/eselect-repository
 #eselect repository add jakeogh https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml

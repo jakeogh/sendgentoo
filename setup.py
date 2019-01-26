@@ -27,7 +27,7 @@ setup(
     install_requires=dependencies,
     entry_points={
         'console_scripts': [
-            'sendgentoo-simple = sendgentoo.sendgentoo-simple:sendgentoo_simple',
+            'sendgentoosimple = sendgentoo.sendgentoosimple:sendgentoosimple',
             'sendgentoo = sendgentoo.sendgentoo:sendgentoo',
         ],
     },

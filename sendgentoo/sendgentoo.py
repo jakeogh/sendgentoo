@@ -2,7 +2,6 @@
 
 import os
 import click
-import time
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.mountops import path_is_mounted
@@ -14,6 +13,8 @@ from .destroy_block_devices_head_and_tail import destroy_block_devices_head_and_
 from .create_boot_device import create_boot_device
 from .create_root_device import create_root_device
 from .write_boot_partition import write_boot_partition
+from .warn import warn
+
 
 def get_file_size(filename):
     fd = os.open(filename, os.O_RDONLY)
@@ -21,6 +22,7 @@ def get_file_size(filename):
         return os.lseek(fd, 0, os.SEEK_END)
     finally:
         os.close(fd)
+
 
 @click.command()
 @click.argument('root_devices',                required=True, nargs=-1)
@@ -96,12 +98,7 @@ def sendgentoo(root_devices, boot_device, boot_device_partition_table, root_devi
         assert get_file_size(device) == first_root_device_size
 
     if not force:
-        eprint("THIS WILL DESTROY ALL DATA ON THIS COMPUTER, _REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO DELETE THE DATA ON")
-        answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")
-        if answer != 'YES':
-            quit(1)
-        eprint("Sleeping 5 seconds")
-        time.sleep(1)
+        warn((boot_device) + root_devices)
 
     try:
         os.mkdir('/mnt/gentoo')
@@ -174,5 +171,5 @@ def sendgentoo(root_devices, boot_device, boot_device_partition_table, root_devi
 
 
 if __name__ == '__main__':
-    pre_chroot()
+    sendgentoo()
 

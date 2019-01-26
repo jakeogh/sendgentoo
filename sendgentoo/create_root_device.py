@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-import os
+
 import click
-import time
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.printops import eprint
@@ -9,6 +8,8 @@ from .destroy_block_device_head_and_tail import destroy_block_device_head_and_ta
 from .write_gpt import write_gpt
 from .write_sysfs_partition import write_sysfs_partition
 from .setup_globals import RAID_LIST
+from .warn import warn
+
 
 def create_root_device(devices, partition_table, filesystem, force, exclusive, raid, raid_group_size, pool_name=False):
     eprint("installing gentoo on root devices:", ' '.join(devices), '(' + partition_table + ')', '(' + filesystem + ')', '(', pool_name, ')')
@@ -19,12 +20,7 @@ def create_root_device(devices, partition_table, filesystem, force, exclusive, r
 
     #assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
     if not force:
-        eprint("THIS WILL DESTROY ALL DATA ON", ' '.join(devices), "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
-        answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")
-        if answer != 'YES':
-            quit(1)
-        eprint("Sleeping 5 seconds")
-        time.sleep(5)
+        warn(devices)
 
     if exclusive:
         if filesystem != 'zfs':
@@ -37,6 +33,7 @@ def create_root_device(devices, partition_table, filesystem, force, exclusive, r
         write_sysfs_partition(devices=devices, force=True, exclusive=exclusive, filesystem=filesystem, raid=raid, pool_name=pool_name, raid_group_size=raid_group_size)
     else:
         write_sysfs_partition(devices=devices, force=True, exclusive=exclusive, filesystem=filesystem, raid=raid, raid_group_size=raid_group_size)
+
 
 @click.command()
 @click.argument('devices',         required=True, nargs=-1)

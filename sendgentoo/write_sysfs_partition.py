@@ -6,9 +6,10 @@ from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
 from kcl.printops import eprint
-from .write_gpt import write_gpt
 from .write_zfs_root_filesystem_on_devices import write_zfs_root_filesystem_on_devices
 from .setup_globals import RAID_LIST
+from .warn import warn
+
 
 def write_sysfs_partition(devices, force, exclusive, filesystem, raid, raid_group_size, pool_name=False):
     eprint("creating sysfs partition on:", devices)
@@ -22,12 +23,7 @@ def write_sysfs_partition(devices, force, exclusive, filesystem, raid, raid_grou
         assert not block_special_path_is_mounted(device)
 
     if not force:
-        eprint("THIS WILL DESTROY ALL DATA ON:", devices, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
-        answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")
-        if answer != 'YES':
-            quit(1)
-        eprint("Sleeping 5 seconds")
-        time.sleep(5)
+        warn(devices)
 
     if filesystem == 'ext4':
         assert len(devices) == 1

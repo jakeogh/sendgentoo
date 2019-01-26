@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 import click
-import time
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.fileops import get_file_size
 from kcl.printops import eprint
 from .backup_byte_range import backup_byte_range
+from .warn import warn
 
 def destroy_block_device_head(device, size, no_backup, note):
     #eprint("destroy_black_device_head()")
@@ -55,16 +55,12 @@ def destroy_block_device_head_and_tail(device, size=(512), note=False, force=Fal
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)
     if not force:
-        eprint("THIS WILL DESTROY ALL DATA ON ", device, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
-        answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")
-        if answer != 'YES':
-            quit(1)
-        eprint("Sleeping 5 seconds")
-        time.sleep(5)
+        warn((device,))
 
     destroy_block_device_head(device=device, size=size, note=note, no_backup=no_backup)
     destroy_block_device_tail(device=device, size=size, note=note, no_backup=no_backup)
     return
+
 
 @click.command()
 @click.option('--device', is_flag=False, required=True)
@@ -75,8 +71,6 @@ def destroy_block_device_head_and_tail(device, size=(512), note=False, force=Fal
 def main(device, size, note, force, no_backup):
     destroy_block_device_head_and_tail(device=device, size=size, note=note, force=force, no_backup=no_backup)
 
+
 if __name__ == '__main__':
     main()
-    quit(0)
-
-

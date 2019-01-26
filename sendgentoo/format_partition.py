@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-import time
 import click
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
 from kcl.printops import ceprint
+from .warn import warn
+
 
 def format_partition(device, partition_type, force):
     ceprint("formatting", partition_type, "partition on:", device)
@@ -16,13 +17,7 @@ def format_partition(device, partition_type, force):
     assert not block_special_path_is_mounted(device)
 
     if not force:
-        ceprint("THIS WILL DESTROY ALL DATA ON:", device,
-                "_REMOVE_ HARD DRIVES (and USB devices) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
-        answer = input("Type YES to proceed with deleting all of your important data: ")
-        if answer != 'YES':
-            quit(1)
-        ceprint("Sleeping 5 seconds")
-        time.sleep(5)
+        warn((device,))
 
     if partition_type == 'fat16':
         run_command("mkfs.fat -F16 -s2 " + device)

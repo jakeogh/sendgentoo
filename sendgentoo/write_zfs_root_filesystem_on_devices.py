@@ -8,6 +8,7 @@ from kcl.iterops import grouper
 from kcl.printops import eprint
 from .setup_globals import RAID_LIST
 
+
 def write_zfs_root_filesystem_on_devices(devices, force, raid, raid_group_size, pool_name, mount_point='/mnt/gentoo'):
     eprint("make_zfs_filesystem_on_devices()")
 

@@ -7,7 +7,7 @@ from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
 from kcl.printops import ceprint
 from .format_partition import format_partition
-
+from .warn import warn
 
 def write_efi_partition(device, force, start, end, partition_number):
     ceprint("creating efi partition on device:", device, "partition_number:", partition_number, "start:", start, "end:", end)
@@ -16,12 +16,7 @@ def write_efi_partition(device, force, start, end, partition_number):
     assert not block_special_path_is_mounted(device)
 
     if not force:
-        ceprint("THIS WILL DESTROY ALL DATA ON:", device, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
-        answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")
-        if answer != 'YES':
-            quit(1)
-        ceprint("Sleeping 5 seconds")
-        time.sleep(5)
+        warn((device,))
 
     #output = run_command("parted " + device + " --align optimal --script -- mkpart primary " + start + ' ' + end)
     output = run_command("parted --align minimal " + device + " --script -- mkpart primary " + start + ' ' + end, verbose=True)

@@ -7,6 +7,8 @@ from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
 from kcl.printops import eprint
 from .destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
+from .warn import warn
+
 
 def write_gpt(device, no_wipe, force, no_backup):
     eprint("writing GPT to:", device)
@@ -14,12 +16,7 @@ def write_gpt(device, no_wipe, force, no_backup):
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)
     if not force:
-        eprint("THIS WILL DESTROY ALL DATA ON:", device, "_REMOVE_ ANY HARD DRIVES (and removable storage like USB sticks) WHICH YOU DO NOT WANT TO ACCIDENTLY DELETE THE DATA ON")
-        answer = input("Do you want to proceed with deleting all of your data? (you must type YES to proceed)")
-        if answer != 'YES':
-            quit(1)
-        eprint("Sleeping 5 seconds")
-        time.sleep(5)
+        warn((device,))
     if not no_wipe:
         destroy_block_device_head_and_tail(device=device, force=force, no_backup=no_backup)
         #run_command("sgdisk --zap-all " + boot_device)

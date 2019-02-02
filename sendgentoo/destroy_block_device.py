@@ -24,7 +24,7 @@ def destroy_block_device_ask(device, force, source):
 @click.argument('device', required=True, nargs=1)
 @click.option('--force', is_flag=True, required=False)
 @click.option('--source', is_flag=False, required=False, type=click.Choice(['urandom', 'zero']), default="urandom")
-def main(device, force, source):
+def destroy_block_device(device, force, source):
     destroy_block_device_ask(device=device, force=force, source=source)
 
 

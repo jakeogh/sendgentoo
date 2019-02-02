@@ -18,7 +18,7 @@ def destroy_block_device_ask(device, force, source):
         warn((device,))
     wipe_command = "dd if=/dev/" + source + " of=" + device
     print(wipe_command)
-    run_command(wipe_command, verbose=True)
+    run_command(wipe_command, verbose=True, expected_exit_code=1)  # dd returns 1 when it hits the end of the device
 
 
 

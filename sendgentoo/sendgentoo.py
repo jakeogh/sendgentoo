@@ -29,7 +29,7 @@ def sendgentoo(ctx):
     pass
 
 
-@csendgentoo.command()
+@sendgentoo.command()
 @click.argument('root_devices',                required=True, nargs=-1)
 @click.option('--boot-device',                 is_flag=False, required=True)
 @click.option('--boot-device-partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))

@@ -5,7 +5,7 @@ from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.printops import eprint
 from kcl.deviceops import warn
-
+from kcl.command import run_command
 
 def destroy_block_device_ask(device, force, source):
     assert isinstance(force, bool)
@@ -18,6 +18,8 @@ def destroy_block_device_ask(device, force, source):
         warn((device,))
     wipe_command = "dd if=/dev/" + source + " of=" + device
     print(wipe_command)
+    run_command(wipe_command, verbose=True)
+
 
 
 @click.command()
@@ -26,7 +28,3 @@ def destroy_block_device_ask(device, force, source):
 @click.option('--source', is_flag=False, required=False, type=click.Choice(['urandom', 'zero']), default="urandom")
 def destroy_block_device(device, force, source):
     destroy_block_device_ask(device=device, force=force, source=source)
-
-
-if __name__ == '__main__':
-    main()

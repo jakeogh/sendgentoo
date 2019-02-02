@@ -8,7 +8,7 @@ from .destroy_block_device_head_and_tail import destroy_block_device_head_and_ta
 from .write_gpt import write_gpt
 from .write_sysfs_partition import write_sysfs_partition
 from .setup_globals import RAID_LIST
-from .warn import warn
+from kcl.deviceops import warn
 
 
 def create_root_device(devices, partition_table, filesystem, force, exclusive, raid, raid_group_size, pool_name=False):

@@ -8,7 +8,7 @@ from .write_gpt import write_gpt
 from .write_grub_bios_partition import write_grub_bios_partition
 from .write_efi_partition import write_efi_partition
 from .format_partition import format_partition
-from .warn import warn
+from kcl.deviceops import warn
 
 def create_boot_device(device, partition_table, filesystem, force):
     assert not device[-1].isdigit()

@@ -6,7 +6,7 @@ from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
 from kcl.printops import eprint
-from .warn import warn
+from kcl.deviceops import warn
 
 
 def write_boot_partition(device, force, partition_number):

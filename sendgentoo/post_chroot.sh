@@ -204,6 +204,9 @@ touch /run/openrc/softlevel
 install_pkg gpm
 rc-update add gpm default   #console mouse support
 
+install_pkg elogind
+rc-update add elogind default
+
 grep noclear /etc/inittab || { /home/cfg/_myapps/replace-text/replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1 ; }
 
 install_pkg sys-apps/moreutils # need sponge for the next command

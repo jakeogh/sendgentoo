@@ -8,7 +8,7 @@ from kcl.command import run_command
 from kcl.printops import eprint
 from .write_zfs_root_filesystem_on_devices import write_zfs_root_filesystem_on_devices
 from .setup_globals import RAID_LIST
-from .warn import warn
+from kcl.deviceops import warn
 
 
 def write_sysfs_partition(devices, force, exclusive, filesystem, raid, raid_group_size, pool_name=False):

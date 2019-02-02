@@ -71,9 +71,6 @@ function mount_luks_usb_device_with_lvm()
 }
 
 
-
-
-
 encrypt_partition_and_format_usb_device_with_lvm || exit 1
 mount_luks_usb_device_with_lvm || exit 1
 

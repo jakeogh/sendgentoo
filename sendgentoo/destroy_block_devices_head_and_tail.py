@@ -5,7 +5,7 @@ from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.printops import eprint
 from .destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
-from .warn import warn
+from kcl.deviceops import warn
 
 
 def destroy_block_devices_head_and_tail(devices, size, note, force, no_backup):

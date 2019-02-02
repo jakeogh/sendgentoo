@@ -6,7 +6,7 @@ from kcl.mountops import block_special_path_is_mounted
 from kcl.fileops import get_file_size
 from kcl.printops import eprint
 from .backup_byte_range import backup_byte_range
-from .warn import warn
+from kcl.deviceops import warn
 
 def destroy_block_device_head(device, size, no_backup, note):
     #eprint("destroy_black_device_head()")

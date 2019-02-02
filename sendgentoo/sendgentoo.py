@@ -13,7 +13,7 @@ from .destroy_block_devices_head_and_tail import destroy_block_devices_head_and_
 from .create_boot_device import create_boot_device
 from .create_root_device import create_root_device
 from .write_boot_partition import write_boot_partition
-from .warn import warn
+from kcl.deviceops import warn
 
 
 def get_file_size(filename):
@@ -23,8 +23,13 @@ def get_file_size(filename):
     finally:
         os.close(fd)
 
+@click.group()
+@click.pass_context
+def sendgentoo(ctx):
+    pass
 
-@click.command()
+
+@csendgentoo.command()
 @click.argument('root_devices',                required=True, nargs=-1)
 @click.option('--boot-device',                 is_flag=False, required=True)
 @click.option('--boot-device-partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
@@ -42,7 +47,7 @@ def get_file_size(filename):
 @click.option('--force',                       is_flag=True,  required=False)
 @click.option('--encrypt',                     is_flag=True,  required=False)
 @click.option('--multilib',                    is_flag=True,  required=False)
-def sendgentoo(root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, raid, raid_group_size, march, hostname, newpasswd, ip, force, encrypt, multilib):
+def install(root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, raid, raid_group_size, march, hostname, newpasswd, ip, force, encrypt, multilib):
     assert isinstance(root_devices, tuple)
     if not os.path.isdir('/usr/portage/distfiles'):
         os.makedirs('/usr/portage/distfiles')

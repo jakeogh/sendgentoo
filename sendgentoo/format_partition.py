@@ -5,7 +5,7 @@ from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
 from kcl.printops import ceprint
-from .warn import warn
+from kcl.deviceops import warn
 
 
 def format_partition(device, partition_type, force):

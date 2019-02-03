@@ -8,7 +8,16 @@ from kcl.iterops import grouper
 from kcl.printops import eprint
 from .setup_globals import RAID_LIST
 
-def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_point='none', alt_root=False):
+
+@click.command()
+@click.argument('devices', required=True, nargs=-1)
+@click.option('--force', is_flag=True, required=False)
+@click.option('--raid', is_flag=False, required=True, type=click.Choice(RAID_LIST))
+@click.option('--raid-group-size', is_flag=False, required=True, type=int)
+@click.option('--pool-name', is_flag=False, required=True, type=str)
+@click.option('--mount-point', is_flag=False, required=True, type=str)
+@click.option('--alt-root', is_flag=False, required=False, type=str)
+def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_point, alt_root):
     eprint("make_zfs_filesystem_on_devices()")
 
     # https://raw.githubusercontent.com/ryao/zfs-overlay/master/zfs-install
@@ -83,17 +92,3 @@ def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_poin
 
     run_command(zpool_command)
 
-
-@click.command()
-@click.argument('devices', required=True, nargs=-1)
-@click.option('--force', is_flag=True, required=False)
-@click.option('--raid', is_flag=False, required=True, type=click.Choice(RAID_LIST))
-@click.option('--raid-group-size', is_flag=False, required=True, type=int)
-@click.option('--pool-name', is_flag=False, required=True, type=str)
-@click.option('--mount-point', is_flag=False, required=True, type=str)
-@click.option('--alt-root', is_flag=False, required=False, type=str)
-def main(devices, force, raid, raid_group_size, pool_name, mount_point, alt_root):
-    create_zfs_pool(devices=devices, force=force, raid=raid, raid_group_size=raid_group_size, pool_name=pool_name, mount_point=mount_point, alt_root=alt_root)
-
-if __name__ == '__main__':
-    main()

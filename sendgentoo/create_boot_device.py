@@ -4,10 +4,10 @@ import click
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.printops import eprint
-from .write_gpt import write_gpt
-from .write_grub_bios_partition import write_grub_bios_partition
+from kcl.deviceops import write_gpt
+from kcl.deviceops import write_grub_bios_partition
 from .write_efi_partition import write_efi_partition
-from .format_partition import format_partition
+from kcl.filesystemops import create_filesystem
 from kcl.deviceops import warn
 
 def create_boot_device(device, partition_table, filesystem, force):
@@ -35,7 +35,7 @@ def create_boot_device(device, partition_table, filesystem, force):
         write_efi_partition(device=device, force=True, start='1024s', end='18047s', partition_number='2') # this is /dev/sda9 on zfs
 
     if filesystem == 'zfs':
-        format_partition(device=device + '9', partition_type='fat16', force=True)
+        create_filesystem(device=device + '9', partition_type='fat16', force=True)
 
 @click.command()
 @click.option('--device',          is_flag=False, required=True)

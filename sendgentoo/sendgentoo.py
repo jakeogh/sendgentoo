@@ -9,12 +9,13 @@ from kcl.command import run_command
 from kcl.printops import eprint
 from kcl.deviceops import warn
 from .install_stage3 import install_stage3
-from .destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
-from .destroy_block_devices_head_and_tail import destroy_block_devices_head_and_tail
+from kcl.deviceops import destroy_block_device_head_and_tail
+from kcl.deviceops import destroy_block_devices_head_and_tail
 from .create_boot_device import create_boot_device
 from .create_root_device import create_root_device
 from .write_boot_partition import write_boot_partition
-from .destroy_block_device import destroy_block_device
+from kcl.deviceops import destroy_block_device
+from kcl.deviceops import destroy_block_device_head_and_tail
 
 def get_file_size(filename):
     fd = os.open(filename, os.O_RDONLY)
@@ -29,6 +30,7 @@ def sendgentoo(ctx):
     pass
 
 sendgentoo.add_command(destroy_block_device)
+sendgentoo.add_command(destroy_block_device_head_and_tail)
 
 @sendgentoo.command()
 @click.argument('root_devices',                required=True, nargs=-1)

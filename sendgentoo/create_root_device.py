@@ -4,8 +4,8 @@ import click
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.printops import eprint
-from .destroy_block_device_head_and_tail import destroy_block_device_head_and_tail
-from .write_gpt import write_gpt
+from kcl.deviceops import destroy_block_device_head_and_tail
+from kcl.deviceops import write_gpt
 from .write_sysfs_partition import write_sysfs_partition
 from .setup_globals import RAID_LIST
 from kcl.deviceops import warn

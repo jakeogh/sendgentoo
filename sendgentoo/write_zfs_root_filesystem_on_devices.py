@@ -9,7 +9,15 @@ from kcl.printops import eprint
 from .setup_globals import RAID_LIST
 
 
-def write_zfs_root_filesystem_on_devices(devices, force, raid, raid_group_size, pool_name, mount_point='/mnt/gentoo'):
+@click.command()
+@click.argument('devices', required=True, nargs=-1)
+@click.option('--force', is_flag=True, required=False)
+#@click.option('--raid', is_flag=False, required=True, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']))
+@click.option('--raid', is_flag=False, required=True, type=click.Choice(RAID_LIST))
+@click.option('--raid-group-size', is_flag=False, required=True, type=int)
+@click.option('--pool-name', is_flag=False, required=True, type=str)
+@click.option('--mount-point', is_flag=False, required=True, type=str)
+def write_zfs_root_filesystem_on_devices(devices, force, raid, raid_group_size, pool_name, mount_point):
     eprint("make_zfs_filesystem_on_devices()")
 
     # https://raw.githubusercontent.com/ryao/zfs-overlay/master/zfs-install
@@ -129,19 +137,3 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid, raid_group_size, 
 
     #print("done making zfs filesystem, here's what is mounted:")
     #run_command('mount')
-
-
-@click.command()
-@click.argument('devices', required=True, nargs=-1)
-@click.option('--force', is_flag=True, required=False)
-#@click.option('--raid', is_flag=False, required=True, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']))
-@click.option('--raid', is_flag=False, required=True, type=click.Choice(RAID_LIST))
-@click.option('--raid-group-size', is_flag=False, required=True, type=int)
-@click.option('--pool-name', is_flag=False, required=True, type=str)
-@click.option('--mount-point', is_flag=False, required=False, type=str)
-def main(devices, force, raid, raid_group_size, pool_name, mount_point):
-    write_zfs_root_filesystem_on_devices(devices=devices, force=force, raid=raid, raid_group_size=raid_group_size, pool_name=pool_name, mount_point=mount_point)
-
-
-if __name__ == '__main__':
-    main()

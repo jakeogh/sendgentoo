@@ -11,6 +11,7 @@ from kcl.deviceops import warn
 from kcl.deviceops import destroy_block_device
 from kcl.deviceops import destroy_block_device_head_and_tail
 from kcl.deviceops import destroy_block_devices_head_and_tail
+from kcl.deviceops import luksformat
 from .install_stage3 import install_stage3
 from .create_boot_device import create_boot_device
 from .create_root_device import create_root_device
@@ -30,6 +31,7 @@ def sendgentoo(ctx):
 
 sendgentoo.add_command(destroy_block_device)
 sendgentoo.add_command(destroy_block_device_head_and_tail)
+sendgentoo.add_command(luksformat)
 
 @sendgentoo.command()
 @click.argument('root_devices',                required=True, nargs=-1)

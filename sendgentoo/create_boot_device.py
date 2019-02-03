@@ -6,7 +6,7 @@ from kcl.mountops import block_special_path_is_mounted
 from kcl.printops import eprint
 from kcl.deviceops import write_gpt
 from kcl.deviceops import write_grub_bios_partition
-from kcl.deviceops import write_efi_partition
+from kcl.deviceops import write_efi
 from kcl.filesystemops import create_filesystem
 from kcl.deviceops import warn
 

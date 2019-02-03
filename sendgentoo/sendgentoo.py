@@ -179,4 +179,3 @@ def install(root_devices, boot_device, boot_device_partition_table, root_device_
 
 if __name__ == '__main__':
     sendgentoo()
-

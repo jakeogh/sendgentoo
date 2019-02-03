@@ -8,14 +8,13 @@ from kcl.mountops import path_is_mounted
 from kcl.command import run_command
 from kcl.printops import eprint
 from kcl.deviceops import warn
-from .install_stage3 import install_stage3
+from kcl.deviceops import destroy_block_device
 from kcl.deviceops import destroy_block_device_head_and_tail
 from kcl.deviceops import destroy_block_devices_head_and_tail
+from .install_stage3 import install_stage3
 from .create_boot_device import create_boot_device
 from .create_root_device import create_root_device
 from .write_boot_partition import write_boot_partition
-from kcl.deviceops import destroy_block_device
-from kcl.deviceops import destroy_block_device_head_and_tail
 
 def get_file_size(filename):
     fd = os.open(filename, os.O_RDONLY)

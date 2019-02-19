@@ -34,22 +34,27 @@ test -e /usr/src/linux/.config || ln -s /home/cfg/sysskel/usr/src/linux_configs/
 
 cd /usr/src/linux || exit 1
 
-if [ "${1}" == '--menuconfig' ];
+if [ ! -s "/boot/initramfs" ]; # -s follows symlinks
 then
-    genkernel all \
-    --menuconfig \
-    --no-clean \
-    --zfs \
-    --symlink \
-    --makeopts="-j12" \
-    --callback="/usr/bin/emerge zfs zfs-kmod @module-rebuild" || exit 1
+    if [ "${1}" == '--menuconfig' ];
+    then
+        genkernel all \
+        --menuconfig \
+        --no-clean \
+        --zfs \
+        --symlink \
+        --makeopts="-j12" \
+        --callback="/usr/bin/emerge zfs zfs-kmod @module-rebuild" || exit 1
+    else
+        genkernel all \
+        --no-clean \
+        --zfs \
+        --symlink \
+        --makeopts="-j12" \
+        --callback="/usr/bin/emerge zfs zfs-kmod @module-rebuild" || exit 1
+    fi
 else
-    genkernel all \
-    --no-clean \
-    --zfs \
-    --symlink \
-    --makeopts="-j12" \
-    --callback="/usr/bin/emerge zfs zfs-kmod @module-rebuild" || exit 1
+    echo "/boot/initramfs exists, skipping genkernel"
 fi
 
 grub-mkconfig -o /boot/grub/grub.cfg

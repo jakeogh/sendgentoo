@@ -227,7 +227,6 @@ install_pkg app-portage/gentoolkit #equery
 install_pkg sys-process/htop
 install_pkg ddrescue
 install_pkg sys-process/vixie-cron
-install_pkg sendgentoo #yep
 install_pkg net-dns/bind-tools
 install_pkg app-admin/sysstat   #mpstat
 
@@ -245,6 +244,7 @@ grep noclear /etc/inittab || { /home/cfg/_myapps/replace-text/replace-text "c1:1
 install_pkg sys-apps/moreutils # need sponge for the next command
 grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/inittab | /home/cfg/text/insert_line_after_match "c6:2345:respawn:/sbin/agetty 38400 tty6 linux" "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" | sponge /etc/inittab ; }
 
+install_pkg sendgentoo # must be done after jakeogh overlay
 
 mkdir /etc/portage/sets
 cp /home/cfg/sysskel/etc/portage/sets/laptopbeforereboot /etc/portage/sets/

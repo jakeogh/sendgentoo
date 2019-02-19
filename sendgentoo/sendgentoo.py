@@ -53,7 +53,8 @@ sendgentoo.add_command(create_filesystem)
 @click.option('--force',                       is_flag=True,  required=False)
 @click.option('--encrypt',                     is_flag=True,  required=False)
 @click.option('--multilib',                    is_flag=True,  required=False)
-def install(root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, raid, raid_group_size, march, hostname, newpasswd, ip, force, encrypt, multilib):
+@click.pass_context
+def install(ctx, root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, raid, raid_group_size, march, hostname, newpasswd, ip, force, encrypt, multilib):
     assert isinstance(root_devices, tuple)
     if not os.path.isdir('/usr/portage/distfiles'):
         os.makedirs('/usr/portage/distfiles')
@@ -129,7 +130,7 @@ def install(root_devices, boot_device, boot_device_partition_table, root_device_
             root_mount_command = False
 
         elif boot_filesystem == 'ext4':
-            destroy_block_device_head_and_tail(device, force=True)
+            ctx.invoke(destroy_block_device_head_and_tail, device=device, force=True)
             create_boot_device(device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True) # writes gurb_bios from 48s to 1023s then writes EFI partition from 1024s to 18047s
             create_root_device(devices=root_devices, exclusive=False, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=hostname)
             root_mount_command = "mount " + root_devices[0] + "3 /mnt/gentoo"

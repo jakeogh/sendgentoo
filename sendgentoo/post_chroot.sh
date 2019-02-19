@@ -219,7 +219,7 @@ eselect unison list #todo
 
 install_pkg tmux
 install_pkg vim
-install_pkg redis #later on, fix_cfg_perms will try to use the redis:redis user
+install_pkg dev-db/redis  # later on, fix_cfg_perms will try to use the redis:redis user
 install_pkg sudo
 install_pkg lsof
 install_pkg pydf

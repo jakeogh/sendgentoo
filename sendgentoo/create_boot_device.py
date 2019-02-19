@@ -6,11 +6,11 @@ from kcl.mountops import block_special_path_is_mounted
 from kcl.printops import eprint
 from kcl.deviceops import write_gpt
 from kcl.deviceops import write_grub_bios_partition
-from kcl.deviceops import write_efi
+from kcl.deviceops import write_efi_partition
 from kcl.filesystemops import create_filesystem
 from kcl.deviceops import warn
 
-def create_boot_device(device, partition_table, filesystem, force):
+def create_boot_device(ctx, device, partition_table, filesystem, force):
     assert not device[-1].isdigit()
     eprint("installing gpt/grub/efi on boot device:", device, '(' + partition_table + ')', '(' + filesystem + ')')
     assert path_is_block_special(device)
@@ -24,7 +24,7 @@ def create_boot_device(device, partition_table, filesystem, force):
 
     if partition_table == 'gpt':
         if filesystem != 'zfs':
-            write_gpt(device, no_wipe=True, force=force, no_backup=False) # zfs does this
+            ctx.invoke(write_gpt, device=device, no_wipe=True, force=force, no_backup=False) # zfs does this
 
     if filesystem == 'zfs':
         write_grub_bios_partition(device=device, force=True, start='48s', end='1023s', partition_number='2') #2 if zfs made sda1 and sda9
@@ -42,8 +42,9 @@ def create_boot_device(device, partition_table, filesystem, force):
 @click.option('--partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
 @click.option('--filesystem',      is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
 @click.option('--force',           is_flag=True,  required=False)
-def main(device, partition_table, filesystem, force):
-    create_boot_device(device=device, partition_table=partition_table, filesystem=filesystem, force=force)
+@click.pass_context
+def main(ctx, device, partition_table, filesystem, force):
+    create_boot_device(ctx, device=device, partition_table=partition_table, filesystem=filesystem, force=force)
 
 
 if __name__ == '__main__':

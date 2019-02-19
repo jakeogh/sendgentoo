@@ -109,7 +109,8 @@ def install(root_devices, boot_device, boot_device_partition_table, root_device_
         assert get_file_size(device) == first_root_device_size
 
     if not force:
-        warn((boot_device) + root_devices)
+        warn((boot_device))
+        warn(root_devices)
 
     try:
         os.mkdir('/mnt/gentoo')

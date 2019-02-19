@@ -31,7 +31,9 @@ echo "cp -ar /home/cfg /mnt/gentoo/home/"
 #time cp -ar /home/cfg /mnt/gentoo/home/ || exit 1
 #time (cd /home && tar --one-file-system -z -c -f --exclude "/home/cfg/_priv" - cfg ) | pv -trabT -B 600M | (cd /mnt/gentoo/home && tar zxpSf - )
 cd /home || exit 1
-tar --exclude="_priv" --one-file-system -z -c -f - cfg | pv -trabT -B 600M | tar -C /mnt/gentoo/home -zxpSf - || exit 1
+#tar --exclude="_priv" --one-file-system -z -c -f - cfg | pv -trabT -B 600M | tar -C /mnt/gentoo/home -zxpSf - || exit 1
+
+rsync --exclude="_priv" --one-file-system -v -r -z -l --progress /home/cfg /mnt/gentoo/home/ || exit 1
 
 #test -h /mnt/gentoo/boot/vmlinuz || { cp -af /boot/* /mnt/gentoo/boot/ || exit 1 ; }
 

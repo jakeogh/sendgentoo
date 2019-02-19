@@ -11,7 +11,7 @@ from .setup_globals import RAID_LIST
 from kcl.deviceops import warn
 
 
-def create_root_device(devices, partition_table, filesystem, force, exclusive, raid, raid_group_size, pool_name=False):
+def create_root_device(ctx, devices, partition_table, filesystem, force, exclusive, raid, raid_group_size, pool_name=False):
     eprint("installing gentoo on root devices:", ' '.join(devices), '(' + partition_table + ')', '(' + filesystem + ')', '(', pool_name, ')')
     for device in devices:
         assert not device[-1].isdigit()
@@ -24,7 +24,7 @@ def create_root_device(devices, partition_table, filesystem, force, exclusive, r
 
     if exclusive:
         if filesystem != 'zfs':
-            destroy_block_device_head_and_tail(device=device, force=True)
+            ctx.invoke(destroy_block_device_head_and_tail, device=device, force=True)
             write_gpt(device, no_wipe=True, force=force, no_backup=False) #zfs does this on it's own, feed it a blank disk
     else:
         pass
@@ -44,8 +44,9 @@ def create_root_device(devices, partition_table, filesystem, force, exclusive, r
 @click.option('--raid',            is_flag=False, required=True, type=click.Choice(RAID_LIST))
 @click.option('--raid-group-size', is_flag=False, required=True, type=int)
 @click.option('--pool-name',       is_flag=False, required=False, type=str)
-def main(devices, partition_table, filesystem, force, exclusive, raid, raid_group_size, pool_name):
-    create_root_device(devices=devices, partition_table=partition_table, filesystem=filesystem, force=force, exclusive=exclusive, raid=raid, raid_group_size=raid_group_size, pool_name=pool_name)
+@click.pass_context
+def main(ctx, devices, partition_table, filesystem, force, exclusive, raid, raid_group_size, pool_name):
+    create_root_device(ctx, devices=devices, partition_table=partition_table, filesystem=filesystem, force=force, exclusive=exclusive, raid=raid, raid_group_size=raid_group_size, pool_name=pool_name)
 
 
 if __name__ == '__main__':

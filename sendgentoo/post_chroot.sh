@@ -204,8 +204,11 @@ touch /run/openrc/softlevel
 install_pkg gpm
 rc-update add gpm default   #console mouse support
 
-install_pkg elogind
-rc-update add elogind default
+#install_pkg elogind
+#rc-update add elogind default
+
+install_pkg app-admin/sysklogd
+rc-update add sysklogd default  # syslog-ng hangs on boot... bloated
 
 grep noclear /etc/inittab || { /home/cfg/_myapps/replace-text/replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1 ; }
 
@@ -219,6 +222,7 @@ install_pkg unison
 eselect unison list #todo
 
 install_pkg tmux
+install_pkg vim
 install_pkg redis #later on, fix_cfg_perms will try to use the redis:redis user
 install_pkg sudo
 install_pkg lsof
@@ -230,6 +234,9 @@ install_pkg sys-process/vixie-cron
 install_pkg sendgentoo #yep
 install_pkg net-dns/bind-tools
 install_pkg app-admin/sysstat   #mpstat
+
+install_pkg sys-apps/smartmontools
+rc-update add smartd default
 
 install_pkg app-eselect/eselect-repository
 #eselect repository add jakeogh https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml

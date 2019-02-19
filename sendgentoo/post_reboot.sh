@@ -100,7 +100,9 @@ rc-update add dnsproxy default
 #must be done after symlink_tree so etc/skel gets populated
 test -d /home/user || { useradd --create-home user || exit 1 ; }
 echo "user:$newpasswd" | chpasswd || exit 1
+
 for x in cdrom cdrw usb audio plugdev video wheel; do gpasswd -a user $x ; done
+
 /home/cfg/setup/fix_cfg_perms #must happen when user exists
 
 test -h /home/user/cfg || { ln -s /home/cfg /home/user/cfg || exit 1 ; }
@@ -115,6 +117,12 @@ test -h /home/user/__email_folders || { ln -s /mnt/t420s_160GB_kingston_ssd_SNM2
 
 touch /home/user/.lesshst
 chattr +i /home/user/.lesshst
+
+touch /home/user/.mupdf.history
+chattr +i /home/user/.mupdf.history
+
+touch /home/user/.pdfbox.cache
+chattr +i /home/user/.pdfbox.cache
 
 # in case the old make.conf is not using the latest python, really the lines should be grabbed from the stock one in the stage 3
 echo "PYTHON_TARGETS=\"python2_7 python3_6\"" >> /etc/portage/make.conf

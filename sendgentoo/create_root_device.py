@@ -30,9 +30,9 @@ def create_root_device(ctx, devices, partition_table, filesystem, force, exclusi
         pass
 
     if pool_name:
-        write_sysfs_partition(devices=devices, force=True, exclusive=exclusive, filesystem=filesystem, raid=raid, pool_name=pool_name, raid_group_size=raid_group_size)
+        ctx.invoke(write_sysfs_partition, devices=devices, force=True, exclusive=exclusive, filesystem=filesystem, raid=raid, pool_name=pool_name, raid_group_size=raid_group_size)
     else:
-        write_sysfs_partition(devices=devices, force=True, exclusive=exclusive, filesystem=filesystem, raid=raid, raid_group_size=raid_group_size)
+        ctx.invoke(write_sysfs_partition, devices=devices, force=True, exclusive=exclusive, filesystem=filesystem, raid=raid, raid_group_size=raid_group_size)
 
 
 @click.command()

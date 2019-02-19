@@ -27,12 +27,12 @@ def create_boot_device(ctx, device, partition_table, filesystem, force):
             ctx.invoke(write_gpt, device=device, no_wipe=True, force=force, no_backup=False) # zfs does this
 
     if filesystem == 'zfs':
-        write_grub_bios_partition(device=device, force=True, start='48s', end='1023s', partition_number='2') #2 if zfs made sda1 and sda9
+        ctx.invoke(write_grub_bios_partition, device=device, force=True, start='48s', end='1023s', partition_number='2') #2 if zfs made sda1 and sda9
     else:
-        write_grub_bios_partition(device=device, force=True, start='48s', end='1023s', partition_number='1')
+        ctx.invoke(write_grub_bios_partition, device=device, force=True, start='48s', end='1023s', partition_number='1')
 
     if filesystem != 'zfs':
-        write_efi_partition(device=device, force=True, start='1024s', end='18047s', partition_number='2') # this is /dev/sda9 on zfs
+        ctx.invoke(write_efi_partition, device=device, force=True, start='1024s', end='18047s', partition_number='2') # this is /dev/sda9 on zfs
 
     if filesystem == 'zfs':
         create_filesystem(device=device + '9', partition_type='fat16', force=True)

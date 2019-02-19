@@ -210,10 +210,6 @@ rc-update add gpm default   #console mouse support
 install_pkg app-admin/sysklogd
 rc-update add sysklogd default  # syslog-ng hangs on boot... bloated
 
-grep noclear /etc/inittab || { /home/cfg/_myapps/replace-text/replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1 ; }
-
-install_pkg sys-apps/moreutils # need sponge for the next command
-grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/inittab | /home/cfg/text/insert_line_after_match "c6:2345:respawn:/sbin/agetty 38400 tty6 linux" "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" | sponge /etc/inittab ; }
 
 mkdir /etc/portage/package.mask
 echo ">net-misc/unison-2.48.4" > /etc/portage/package.mask/unison
@@ -243,6 +239,12 @@ install_pkg app-eselect/eselect-repository
 install_pkg layman
 layman -o "https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml" -f -a jakeogh
 layman -S # update layman trees
+
+# must be done after overlay is installed
+grep noclear /etc/inittab || { /home/cfg/_myapps/replace-text/replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1 ; }
+install_pkg sys-apps/moreutils # need sponge for the next command
+grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/inittab | /home/cfg/text/insert_line_after_match "c6:2345:respawn:/sbin/agetty 38400 tty6 linux" "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" | sponge /etc/inittab ; }
+
 
 mkdir /etc/portage/sets
 cp /home/cfg/sysskel/etc/portage/sets/laptopbeforereboot /etc/portage/sets/

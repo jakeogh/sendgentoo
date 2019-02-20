@@ -84,9 +84,9 @@ mkdir /etc/dnsmasq.d
 install_pkg dnsmasq
 install_pkg dnsproxy
 
-echo "dev-lang/python sqlite" > /etc/portage/package.use/python
-echo "media-libs/gd fontconfig jpeg png truetype" > /etc/portage/package.use/gd
-install_pkg kcl
+echo "dev-lang/python sqlite" > /etc/portage/package.use/python  # this is done in post_chroot too...
+echo "media-libs/gd fontconfig jpeg png truetype" > /etc/portage/package.use/gd  # ditto
+install_pkg kcl  # should not be explicitely installed... 
 
 chmod +x /home/cfg/setup/symlink_tree #this depends on kcl
 /home/cfg/setup/symlink_tree /home/cfg/sysskel/ || exit 1
@@ -101,6 +101,7 @@ rc-update add dnsproxy default
 test -d /home/user || { useradd --create-home user || exit 1 ; }
 echo "user:$newpasswd" | chpasswd || exit 1
 
+# bug: whatever creates the plugdev group has not happened yet (android pic xfer problem)
 for x in cdrom cdrw usb audio plugdev video wheel; do gpasswd -a user $x ; done
 
 /home/cfg/setup/fix_cfg_perms #must happen when user exists
@@ -204,9 +205,8 @@ then
 fi
 
 rc-update add netmount default
-install_pkg syslog-ng
-rc-update add syslog-ng default
-
+#install_pkg syslog-ng  # done in post-chroot and using sysklogd instead, syslog-ng hangs on boot and is bloated
+#rc-update add syslog-ng default
 
 install_pkg eix
 chown portage:portage /var/cache/eix

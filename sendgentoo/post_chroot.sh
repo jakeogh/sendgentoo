@@ -247,6 +247,9 @@ grep noclear /etc/inittab || { replace-text "c1:12345:respawn:/sbin/agetty 38400
 install_pkg sys-apps/moreutils # need sponge for the next command
 grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/inittab | /home/cfg/text/insert_line_after_match "c6:2345:respawn:/sbin/agetty 38400 tty6 linux" "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" | sponge /etc/inittab ; }
 
+# make sendgentoo deps happy
+echo "dev-lang/python sqlite" >> /etc/portage/package.use/python || exit 1
+echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/python || exit 1
 install_pkg sendgentoo # must be done after jakeogh overlay
 
 mkdir /etc/portage/sets

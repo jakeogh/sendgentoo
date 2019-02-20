@@ -96,6 +96,7 @@ rc-update add dnsproxy default
 /etc/init.d/dnsmasq start
 /etc/init.d/dnsproxy start
 
+install_pkg net-fs/nfs-utils  # nice to have, dont want to wait for the set to install it, needs overlay
 
 #must be done after symlink_tree so etc/skel gets populated
 test -d /home/user || { useradd --create-home user || exit 1 ; }

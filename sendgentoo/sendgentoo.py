@@ -56,6 +56,7 @@ sendgentoo.add_command(create_filesystem)
 @click.pass_context
 def install(ctx, root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, raid, raid_group_size, march, hostname, newpasswd, ip, force, encrypt, multilib):
     assert isinstance(root_devices, tuple)
+    assert hostname.lower() == hostname
     if not os.path.isdir('/usr/portage/distfiles'):
         os.makedirs('/usr/portage/distfiles')
     if not os.path.isdir('/usr/portage/sys-kernel'):

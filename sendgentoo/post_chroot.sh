@@ -6,6 +6,8 @@ argcount=7
 usage="stdlib boot_device hostname cflags root_filesystem newpasswd ip"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 
+set -o nounset
+
 #musl: http://distfiles.gentoo.org/experimental/amd64/musl/HOWTO
 #spark: https://github.com/holman/spark.git
 
@@ -71,6 +73,8 @@ shift
 root_filesystem="${1}"
 shift
 newpasswd="${1}"
+shift
+ip="${1}"
 shift
 
 zfs_module_mode="module"
@@ -169,7 +173,6 @@ grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --n
 echo "\"grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot\""
 grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes || exit 1
 
-
 install_pkg gradm #required for gentoo-hardened RBAC
 echo "sys-apps/util-linux static-libs" > /etc/portage/package.use/util-linux    # required for genkernel
 install_pkg genkernel
@@ -177,11 +180,11 @@ install_pkg genkernel
 cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
 
 rc-update add zfs-mount boot || exit 1
-install_pkg dhcpcd # not in stage3
+install_pkg dhcpcd  # not in stage3
 
-
-echo "config_eth0=\"${ip}/24\"" >> /etc/conf.d/net
-
+grep -E "^config_eth0=\"${ip}/24\"" /etc/conf.d/net || echo "config_eth0=\"${ip}/24\"" >> /etc/conf.d/net
+ln -rs /etc/init.d/net.lo /etc/init.d/net.eth0
+rc-update add net.eth0 default
 
 #grub-mkconfig -o /boot/grub/grub.cfg || exit 1 # kernel_recompile.sh does that
 #grub-mkconfig -o /root/chroot_grub.cfg || exit 1  # why?
@@ -232,6 +235,9 @@ install_pkg app-admin/sysstat   #mpstat
 
 install_pkg sys-apps/smartmontools
 rc-update add smartd default
+
+grep -E "^PermitRootLogin yes" /etc/ssh/sshd_config || echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+rc-update add sshd default
 
 install_pkg app-eselect/eselect-repository
 #eselect repository add jakeogh https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml

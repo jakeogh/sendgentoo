@@ -12,7 +12,8 @@ umount /mnt/gentoo/sys/fs/cgroup/openrc
 umount /mnt/gentoo/sys/fs/cgroup
 umount /mnt/gentoo/sys/fs/fuse/connections
 umount /mnt/gentoo/sys/firmware/efi/efivars
-umount /mnt/gentoo/sys/kernel/config 
+umount /mnt/gentoo/sys/kernel/config
+umount /mnt/gentoo/sys/kernel/debug
 umount /mnt/gentoo/sys
 umount /mnt/gentoo/proc
 umount /mnt/gentoo/boot/efi

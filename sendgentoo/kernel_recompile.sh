@@ -34,8 +34,8 @@ test -e /usr/src/linux/.config || ln -s /home/cfg/sysskel/usr/src/linux_configs/
 
 cd /usr/src/linux || exit 1
 
-if [ ! -s "/boot/initramfs" ]; # -s follows symlinks
-then
+#if [ ! -s "/boot/initramfs" ] && [ ! -e "/usr/src/linux/include/linux/kconfig.h" ]; # -s follows symlinks
+#then
     if [ "${1}" == '--menuconfig' ];
     then
         genkernel all \
@@ -53,9 +53,9 @@ then
         --makeopts="-j12" \
         --callback="/usr/bin/emerge zfs zfs-kmod @module-rebuild" || exit 1
     fi
-else
-    echo "/boot/initramfs exists, skipping genkernel"
-fi
+#else
+#    echo "/boot/initramfs exists, skipping genkernel"
+#fi
 
 grub-mkconfig -o /boot/grub/grub.cfg
 echo "kernel compile and install completed OK"

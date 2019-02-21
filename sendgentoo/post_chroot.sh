@@ -225,6 +225,7 @@ install_pkg vim
 install_pkg dev-db/redis  # later on, fix_cfg_perms will try to use the redis:redis user
 install_pkg sudo
 install_pkg lsof
+install_pkg lshw
 install_pkg pydf
 install_pkg app-portage/gentoolkit #equery
 install_pkg sys-process/htop

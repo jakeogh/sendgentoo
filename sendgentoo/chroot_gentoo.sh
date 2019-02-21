@@ -58,6 +58,7 @@ if [[ "${mnt_gentoo_free}" -gt "${portage_size_plus_15_pct}" ]];
 then
     cp -ar /usr/portage /mnt/gentoo/usr/
     du -sh /mnt/gentoo/usr/portage
+    rm -rf /mnt/gentoo/usr/portage/packages  # bad -march
 else
     echo "mnt_gentoo_free: ${mnt_gentoo_free}"
     echo "portage_size_plus_15_pct: ${portage_size_plus_15_pct}"

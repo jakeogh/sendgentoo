@@ -69,29 +69,29 @@ def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_poin
 
     #-o cachefile='/tmp/zpool.cache'\
 
-    zpool_command = "zpool create " \
-    + " -o feature@async_destroy=enabled " \      # default   # Destroy filesystems asynchronously.
-    + " -o feature@empty_bpobj=enabled " \        # default   # Snapshots use less space.
-    + " -o feature@lz4_compress=enabled " \       # default   # (independent of the zfs compression flag)
-    + " -o feature@spacemap_histogram=enabled " \ # default   # Spacemaps maintain space histograms.
-    + " -o feature@extensible_dataset=enabled " \ # default   # Enhanced dataset functionality, used by other features.
-    + " -o feature@bookmarks=enabled " \          # default   # "zfs bookmark" command
-    + " -o feature@enabled_txg=enabled " \        # default   # Record txg at which a feature is enabled
-    + " -o feature@embedded_data=enabled " \      # default   # Blocks which compress very well use even less space.
-    + " -o feature@large_dnode=enabled " \        # default   # Variable on-disk size of dnodes.
-    + " -o feature@large_blocks=enabled " \       # default   # Support for blocks larger than 128KB.
-    + " -O atime=off " \                          #           # (dont write when reading)
-    + " -O compression=lz4 " \                    #           # (better than lzjb)
-    + " -O copies=1 " \                           #
-    + " -O xattr=off " \                          #           # (sa is better than on)
-    + " -O sharesmb=off " \                       #
-    + " -O sharenfs=off " \                       #
-    + " -O checksum=fletcher4 " \                 # default
-    + " -O dedup=off " \                          # default
-    + " -O utf8only=off " \                       # default
-    + "-m " + mount_point + " " \
-    + alt_root + ' ' + pool_name + ' ' + device_string
+    command = "zpool create "
+    command += " -o feature@async_destroy=enabled"       # default   # Destroy filesystems asynchronously.
+    command += " -o feature@empty_bpobj=enabled"         # default   # Snapshots use less space.
+    command += " -o feature@lz4_compress=enabled"        # default   # (independent of the zfs compression flag)
+    command += " -o feature@spacemap_histogram=enabled"  # default   # Spacemaps maintain space histograms.
+    command += " -o feature@extensible_dataset=enabled"  # default   # Enhanced dataset functionality.
+    command += " -o feature@bookmarks=enabled"           # default   # "zfs bookmark" command
+    command += " -o feature@enabled_txg=enabled"         # default   # Record txg at which a feature is enabled
+    command += " -o feature@embedded_data=enabled"       # default   # Blocks which compress very well use even less space.
+    command += " -o feature@large_dnode=enabled"         # default   # Variable on-disk size of dnodes.
+    command += " -o feature@large_blocks=enabled"        # default   # Support for blocks larger than 128KB.
+    command += " -O atime=off"                           #           # (dont write when reading)
+    command += " -O compression=lz4"                     #           # (better than lzjb)
+    command += " -O copies=1"                            #
+    command += " -O xattr=off"                           #           # (sa is better than on)
+    command += " -O sharesmb=off"                        #
+    command += " -O sharenfs=off"                        #
+    command += " -O checksum=fletcher4"                  # default
+    command += " -O dedup=off"                           # default
+    command += " -O utf8only=off"                        # default
+    command += " -m " + mount_point + " "
+    command += alt_root + ' ' + pool_name + ' ' + device_string
 
-    print(zpool_command)
-    #run_command(zpool_command)
+    print(command)
+    #run_command(command)
 

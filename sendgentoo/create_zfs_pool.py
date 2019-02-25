@@ -28,7 +28,7 @@ def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_poin
         assert not block_special_path_is_mounted(device)
         assert not device[-1].isdigit()
 
-    assert raid_group_size >= 2
+    assert raid_group_size >= 1
     assert len(devices) >= raid_group_size
 
     device_string = ''
@@ -39,6 +39,7 @@ def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_poin
     if len(devices) > 1:
         assert raid == 'mirror'
         assert len(devices) % 2 == 0
+        assert raid_group_size >= 2
 
     if len(devices) == 2:
         assert raid == 'mirror'

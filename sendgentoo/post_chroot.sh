@@ -11,6 +11,9 @@ set -o nounset
 #musl: http://distfiles.gentoo.org/experimental/amd64/musl/HOWTO
 #spark: https://github.com/holman/spark.git
 
+#export https_proxy="http://192.168.222.100:8888"
+#export http_proxy="http://192.168.222.100:8888"
+
 install_pkg_force_compile()
 {
         echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
@@ -72,13 +75,13 @@ root_filesystem="${1}"
 shift
 newpasswd="${1}"
 shift
-ip="${1}"
-shift
+
+mount | grep "/boot/efi" || exit 1
 
 zfs_module_mode="module"
 env-update || exit 1
 source /etc/profile || exit 1
-export PS1="(chroot) $PS1"
+#export PS1="(chroot) $PS1"
 
 #here down is stuff that might not need to run every time
 # ---- begin run once, critical stuff ----
@@ -158,9 +161,9 @@ cores=`grep processor /proc/cpuinfo | wc -l`
 grep "CONFIG_TRIM_UNUSED_KSYMS is not set" /usr/src/linux/.config || { echo "Rebuild the kernel with CONFIG_TRIM_UNUSED_KSYMS must be =n" ; exit 1 ; }
 grep "CONFIG_FB_EFI is not set" /usr/src/linux/.config && { echo "Rebuild the kernel with CONFIG_FB_EFI=y" ; exit 1 ; }
 
-echo "=sys-kernel/spl-9999 **"  >> /etc/portage/package.accept_keywords
-echo "=sys-fs/zfs-9999 **"      >> /etc/portage/package.accept_keywords
-echo "=sys-fs/zfs-kmod-9999 **" >> /etc/portage/package.accept_keywords
+#echo "=sys-kernel/spl-9999 **"  >> /etc/portage/package.accept_keywords
+#echo "=sys-fs/zfs-9999 **"      >> /etc/portage/package.accept_keywords
+#echo "=sys-fs/zfs-kmod-9999 **" >> /etc/portage/package.accept_keywords
 echo -e "#<fs>\t<mountpoint>\t<type>\t<opts>\t<dump/pass>" > /etc/fstab # create empty fstab
 ln -sf /proc/self/mounts /etc/mtab
 
@@ -217,6 +220,8 @@ install_pkg unison
 #ln -s /usr/bin/unison-2.48 /usr/bin/unison
 eselect unison list #todo
 
+
+echo "=dev-libs/openssl-1.1.1a" > /etc/portage/package.unmask
 install_pkg tmux
 install_pkg vim
 install_pkg dev-db/redis  # later on, fix_cfg_perms will try to use the redis:redis user
@@ -239,7 +244,8 @@ grep -E "^PermitRootLogin yes" /etc/ssh/sshd_config || echo "PermitRootLogin yes
 rc-update add sshd default
 
 install_pkg app-eselect/eselect-repository
-eselect repository add jakeogh git https://github.com/jakeogh/jakeogh
+eselect repository add jakeogh git https://github.com/jakeogh/jakeogh  #ignores http_proxy
+#git config --global http.proxy http://192.168.222.100:8888
 emaint sync -r jakeogh
 #install_pkg layman
 #layman -o "https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml" -f -a jakeogh
@@ -258,10 +264,10 @@ echo "dev-lang/python sqlite" >> /etc/portage/package.use/python || exit 1
 echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/python || exit 1
 install_pkg sendgentoo # must be done after jakeogh overlay
 
-mkdir /etc/portage/sets
-cp /home/cfg/sysskel/etc/portage/sets/laptopbeforereboot /etc/portage/sets/
-emerge @laptopbeforereboot -pv
-emerge @laptopbeforereboot
+#mkdir /etc/portage/sets
+#cp /home/cfg/sysskel/etc/portage/sets/laptopbeforereboot /etc/portage/sets/
+#emerge @laptopbeforereboot -pv
+#emerge @laptopbeforereboot  # needs global opengl flag
 
 echo "chroot_gentoo.sh complete" > /install_status
 

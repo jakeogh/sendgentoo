@@ -86,6 +86,8 @@ install_pkg dnsproxy
 
 echo "dev-lang/python sqlite" > /etc/portage/package.use/python  # this is done in post_chroot too...
 echo "media-libs/gd fontconfig jpeg png truetype" > /etc/portage/package.use/gd  # ditto
+echo "=dev-python/kcl-9999 **" > /etc/portage/package.accept_keywords
+echo "sys-apps/file python" > /etc/portage/package.use/file
 install_pkg kcl  # should not be explicitely installed... 
 
 chmod +x /home/cfg/setup/symlink_tree #this depends on kcl

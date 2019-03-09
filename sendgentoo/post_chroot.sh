@@ -242,9 +242,9 @@ grep -E "^PermitRootLogin yes" /etc/ssh/sshd_config || echo "PermitRootLogin yes
 rc-update add sshd default
 
 install_pkg app-eselect/eselect-repository
-#eselect repository add jakeogh https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml
+eselect repository add jakeogh git https://github.com/jakeogh/jakeogh
 install_pkg layman
-layman -o "https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml" -f -a jakeogh
+#layman -o "https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml" -f -a jakeogh
 layman -S # update layman trees
 
 # must be done after overlay is installed

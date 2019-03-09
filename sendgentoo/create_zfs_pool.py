@@ -69,7 +69,7 @@ def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_poin
 
     #-o cachefile='/tmp/zpool.cache'\
 
-    command = "zpool create "
+    command = "zpool create"
     command += " -o feature@async_destroy=enabled"       # default   # Destroy filesystems asynchronously.
     command += " -o feature@empty_bpobj=enabled"         # default   # Snapshots use less space.
     command += " -o feature@lz4_compress=enabled"        # default   # (independent of the zfs compression flag)
@@ -89,7 +89,7 @@ def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_poin
     command += " -O checksum=fletcher4"                  # default
     command += " -O dedup=off"                           # default
     command += " -O utf8only=off"                        # default
-    command += " -m " + mount_point + " "
+    command += " -m " + mount_point + ' '
     command += alt_root + ' ' + pool_name + ' ' + device_string
 
     print(command)

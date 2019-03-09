@@ -12,6 +12,10 @@ root_filesystem="${5}"
 newpasswd="${6}"
 ip="${7}"
 
+grep -E "^config_eth0=\"${ip}/24\"" /mnt/gentoo/etc/conf.d/net || echo "config_eth0=\"${ip}/24\"" >> /mnt/gentoo/etc/conf.d/net
+
+echo "hostname=\"${hostname}\"" > /mnt/gentoo/etc/conf.d/hostname
+
 echo "checking /proc /sys and /dev mounts in prep to chroot"
 mount | grep '/mnt/gentoo/proc' || { mount -t proc none /mnt/gentoo/proc || exit 1 ; }
 mount | grep '/mnt/gentoo/sys' || { mount --rbind /sys /mnt/gentoo/sys || exit 1 ; }
@@ -23,7 +27,6 @@ mount | grep '/mnt/gentoo/usr/portage' || { mount --rbind /usr/portage /mnt/gent
 
 echo "making /mnt/gentoo/home/cfg"
 test -d /mnt/gentoo/home/cfg || { mkdir -p /mnt/gentoo/home/cfg || exit 1 ; }
-#mount | grep '/mnt/gentoo/home/cfg' || { mount --rbind /home/cfg /mnt/gentoo/home/cfg || exit 1 ; }
 
 test -d /mnt/gentoo/usr/local/portage || { mkdir -p /mnt/gentoo/usr/local/portage || exit 1 ; }
 
@@ -35,8 +38,6 @@ cd /home || exit 1
 
 rsync --exclude="_priv" --one-file-system --delete -v -r -z -l --progress /home/cfg /mnt/gentoo/home/ || exit 1
 
-#test -h /mnt/gentoo/boot/vmlinuz || { cp -af /boot/* /mnt/gentoo/boot/ || exit 1 ; }
-
 if [[ "${root_filesystem}" == 'zfs' ]];
 then
     mkdir -p /mnt/gentoo/etc/zfs
@@ -44,9 +45,7 @@ then
 fi
 
 echo "Entering chroot"
-env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l -c "su - -c '/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh ${stdlib} ${boot_device} ${hostname} ${cflags} ${root_filesystem} ${newpasswd} ${ip}'" || { echo "post_chroot.sh exited $?" ; exit 1 ; }
-
-#eclean-pkg -d #remove outdated binary packages before cp #hm, deletes stuff it shouldnt...
+env -i HOME=/root TERM=$TERM chroot /mnt/gentoo /bin/bash -l -c "su - -c '/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh ${stdlib} ${boot_device} ${cflags} ${root_filesystem} ${newpasswd}'" || { echo "post_chroot.sh exited $?" ; exit 1 ; }
 
 umount /mnt/gentoo/usr/portage || exit 1
 portage_size=`du -s /usr/portage | cut -f 1`

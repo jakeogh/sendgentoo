@@ -2,8 +2,8 @@
 
 echo -n "post_chroot.sh args: "
 echo "$@"
-argcount=7
-usage="stdlib boot_device hostname cflags root_filesystem newpasswd ip"
+argcount=5
+usage="stdlib boot_device cflags root_filesystem newpasswd"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 
 set -o nounset
@@ -62,11 +62,9 @@ queue_emerge()
 }
 
 
-stdlib="${1}"
+stdlib="${1}"  # unused
 shift
 boot_device="${1}"
-shift
-hostname="${1}"
 shift
 cflags="${1}"
 shift
@@ -94,7 +92,6 @@ eselect python set python3.6 || exit 1
 eselect python list
 eselect profile list
 
-echo "hostname=\"${hostname}\"" > /etc/conf.d/hostname
 grep -E "^en_US.UTF-8 UTF-8" /etc/locale.gen || { echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen ; }
 locale-gen    #hm, musl does not need this? dont fail here for uclibc or musl
 grep -E '''^LC_COLLATE="C"''' /etc/env.d/02collate || { echo "LC_COLLATE=\"C\"" >> /etc/env.d/02collate ; }
@@ -137,7 +134,7 @@ then
    #echo "GRUB_CMDLINE_LINUX_DEFAULT=\"boot=zfs root=ZFS=rpool/ROOT\"" >> /etc/default/grub
    #echo "GRUB_CMDLINE_LINUX_DEFAULT=\"boot=zfs\"" >> /etc/default/grub
    #echo "GRUB_DEVICE=\"ZFS=rpool/ROOT/gentoo\"" >> /etc/default/grub
-    echo "GRUB_DEVICE=\"ZFS=${hostname}/ROOT/gentoo\"" >> /etc/default/grub
+   # echo "GRUB_DEVICE=\"ZFS=${hostname}/ROOT/gentoo\"" >> /etc/default/grub #this was uncommented, disabled to not use hostname
 else
     root_partition=`/home/cfg/linux/disk/get_root_device`
     echo "-------------- root_partition: ${root_partition} ---------------------"
@@ -182,7 +179,7 @@ cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
 rc-update add zfs-mount boot || exit 1
 install_pkg dhcpcd  # not in stage3
 
-grep -E "^config_eth0=\"${ip}/24\"" /etc/conf.d/net || echo "config_eth0=\"${ip}/24\"" >> /etc/conf.d/net
+#grep -E "^config_eth0=\"${ip}/24\"" /etc/conf.d/net || echo "config_eth0=\"${ip}/24\"" >> /etc/conf.d/net
 ln -rs /etc/init.d/net.lo /etc/init.d/net.eth0
 rc-update add net.eth0 default
 
@@ -243,9 +240,10 @@ rc-update add sshd default
 
 install_pkg app-eselect/eselect-repository
 eselect repository add jakeogh git https://github.com/jakeogh/jakeogh
-install_pkg layman
+emaint sync -r jakeogh
+#install_pkg layman
 #layman -o "https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml" -f -a jakeogh
-layman -S # update layman trees
+#layman -S # update layman trees
 
 # must be done after overlay is installed
 echo "=dev-python/replace-text-9999 **" >> /etc/portage/package.accept_keywords

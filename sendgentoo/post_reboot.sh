@@ -11,6 +11,7 @@ install_pkg_force_compile()
 {
         echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
         emerge -pv     --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
+        echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
         emerge --quiet --tree --usepkg=n -u --ask n -n $@ > /dev/stderr || exit 1
 }
 
@@ -18,43 +19,8 @@ install_pkg()
 {
         echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
         emerge -pv     --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
+        echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
         emerge --quiet --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr || exit 1
-}
-
-emerge_world()
-{
-        echo "emerge_world()" > /dev/stderr
-        emerge -pv     --backtrack=130 --usepkg=n --tree -u --ask n -n world > /dev/stderr
-        emerge --quiet --backtrack=130 --usepkg=n --tree -u --ask n -n world > /dev/stderr || exit 1
-}
-
-queue_emerge()
-{
-    echo "entering queue_emerge()" > /dev/stderr
-        echo "adding ${@} to world"
-        while [ $# -gt 0 ]
-        do
-            inpkg="${1}"
-            pkg=`eix -e# "${inpkg}"`
-            #emerge -puv "${pkg}"
-            #emerge -puv "${pkg}" | grep "^\[ebuild" | grep "${pkg}"
-            exit_status="$?"
-            if [[ "${exit_status}" == 0 ]];
-            then
-                echo "adding to /var/lib/portage/world: ${pkg}"
-                grep "${pkg}" /var/lib/portage/world > /dev/null 2>&1 || { echo "${pkg}" >> /var/lib/portage/world ; }
-            else
-                echo "${pkg} failed"
-            fi
-            emerge -pv --usepkg=n --tree -u --ask n -n world
-            exit_status="$?"
-            if [[ "${exit_status}" != 0 ]];
-            then
-                echo "emerge world failed on ${pkg}"
-                exit 1
-            fi
-        shift
-        done
 }
 
 
@@ -118,7 +84,6 @@ echo "user:$newpasswd" | chpasswd || exit 1
 for x in cdrom cdrw usb audio plugdev video wheel; do gpasswd -a user $x ; done
 
 /home/cfg/setup/fix_cfg_perms #must happen when user exists
-
 
 test -h /home/user/__email_folders || { ln -s /mnt/t420s_160GB_kingston_ssd_SNM225/__email_folders /home/user/__email_folders || exit 1 ; }
 
@@ -226,8 +191,8 @@ emerge --config dev-db/postgresql:"${pg_version}" # didnt work ?
 #perl-cleaner modules # needed to avoid XML::Parser... configure: error
 #perl-cleaner --reallyall
 
-emerge @laptopbase -pv  # https://dev.gentoo.org/~zmedico/portage/doc/ch02.html
-emerge @laptopbase
+install_pkg @laptopbase  # https://dev.gentoo.org/~zmedico/portage/doc/ch02.html
+#emerge @laptopbase
 
 # forever compile time
 #install_pkg app-text/pandoc #doc processing, txt to pdf and everything else under the sun

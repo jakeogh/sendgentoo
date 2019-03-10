@@ -71,6 +71,14 @@ mkdir /delme
 mkdir /usr/portage
 chown -R portage:portage /usr/portage
 
+test -h /home/user/cfg || { ln -s /home/cfg /home/user/cfg || exit 1 ; }
+test -h /root/cfg      || { ln -s /home/cfg /root/cfg      || exit 1 ; }
+test -h /home/user/_myapps || { ln -s /home/cfg/_myapps /home/user/_myapps || exit 1 ; }
+test -h /root/_myapps      || { ln -s /home/cfg/_myapps /root/_myapps      || exit 1 ; }
+
+test -h /home/user/_repos || { ln -s /home/cfg/_repos /home/user/_repos || exit 1 ; }
+test -h /root/_repos      || { ln -s /home/cfg/_repos /root/_repos || exit 1 ; }
+
 /usr/bin/emerge -u --oneshot sys-devel/libtool
 #emerge world --newuse  # this could upgrade gcc and take a long time
 #gcc-config 2
@@ -111,13 +119,6 @@ for x in cdrom cdrw usb audio plugdev video wheel; do gpasswd -a user $x ; done
 
 /home/cfg/setup/fix_cfg_perms #must happen when user exists
 
-test -h /home/user/cfg || { ln -s /home/cfg /home/user/cfg || exit 1 ; }
-test -h /root/cfg      || { ln -s /home/cfg /root/cfg      || exit 1 ; }
-test -h /home/user/_myapps || { ln -s /home/cfg/_myapps /home/user/_myapps || exit 1 ; }
-test -h /root/_myapps      || { ln -s /home/cfg/_myapps /root/_myapps      || exit 1 ; }
-
-test -h /home/user/_repos || { ln -s /home/cfg/_repos /home/user/_repos || exit 1 ; }
-test -h /root/_repos      || { ln -s /home/cfg/_repos /root/_repos || exit 1 ; }
 
 test -h /home/user/__email_folders || { ln -s /mnt/t420s_160GB_kingston_ssd_SNM225/__email_folders /home/user/__email_folders || exit 1 ; }
 
@@ -217,6 +218,7 @@ install_pkg eix
 chown portage:portage /var/cache/eix
 eix-update
 
+install_pkg postgresql
 pg_version=`/home/cfg/postgresql/version`
 rc-update add "postgresql-${pg_version}" default
 emerge --config dev-db/postgresql:"${pg_version}" # didnt work ?

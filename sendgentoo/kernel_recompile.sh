@@ -17,7 +17,9 @@ am_i_root
 if [ -e "/usr/src/linux/init/.init_task.o.cmd" ];
 then
     echo "found previously compiled kernel tree, checking is the current gcc version was used"
-    grep gcc/x86_64-pc-linux-gnu/`gcc-config -l | cut -d '-' -f 5 | cut -d ' ' -f 1 | sort | tail -n 1` /usr/src/linux/init/.init_task.o.cmd > /dev/null || \
+    gcc_ver=`gcc-config -l | grep '*' | cut -d '-' -f 5 | cut -d ' ' -f 1`
+    echo "checking for gcc version: ${gcc_ver}"
+    grep gcc/x86_64-pc-linux-gnu/"${gcc_ver}" /usr/src/linux/init/.init_task.o.cmd > /dev/null || \
         { echo "old gcc version detected, make clean required. Sleeping 5." && cd /usr/src/linux && sleep 5 && make clean ; }
 fi
 

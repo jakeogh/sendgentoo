@@ -45,6 +45,7 @@ sendgentoo.add_command(create_zfs_pool)
 @click.option('--boot-filesystem',             is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
 @click.option('--root-filesystem',             is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
 @click.option('--c-std-lib',                   is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']))
+@click.option('--arch',                        is_flag=False, required=True, type=click.Choice(['alpha', 'amd64', 'arm', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86'])
 @click.option('--raid',                        is_flag=False, required=True, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']))
 @click.option('--raid-group-size',             is_flag=False, required=True, type=click.IntRange(1, 2))
 @click.option('--march',                       is_flag=False, required=True, type=click.Choice(['native', 'x86-64']))
@@ -56,7 +57,7 @@ sendgentoo.add_command(create_zfs_pool)
 @click.option('--encrypt',                     is_flag=True,  required=False)
 @click.option('--multilib',                    is_flag=True,  required=False)
 @click.pass_context
-def install(ctx, root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, raid, raid_group_size, march, hostname, newpasswd, ip, force, encrypt, multilib):
+def install(ctx, root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, arch, raid, raid_group_size, march, hostname, newpasswd, ip, force, encrypt, multilib):
     assert isinstance(root_devices, tuple)
     assert hostname.lower() == hostname
     if not os.path.isdir('/usr/portage/distfiles'):
@@ -178,7 +179,7 @@ def install(ctx, root_devices, boot_device, boot_device_partition_table, root_de
         efi_mount_command = "mount " + boot_device + "2 /mnt/gentoo/boot/efi"
 
     run_command(efi_mount_command)
-    install_stage3(c_std_lib=c_std_lib, multilib=multilib)
+    install_stage3(c_std_lib=c_std_lib, multilib=multilib, arch=arch)
 
     #if march == 'native':
     chroot_gentoo_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' ' + march + ' ' + root_filesystem + ' ' + newpasswd + ' ' + ip

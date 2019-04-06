@@ -35,35 +35,6 @@ emerge_world()
         emerge --quiet --backtrack=130 --usepkg=n --tree -u --ask n -n world > /dev/stderr || exit 1
 }
 
-queue_emerge()
-{
-    echo "entering queue_emerge()" > /dev/stderr
-        echo "adding ${@} to world"
-        while [ $# -gt 0 ]
-        do
-            inpkg="${1}"
-            pkg=`eix -e# "${inpkg}"`
-            #emerge -puv "${pkg}"
-            #emerge -puv "${pkg}" | grep "^\[ebuild" | grep "${pkg}"
-            exit_status="$?"
-            if [[ "${exit_status}" == 0 ]];
-            then
-                echo "adding to /var/lib/portage/world: ${pkg}"
-                grep "${pkg}" /var/lib/portage/world > /dev/null 2>&1 || { echo "${pkg}" >> /var/lib/portage/world ; }
-            else
-                echo "${pkg} failed"
-            fi
-            emerge -pv --usepkg=n --tree -u --ask n -n world
-            exit_status="$?"
-            if [[ "${exit_status}" != 0 ]];
-            then
-                echo "emerge world failed on ${pkg}"
-                exit 1
-            fi
-        shift
-        done
-}
-
 
 stdlib="${1}"  # unused
 shift

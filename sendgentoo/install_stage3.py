@@ -12,12 +12,12 @@ from .get_stage3_url import get_stage3_url
 from .download_stage3 import download_stage3
 
 
-def install_stage3(c_std_lib, multilib):
-    ceprint("c_std_lib:", c_std_lib, "multilib:", multilib)
+def install_stage3(c_std_lib, multilib, arch):
+    ceprint("c_std_lib:", c_std_lib, "multilib:", multilib, "arch:", arch)
     os.chdir('/mnt/gentoo')
     assert os.getcwd() == '/mnt/gentoo'
     assert path_is_mounted('/mnt/gentoo')
-    url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib)
+    url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib, arch=arch)
     stage3_file = download_stage3(c_std_lib=c_std_lib, multilib=multilib, url=url)
     assert file_exists(stage3_file)
     #gpg = gnupg.GPG(verbose=True)
@@ -40,8 +40,9 @@ def install_stage3(c_std_lib, multilib):
 @click.command()
 @click.option('--c-std-lib', is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']))
 @click.option('--multilib', is_flag=True, required=False)
-def main(c_std_lib, multilib):
-    install_stage3(c_std_lib=c_std_lib, multilib=multilib)
+@click.option('--arch', is_flag=False, required=True, type=click.Choice(['alpha', 'amd64', 'arm', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86'])
+def main(c_std_lib, multilib, arch):
+    install_stage3(c_std_lib=c_std_lib, multilib=multilib, arch=arch)
 
 
 if __name__ == '__main__':

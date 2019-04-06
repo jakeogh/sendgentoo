@@ -17,20 +17,20 @@ def download_file(url):
         eprint("skipping download, file exists:", local_filename)
     r.close()
 
-def get_stage3_url(c_std_lib, multilib):
+def get_stage3_url(c_std_lib, multilib, arch):
     #mirror = 'http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/'
-    mirror = 'http://gentoo.osuosl.org/releases/amd64/autobuilds/'
+    mirror = 'http://gentoo.osuosl.org/releases/' + arch + '/autobuilds/'
     if c_std_lib == 'glibc':
         if not multilib:
-            latest = 'latest-stage3-amd64-hardened+nomultilib.txt'
+            latest = 'latest-stage3-' + arch + '-hardened+nomultilib.txt'
         else:
-            latest = 'latest-stage3-amd64-hardened.txt'
+            latest = 'latest-stage3-' + arch + '-hardened.txt'
     if c_std_lib == 'musl':
         latest = ''
         eprint("cant use musl yet")
         quit(1)
     if c_std_lib == 'uclibc':
-        latest = 'latest-stage3-amd64-uclibc-hardened.txt'
+        latest = 'latest-stage3-' + arch + '-uclibc-hardened.txt'
         eprint("uclibc wont compile efivars")
         quit(1)
     r = requests.get(mirror + latest)
@@ -38,7 +38,7 @@ def get_stage3_url(c_std_lib, multilib):
     autobuild_file_lines = r.text.split('\n')
     r.close()
     for line in autobuild_file_lines:
-        if 'stage3-amd64' in line:
+        if 'stage3-' + arch in line:
             path = line.split(' ')[0]
             break
     #eprint('path:', path)

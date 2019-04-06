@@ -55,17 +55,18 @@ test -h /root/_repos      || { ln -s /home/cfg/_repos /root/_repos || exit 1 ; }
 emerge -u -1 portage
 
 mkdir /etc/dnsmasq.d
-install_pkg dnsmasq
+install_pkg dnsmasq || exit 1
 install_pkg dnsproxy
 
-echo "dev-lang/python sqlite" > /etc/portage/package.use/python  # this is done in post_chroot too...
-echo "media-libs/gd fontconfig jpeg png truetype" > /etc/portage/package.use/gd  # ditto
-echo "=dev-python/kcl-9999 **" > /etc/portage/package.accept_keywords
-echo "sys-apps/file python" > /etc/portage/package.use/file
-install_pkg kcl  # should not be explicitely installed... 
+mkdir /etc/portage/package.use
+grep -E "^dev-lang/python sqlite" /etc/portage/package.use/python || { echo "dev-lang/python sqlite" >> /etc/portage/package.use/python ; }  # this is done in post_chroot too...
+grep -E "^media-libs/gd fontconfig jpeg png truetype" /etc/portage/package.use/gd || { echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/gd ; }  # ditto
+grep -E "^=dev-python/kcl-9999 **" /etc/portage/package.accept_keywords || { echo "=dev-python/kcl-9999 **" >> /etc/portage/package.accept_keywords ; }
+#echo "sys-apps/file python" > /etc/portage/package.use/file
+install_pkg kcl || exit 1 # should not be explicitely installed... 
 
-chmod +x /home/cfg/setup/symlink_tree #this depends on kcl
-/home/cfg/setup/symlink_tree /home/cfg/sysskel/ || exit 1
+chmod +x /home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py #this depends on kcl
+/home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py /home/cfg/sysskel/ || exit 1
 
 rc-update add dnsmasq default
 rc-update add dnsproxy default
@@ -75,6 +76,8 @@ rc-update add dnsproxy default
 install_pkg dnsgate
 install_pkg app-misc/edit  # pulls in commandlock
 install_pkg net-fs/nfs-utils  # nice to have, dont want to wait for the set to install it, needs overlay
+
+echo "MACHINE_SIG=\"`/home/cfg/hardware/make_machine_signature_string`\"" > /etc/env.d/99machine_sig
 
 #must be done after symlink_tree so etc/skel gets populated
 test -d /home/user || { useradd --create-home user || exit 1 ; }
@@ -97,8 +100,8 @@ touch /home/user/.pdfbox.cache
 chattr +i /home/user/.pdfbox.cache
 
 # in case the old make.conf is not using the latest python, really the lines should be grabbed from the stock one in the stage 3
-echo "PYTHON_TARGETS=\"python2_7 python3_6\"" >> /etc/portage/make.conf
-echo "PYTHON_SINGLE_TARGET=\"python3_6\"" >> /etc/portage/make.conf
+grep -E "PYTHON_TARGETS=\"python2_7 python3_6\"" /etc/portage/make.conf || { echo "PYTHON_TARGETS=\"python2_7 python3_6\"" >> /etc/portage/make.conf ; }
+grep -E "PYTHON_SINGLE_TARGET=\"python3_6\"" /etc/portage/make.conf || { echo "PYTHON_SINGLE_TARGET=\"python3_6\"" >> /etc/portage/make.conf ; }
 
 /home/cfg/git/configure_git_global
 
@@ -186,7 +189,7 @@ eix-update
 install_pkg postgresql
 pg_version=`/home/cfg/postgresql/version`
 rc-update add "postgresql-${pg_version}" default
-emerge --config dev-db/postgresql:"${pg_version}" # didnt work ?
+emerge --config dev-db/postgresql:"${pg_version}"  # ok to fail if already conf
 
 #perl-cleaner modules # needed to avoid XML::Parser... configure: error
 #perl-cleaner --reallyall
@@ -203,6 +206,7 @@ install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys
 install_pkg alsa-utils #alsamixer
 rc-update add alsasound boot
 install_pkg media-plugins/alsaequal
+install_pkg media-sound/alsa-tools
 
 if [[ -d '/usr/src/linux/.git' ]];
 then

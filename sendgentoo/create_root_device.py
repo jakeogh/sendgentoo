@@ -35,7 +35,7 @@ def create_root_device(ctx, devices, partition_table, filesystem, force, exclusi
     if exclusive:
         if filesystem != 'zfs':
             ctx.invoke(destroy_block_device_head_and_tail, device=device, force=True)
-            ctx.invoke(write_gpt, device, no_wipe=True, force=force, no_backup=False) #zfs does this on it's own, feed it a blank disk
+            ctx.invoke(write_gpt, device=device, no_wipe=True, force=force, no_backup=False) #zfs does this on it's own, feed it a blank disk
     else:
         pass
 

@@ -33,7 +33,7 @@ def write_sysfs_partition(devices, filesystem, force, exclusive, raid, raid_grou
     if not force:
         warn(devices)
 
-    if filesystem == 'ext4':
+    if filesystem in ['ext4', 'fat32']:
         assert len(devices) == 1
         if exclusive:
             #destroy_block_device_head_and_tail(device=device, force=True) #these are done in create_root_device
@@ -49,7 +49,14 @@ def write_sysfs_partition(devices, filesystem, force, exclusive, raid, raid_grou
         run_command("parted -a optimal " + devices[0] + " --script -- mkpart primary " + start + ' ' + end)
         run_command("parted  " + devices[0] + " --script -- name " + partition_number + " rootfs")
         time.sleep(1)
-        run_command("mkfs.ext4 " + devices[0] + partition_number)
+        if filesystem == 'ext4':
+            run_command("mkfs.ext4 " + devices[0] + partition_number)
+        elif filesystem == 'fat32':
+            run_command("mkfs.vfat " + devices[0] + partition_number)
+        else:
+            eprint("unknown filesystem:", filesystem)
+            quit(1)
+
 
     elif filesystem == 'zfs':
         assert exclusive

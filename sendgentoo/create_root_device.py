@@ -11,6 +11,16 @@ from .setup_globals import RAID_LIST
 from kcl.deviceops import warn
 
 
+@click.command()
+@click.argument('devices',         required=True, nargs=-1)
+@click.option('--partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
+@click.option('--filesystem',      is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
+@click.option('--force',           is_flag=True,  required=False)
+@click.option('--exclusive',       is_flag=True,  required=False)
+@click.option('--raid',            is_flag=False, required=True, type=click.Choice(RAID_LIST))
+@click.option('--raid-group-size', is_flag=False, required=True, type=int)
+@click.option('--pool-name',       is_flag=False, required=False, type=str)
+@click.pass_context
 def create_root_device(ctx, devices, partition_table, filesystem, force, exclusive, raid, raid_group_size, pool_name=False):
     eprint("installing gentoo on root devices:", ' '.join(devices), '(' + partition_table + ')', '(' + filesystem + ')', '(', pool_name, ')')
     for device in devices:
@@ -35,19 +45,19 @@ def create_root_device(ctx, devices, partition_table, filesystem, force, exclusi
         ctx.invoke(write_sysfs_partition, devices=devices, force=True, exclusive=exclusive, filesystem=filesystem, raid=raid, raid_group_size=raid_group_size)
 
 
-@click.command()
-@click.argument('devices',         required=True, nargs=-1)
-@click.option('--partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
-@click.option('--filesystem',      is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
-@click.option('--force',           is_flag=True,  required=False)
-@click.option('--exclusive',       is_flag=True,  required=False)
-@click.option('--raid',            is_flag=False, required=True, type=click.Choice(RAID_LIST))
-@click.option('--raid-group-size', is_flag=False, required=True, type=int)
-@click.option('--pool-name',       is_flag=False, required=False, type=str)
-@click.pass_context
-def main(ctx, devices, partition_table, filesystem, force, exclusive, raid, raid_group_size, pool_name):
-    create_root_device(ctx, devices=devices, partition_table=partition_table, filesystem=filesystem, force=force, exclusive=exclusive, raid=raid, raid_group_size=raid_group_size, pool_name=pool_name)
-
-
-if __name__ == '__main__':
-    main()
+#@click.command()
+#@click.argument('devices',         required=True, nargs=-1)
+#@click.option('--partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
+#@click.option('--filesystem',      is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
+#@click.option('--force',           is_flag=True,  required=False)
+#@click.option('--exclusive',       is_flag=True,  required=False)
+#@click.option('--raid',            is_flag=False, required=True, type=click.Choice(RAID_LIST))
+#@click.option('--raid-group-size', is_flag=False, required=True, type=int)
+#@click.option('--pool-name',       is_flag=False, required=False, type=str)
+#@click.pass_context
+#def main(ctx, devices, partition_table, filesystem, force, exclusive, raid, raid_group_size, pool_name):
+#    create_root_device(ctx, devices=devices, partition_table=partition_table, filesystem=filesystem, force=force, exclusive=exclusive, raid=raid, raid_group_size=raid_group_size, pool_name=pool_name)
+#
+#
+#if __name__ == '__main__':
+#    main()

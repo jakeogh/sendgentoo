@@ -37,7 +37,7 @@ sendgentoo.add_command(luksformat)
 sendgentoo.add_command(create_filesystem)
 sendgentoo.add_command(create_zfs_pool)
 sendgentoo.add_command(create_root_device)
-sendgentoo.add_command(create_boot_device)
+#sendgentoo.add_command(create_boot_device)
 
 @sendgentoo.command()
 @click.argument('root_devices',                required=True, nargs=-1)

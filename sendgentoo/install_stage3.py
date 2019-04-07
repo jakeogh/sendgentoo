@@ -40,7 +40,7 @@ def install_stage3(c_std_lib, multilib, arch):
 @click.command()
 @click.option('--c-std-lib', is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']))
 @click.option('--multilib', is_flag=True, required=False)
-@click.option('--arch', is_flag=False, required=True, type=click.Choice(['alpha', 'amd64', 'arm', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86'])
+@click.option('--arch', is_flag=False, required=True, type=click.Choice(['alpha', 'amd64', 'arm', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86']))
 def main(c_std_lib, multilib, arch):
     install_stage3(c_std_lib=c_std_lib, multilib=multilib, arch=arch)
 

@@ -46,7 +46,7 @@ def write_sysfs_partition(devices, filesystem, force, exclusive, raid, raid_grou
             start = "100MiB"
             end = "100%"
 
-        run_command("parted -a optimal " + devices[0] + " --script -- mkpart primary " + start + ' ' + end)
+        run_command("parted -a optimal " + devices[0] + " --script -- mkpart primary " + filesystem + ' ' + start + ' ' + end)
         run_command("parted  " + devices[0] + " --script -- name " + partition_number + " rootfs")
         time.sleep(1)
         if filesystem == 'ext4':

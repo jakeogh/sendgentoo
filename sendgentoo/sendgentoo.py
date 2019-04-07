@@ -56,8 +56,9 @@ sendgentoo.add_command(create_zfs_pool)
 @click.option('--force',                       is_flag=True,  required=False)
 @click.option('--encrypt',                     is_flag=True,  required=False)
 @click.option('--multilib',                    is_flag=True,  required=False)
+@click.option('--minimal',                     is_flag=True,  required=False)
 @click.pass_context
-def install(ctx, root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, arch, raid, raid_group_size, march, hostname, newpasswd, ip, force, encrypt, multilib):
+def install(ctx, root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, arch, raid, raid_group_size, march, hostname, newpasswd, ip, force, encrypt, multilib, minimal):
     assert isinstance(root_devices, tuple)
     assert hostname.lower() == hostname
     if not os.path.isdir('/usr/portage/distfiles'):

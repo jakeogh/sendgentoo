@@ -14,7 +14,7 @@ from kcl.deviceops import warn
 @click.command()
 @click.argument('devices',         required=True, nargs=-1)
 @click.option('--partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
-@click.option('--filesystem',      is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
+@click.option('--filesystem',      is_flag=False, required=True, type=click.Choice(['ext4', 'zfs', 'fat32']))
 @click.option('--force',           is_flag=True,  required=False)
 @click.option('--exclusive',       is_flag=True,  required=False)
 @click.option('--raid',            is_flag=False, required=True, type=click.Choice(RAID_LIST))

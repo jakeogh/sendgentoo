@@ -131,7 +131,7 @@ then
 fi
 
 install_pkg cpuid2cpuflags
-echo "*/* $(cpuid2cpuflags)" > /etc/portage/00cpu-flags
+echo CPU_FLAGS_X86=\"`cpuid2cpuflags | cut -d ' ' -f 2-`\" > /etc/portage/00cpu-flags
 
 install_pkg dev-vcs/git # need this for any -9999 packages (zfs)
 #emerge @preserved-rebuild # good spot to do this as a bunch of flags just changed

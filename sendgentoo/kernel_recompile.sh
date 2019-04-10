@@ -2,6 +2,14 @@
 
 echo "entering kernel_recompile.sh"
 
+if [ "${1}" == '--menuconfig' ];
+then
+    menuconfig="${1}"
+else
+    menuconfig=""
+fi
+
+
 am_i_root()
 {
     # Sanity Check: Test if the script runs as root
@@ -14,13 +22,25 @@ am_i_root()
 
 am_i_root
 
+compile_kernel()
+{
+    genkernel all \
+    $menuconfig \
+    --no-clean \
+    --zfs \
+    --symlink \
+    --makeopts="-j12" \
+    --callback="/usr/bin/emerge zfs zfs-kmod @module-rebuild" || exit 1
+}
+
+
 if [ -e "/usr/src/linux/init/.init_task.o.cmd" ];
 then
     echo "found previously compiled kernel tree, checking is the current gcc version was used"
     gcc_ver=`gcc-config -l | grep '*' | cut -d '-' -f 5 | cut -d ' ' -f 1`
     echo "checking for gcc version: ${gcc_ver}"
     grep gcc/x86_64-pc-linux-gnu/"${gcc_ver}" /usr/src/linux/init/.init_task.o.cmd > /dev/null || \
-        { echo "old gcc version detected, make clean required. Sleeping 5." && cd /usr/src/linux && sleep 5 && make clean ; }
+        { echo "old gcc version detected, make clean required. Sleeping 5." && cd /usr/src/linux && sleep 5 && make clean ; } && echo "gcc ${gcc_ver} was used to compile kernel previously, not running \"make clean\""
 fi
 
 # these fail on the first compile. fixme
@@ -36,25 +56,13 @@ test -e /usr/src/linux/.config || ln -s /home/cfg/sysskel/usr/src/linux_configs/
 
 cd /usr/src/linux || exit 1
 
-if [ ! -s "/boot/initramfs" ] && [ ! -e "/usr/src/linux/include/linux/kconfig.h" ]; # -s follows symlinks
+
+if [ -n "${menuconfig}" ];
 then
-   if [ "${1}" == '--menuconfig' ];
-   then
-       genkernel all \
-       --menuconfig \
-       --no-clean \
-       --zfs \
-       --symlink \
-       --makeopts="-j12" \
-       --callback="/usr/bin/emerge zfs zfs-kmod @module-rebuild" || exit 1
-   else
-       genkernel all \
-       --no-clean \
-       --zfs \
-       --symlink \
-       --makeopts="-j12" \
-       --callback="/usr/bin/emerge zfs zfs-kmod @module-rebuild" || exit 1
-   fi
+    compile_kernel
+elif [ ! -s "/boot/initramfs" ] && [ ! -e "/usr/src/linux/include/linux/kconfig.h" ]; # -s follows symlinks
+then
+    compile_kernel
 else
     echo "/boot/initramfs exists, skipping genkernel"
 fi

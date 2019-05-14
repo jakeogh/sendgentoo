@@ -9,7 +9,8 @@ from kcl.printops import eprint
 @click.argument('name', required=True, nargs=1)
 @click.option('--encrypt', is_flag=True, required=False)
 @click.option('--force', is_flag=True, required=False)
-def create_zfs_filesystem(pool, name, encrypt, force):
+@click.option('--exec', 'exe', is_flag=True, required=False)
+def create_zfs_filesystem(pool, name, encrypt, force, exe):
     eprint("make_zfs_filesystem_on_devices()")
 
     assert not pool.startswith('/')
@@ -26,6 +27,8 @@ def create_zfs_filesystem(pool, name, encrypt, force):
         command += " -o encryption=aes-256-gcm"
         command += " -o keyformat=passphrase"
         command += " -o keylocation=prompt"
+    if not exe:
+        command += " -o exec=off"
     command += " -o mountpoint=/" + pool + '/' + name + ' ' + pool + '/' + name
 
     print(command)

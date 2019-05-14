@@ -15,9 +15,9 @@ from .setup_globals import RAID_LIST
 @click.option('--raid', is_flag=False, required=True, type=click.Choice(RAID_LIST))
 @click.option('--raid-group-size', is_flag=False, required=True, type=int)
 @click.option('--pool-name', is_flag=False, required=True, type=str)
-@click.option('--mount-point', is_flag=False, required=True, type=str)
-@click.option('--alt-root', is_flag=False, required=False, type=str)
-def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_point, alt_root):
+#@click.option('--mount-point', is_flag=False, required=False, type=str)
+#@click.option('--alt-root', is_flag=False, required=False, type=str)
+def create_zfs_pool(devices, force, raid, raid_group_size, pool_name):
     eprint("make_zfs_filesystem_on_devices()")
 
     # https://raw.githubusercontent.com/ryao/zfs-overlay/master/zfs-install
@@ -46,7 +46,7 @@ def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_poin
         device_string = "mirror " + devices[0] + ' ' + devices[1]
 
     if len(devices) > 2:
-        if raid_group_size == 2: # striped mirror raid10
+        if raid_group_size == 2:  # striped mirror raid10
             for pair in grouper(devices, 2):
                 device_string = device_string + "mirror " + pair[0] + ' ' + pair[1] + ' '
                 eprint("device_string:", device_string)
@@ -62,10 +62,10 @@ def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_poin
 
     assert len(pool_name) > 2
 
-    if alt_root:
-        alt_root = '-R ' + alt_root
-    else:
-        alt_root = ''
+#    if alt_root:
+#        alt_root = '-R ' + alt_root
+#    else:
+#        alt_root = ''
 
     #-o cachefile='/tmp/zpool.cache'\
 
@@ -89,8 +89,11 @@ def create_zfs_pool(devices, force, raid, raid_group_size, pool_name, mount_poin
     command += " -O checksum=fletcher4"                  # default
     command += " -O dedup=off"                           # default
     command += " -O utf8only=off"                        # default
-    command += " -m " + mount_point + ' '
-    command += alt_root + ' ' + pool_name + ' ' + device_string
+    command += " -O mountpoint=none"                     # dont mount raw zpools
+#    if mount_point:
+#        command += " -m " + mount_point + ' '
+#    command += ' ' + alt_root + ' ' + pool_name + ' ' + device_string
+    command += ' ' + pool_name + ' ' + device_string
 
     print(command)
     #run_command(command)

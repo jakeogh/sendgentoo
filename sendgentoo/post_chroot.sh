@@ -118,7 +118,7 @@ else
     echo -e 'PARTUUID='`/home/cfg/linux/disk/blkid/PARTUUID_root_device` '\t/' '\text4' '\tnoatime' '\t0' '\t1' >> /etc/fstab
 fi
 
-grep -E "^GRUB_CMDLINE_LINUX=\"net.ifnames=0\"" /etc/default/grub || { echo "GRUB_CMDLINE_LINUX=\"net.ifnames=0\"" >> /etc/default/grub ; }
+grep -E "^GRUB_CMDLINE_LINUX=\"net.ifnames=0 rootflags=noatime\"" /etc/default/grub || { echo "GRUB_CMDLINE_LINUX=\"net.ifnames=0 rootflags=noatime\"" >> /etc/default/grub ; }
 
 
 install_pkg memtest86+ # do before generating grub.conf

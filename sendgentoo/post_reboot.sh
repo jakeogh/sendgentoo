@@ -222,6 +222,12 @@ chmod 03775 /var/spool/mail/
 emerge @laptopxorg -pv
 emerge @laptopxorg
 
+eselect repository enable science
+emaint sync -r science
+emerge @gpib -pv
+emerge @gpib
+gpib_config
+
 echo "post_chroot.sh complete"
 
 ##echo "vm.overcommit_memory=2"   >> /etc/sysctl.conf

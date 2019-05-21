@@ -24,7 +24,7 @@ def create_zfs_pool(devices, force, raid, raid_group_size, pool_name):
     run_command("modprobe zfs || exit 1")
 
     for device in devices:
-        assert path_is_block_special(device)
+        assert path_is_block_special(device, follow_symlinks=True)
         assert not block_special_path_is_mounted(device)
         assert not device[-1].isdigit()
 

@@ -94,5 +94,5 @@ def create_zfs_pool(devices, force, raid, raid_group_size, pool_name):
     command += ' ' + pool_name + ' ' + device_string
 
     print(command)
-    run_command(command, verbose=True, expected_exit_status=0)
+    run_command(command, verbose=True, expected_exit_code=0)
 

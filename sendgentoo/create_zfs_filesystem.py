@@ -32,5 +32,5 @@ def create_zfs_filesystem(pool, name, encrypt, force, exe):
     command += " -o mountpoint=/" + pool + '/' + name + ' ' + pool + '/' + name
 
     print(command)
-    #run_command(command)
+    run_command(command, verbose=True, expected_exit_code=0)
 

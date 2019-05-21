@@ -91,11 +91,8 @@ def create_zfs_pool(devices, force, raid, raid_group_size, pool_name):
     command += " -O utf8only=off"                        # default
     command += " -O mountpoint=none"                     # dont mount raw zpools
     command += " -O setuid=off"                          # only needed on rootfs
-#    if mount_point:
-#        command += " -m " + mount_point + ' '
-#    command += ' ' + alt_root + ' ' + pool_name + ' ' + device_string
     command += ' ' + pool_name + ' ' + device_string
 
     print(command)
-    #run_command(command)
+    run_command(command, verbose=True, expected_exit_status=0)
 

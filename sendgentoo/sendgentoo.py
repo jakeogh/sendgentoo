@@ -144,13 +144,16 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
     #if raid:
     #    assert root_filesystem == 'zfs'
 
-    eprint("installing gentoo on boot device:", boot_device, '(' + boot_device_partition_table + ')', '(' + boot_filesystem + ')')
-    assert path_is_block_special(boot_device)
-    assert not block_special_path_is_mounted(boot_device)
-    eprint("installing gentoo on root device(s):", root_devices, '(' + root_device_partition_table + ')', '(' + root_filesystem + ')')
-    for device in root_devices:
-        assert path_is_block_special(device)
-        assert not block_special_path_is_mounted(device)
+    if boot_device:
+        eprint("installing gentoo on boot device:", boot_device, '(' + boot_device_partition_table + ')', '(' + boot_filesystem + ')')
+        assert path_is_block_special(boot_device)
+        assert not block_special_path_is_mounted(boot_device)
+
+    if root_devices:
+        eprint("installing gentoo on root device(s):", root_devices, '(' + root_device_partition_table + ')', '(' + root_filesystem + ')')
+        for device in root_devices:
+            assert path_is_block_special(device)
+            assert not block_special_path_is_mounted(device)
 
     eprint("using C library:", c_std_lib)
     eprint("hostname:", hostname)

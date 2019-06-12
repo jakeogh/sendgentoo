@@ -22,7 +22,7 @@ def install_stage3(c_std_lib, multilib, arch, destination, vm, vm_ram):
     if not vm:
         assert path_is_mounted(destination)
     url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib, arch=arch)
-    stage3_file = download_stage3(c_std_lib=c_std_lib, multilib=multilib, url=url)
+    stage3_file = download_stage3(c_std_lib=c_std_lib, multilib=multilib, url=url, arch=arch)
     assert file_exists(stage3_file)
     #gpg = gnupg.GPG(verbose=True)
     #import_result = gpg.recv_keys('keyserver.ubuntu.com', '0x2D182910')

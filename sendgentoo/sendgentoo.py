@@ -25,7 +25,7 @@ from .write_boot_partition import write_boot_partition
 
 
 def validate_ram_size(ctx, param, vm_ram):
-    ceprint("vm_ram:", vm_ram)
+    eprint("vm_ram:", vm_ram)
     sysram_bytes = virtual_memory().total
     vm_ram_bytes = humanfriendly.parse_size(vm_ram)
     if vm_ram_bytes >= sysram_bytes:

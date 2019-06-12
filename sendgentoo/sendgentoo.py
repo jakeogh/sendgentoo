@@ -2,6 +2,9 @@
 
 import os
 import click
+import humanfriendly
+from pathlib import Path
+from psutil import virtual_memory
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.mountops import path_is_mounted
@@ -19,6 +22,17 @@ from .create_root_device import create_root_device
 from .create_zfs_pool import create_zfs_pool
 from .create_zfs_filesystem import create_zfs_filesystem
 from .write_boot_partition import write_boot_partition
+
+
+def validate_ram_size(vm_ram):
+    sysram_bytes = virtual_memory().total
+    vm_ram_bytes = humanfriendly.parse_size(vm_ram)
+    if vm_ram_bytes >= sysram_bytes:
+        sysram_human = humanfriendly.format_size(sysram_bytes)
+        vm_ram_human = humanfriendly.format_size(vm_ram_bytes)
+        raise click.BadParameter('You entered {0} for --vm-ram but the host system only has {1}. Exiting.'.format(vm_ram_human, sysram_human))
+    return vm_ram_bytes
+
 
 def get_file_size(filename):
     fd = os.open(filename, os.O_RDONLY)
@@ -42,16 +56,18 @@ sendgentoo.add_command(create_root_device)
 #sendgentoo.add_command(create_boot_device)
 
 @sendgentoo.command()
-@click.argument('root_devices',                required=True, nargs=-1)
-@click.option('--boot-device',                 is_flag=False, required=True)
-@click.option('--boot-device-partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
-@click.option('--root-device-partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
-@click.option('--boot-filesystem',             is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
-@click.option('--root-filesystem',             is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
-@click.option('--c-std-lib',                   is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']))
-@click.option('--arch',                        is_flag=False, required=True, type=click.Choice(['alpha', 'amd64', 'arm', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86']))
-@click.option('--raid',                        is_flag=False, required=True, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']))
-@click.option('--raid-group-size',             is_flag=False, required=True, type=click.IntRange(1, 2))
+@click.argument('root_devices',                required=False, nargs=-1)  # --vm does not need a specified root device
+@click.option('--vm',                          is_flag=False, required=False, type=click.Choice(['qemu']))
+@click.option('--vm-ram',                      is_flag=False, required=False, callback=validate_ram_size, default=1024**3))
+@click.option('--boot-device',                 is_flag=False, required=False)
+@click.option('--boot-device-partition-table', is_flag=False, required=False, type=click.Choice(['gpt']))
+@click.option('--root-device-partition-table', is_flag=False, required=False, type=click.Choice(['gpt']))
+@click.option('--boot-filesystem',             is_flag=False, required=False, type=click.Choice(['ext4', 'zfs']))
+@click.option('--root-filesystem',             is_flag=False, required=True,  type=click.Choice(['ext4', 'zfs', '9p']))
+@click.option('--c-std-lib',                   is_flag=False, required=False, type=click.Choice(['glibc', 'musl', 'uclibc']), default="glibc")
+@click.option('--arch',                        is_flag=False, required=False, type=click.Choice(['alpha', 'amd64', 'arm', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86']), default="amd64")
+@click.option('--raid',                        is_flag=False, required=False, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']), default="disk")
+@click.option('--raid-group-size',             is_flag=False, required=False, type=click.IntRange(1, 2), default=1)
 @click.option('--march',                       is_flag=False, required=True, type=click.Choice(['native', 'x86-64']))
 #@click.option('--pool-name',                   is_flag=False, required=True, type=str)
 @click.option('--hostname',                    is_flag=False, required=True)
@@ -62,11 +78,10 @@ sendgentoo.add_command(create_root_device)
 @click.option('--multilib',                    is_flag=True,  required=False)
 @click.option('--minimal',                     is_flag=True,  required=False)
 @click.pass_context
-def install(ctx, root_devices, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, arch, raid, raid_group_size, march, hostname, newpasswd, ip, force, encrypt, multilib, minimal):
+def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, arch, raid, raid_group_size, march, hostname, newpasswd, ip, force, encrypt, multilib, minimal):
     assert isinstance(root_devices, tuple)
     assert hostname.lower() == hostname
-    if not os.path.isdir('/usr/portage/distfiles'):
-        os.makedirs('/usr/portage/distfiles')
+    os.makedirs('/usr/portage/distfiles', exist_ok=True)
     if not os.path.isdir('/usr/portage/sys-kernel'):
         eprint("run emerge--sync first")
         quit(1)
@@ -79,6 +94,32 @@ def install(ctx, root_devices, boot_device, boot_device_partition_table, root_de
     if c_std_lib == 'uclibc':
         eprint("uclibc fails with efi grub because efivar fails to compile. See Note.")
         quit(1)
+
+    mount_path = Path("/mnt/gentoo")
+    mount_path_boot = mount_path / Path('boot')
+    mount_path_boot_efi = mount_path_boot / Path('efi')
+
+    if vm:
+        assert vm_ram
+        assert root_filesystem == "9p"
+        assert not root_devices
+        assert not boot_device
+        assert not boot_filesystem
+        guest_path = Path('/guests') / Path(vm) / Path(hostname)
+        guest_path_chroot = guest_path / Path('-chroot')
+        os.makedirs(guest_path, exist_ok=True)
+        os.makedirs(guest_path_chroot, exist_ok=True)
+        mount_path = guest_path
+    else:
+        assert boot_device
+        assert root_devices
+
+    if boot_device:
+        assert boot_device_partition_table
+        assert boot_filesystem
+
+    if root_devices:
+        assert root_device_partition_table
 
     if len(root_devices) > 1:
         assert root_filesystem == 'zfs'
@@ -122,69 +163,64 @@ def install(ctx, root_devices, boot_device, boot_device_partition_table, root_de
         warn((boot_device,))
         warn(root_devices)
 
-    try:
-        os.mkdir('/mnt/gentoo')
-    except FileExistsError:
-        pass
+    os.makedirs(mount_path, exist_ok=True)
 
-    if boot_device == root_devices[0]:
-        assert boot_filesystem == root_filesystem
-        assert boot_device_partition_table == root_device_partition_table
+    if boot_device and root_devices and not vm:
+        if boot_device == root_devices[0]:
+            assert boot_filesystem == root_filesystem
+            assert boot_device_partition_table == root_device_partition_table
+            if boot_filesystem == 'zfs':
+                destroy_block_devices_head_and_tail(root_devices, force=True, no_backup=True, size=(1024*1024*128), note=False)
+                # if this is zfs, it will make a gpt table, / and EFI partition
+                create_root_device(devices=root_devices, exclusive=True, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=hostname)
+                create_boot_device(device=boot_device, partition_table='none', filesystem=boot_filesystem, force=True) # dont want to delete the gpt that zfs made
+                boot_mount_command = False
+                root_mount_command = False
+
+            elif boot_filesystem == 'ext4':
+                ctx.invoke(destroy_block_device_head_and_tail, device=device, force=True)
+                create_boot_device(ctx, device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True) # writes gurb_bios from 48s to 1023s then writes EFI partition from 1024s to 18047s
+                create_root_device(ctx, devices=root_devices, exclusive=False, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=hostname)
+                root_mount_command = "mount " + root_devices[0] + "3 " + str(mount_path)
+                boot_mount_command = False
+            else:  # unknown case
+                assert False
+        else:
+            eprint("differing root and boot devices: (exclusive) root_devices[0]:", root_devices[0], "boot_device:", boot_device)
+            create_boot_device(device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True)
+            write_boot_partition(device=boot_device, force=True)
+            create_root_device(devices=root_devices, exclusive=True, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid)
+            if root_filesystem == 'zfs':
+                root_mount_command = False
+            elif root_filesystem == 'ext4':
+                root_mount_command = "mount " + root_devices[0] + "1 " + str(mount_path)
+            boot_mount_command = "mount " + boot_device + "3 " + str(mount_path_boot)
+
+        if root_mount_command:
+            run_command(root_mount_command)
+
+        assert path_is_mounted(mount_path)
+
+        os.makedirs(mount_path_boot, exist_ok=True)
+
+        if boot_mount_command:
+            run_command(boot_mount_command)
+            assert path_is_mounted(mount_path_boot)
+        else:
+            assert not path_is_mounted(mount_path_boot)
+
+        if boot_device:
+            os.makedirs(mount_path_boot_efi, exist_ok=True)
+
         if boot_filesystem == 'zfs':
-            destroy_block_devices_head_and_tail(root_devices, force=True, no_backup=True, size=(1024*1024*128), note=False)
-            # if this is zfs, it will make a gpt table, / and EFI partition
-            create_root_device(devices=root_devices, exclusive=True, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=hostname)
-            create_boot_device(device=boot_device, partition_table='none', filesystem=boot_filesystem, force=True) # dont want to delete the gpt that zfs made
-            boot_mount_command = False
-            root_mount_command = False
+            efi_mount_command = "mount " + boot_device + "9 " + str(mount_path_boot_efi)
+        else:
+            efi_mount_command = "mount " + boot_device + "2 " + str(mount_path_boot_efi)
 
-        elif boot_filesystem == 'ext4':
-            ctx.invoke(destroy_block_device_head_and_tail, device=device, force=True)
-            create_boot_device(ctx, device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True) # writes gurb_bios from 48s to 1023s then writes EFI partition from 1024s to 18047s
-            create_root_device(ctx, devices=root_devices, exclusive=False, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=hostname)
-            root_mount_command = "mount " + root_devices[0] + "3 /mnt/gentoo"
-            boot_mount_command = False
-        else:  # unknown case
-            assert False
-    else:
-        eprint("differing root and boot devices: (exclusive) root_devices[0]:", root_devices[0], "boot_device:", boot_device)
-        create_boot_device(device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True)
-        write_boot_partition(device=boot_device, force=True)
-        create_root_device(devices=root_devices, exclusive=True, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid)
-        if root_filesystem == 'zfs':
-            root_mount_command = False
-        elif root_filesystem == 'ext4':
-            root_mount_command = "mount " + root_devices[0] + "1 /mnt/gentoo"
-        boot_mount_command = "mount " + boot_device + "3 /mnt/gentoo/boot"
+        if boot_device:
+            run_command(efi_mount_command)
 
-    if root_mount_command:
-        run_command(root_mount_command)
-
-    assert path_is_mounted('/mnt/gentoo')
-
-    try:
-        os.mkdir('/mnt/gentoo/boot')
-    except FileExistsError:
-        pass
-
-    if boot_mount_command:
-        run_command(boot_mount_command)
-        assert path_is_mounted('/mnt/gentoo/boot')
-    else:
-        assert not path_is_mounted('/mnt/gentoo/boot')
-
-    try:
-        os.mkdir('/mnt/gentoo/boot/efi')
-    except FileExistsError:
-        pass
-
-    if boot_filesystem == 'zfs':
-        efi_mount_command = "mount " + boot_device + "9 /mnt/gentoo/boot/efi"
-    else:
-        efi_mount_command = "mount " + boot_device + "2 /mnt/gentoo/boot/efi"
-
-    run_command(efi_mount_command)
-    install_stage3(c_std_lib=c_std_lib, multilib=multilib, arch=arch)
+    install_stage3(c_std_lib=c_std_lib, multilib=multilib, arch=arch, destination=mount_path, vm=vm)
 
     #if march == 'native':
     chroot_gentoo_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' ' + march + ' ' + root_filesystem + ' ' + newpasswd + ' ' + ip

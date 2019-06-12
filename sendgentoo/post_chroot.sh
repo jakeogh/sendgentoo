@@ -208,7 +208,7 @@ install_pkg net-dns/bind-tools
 install_pkg app-admin/sysstat   #mpstat
 install_pkg wpa_supplicant
 install_pkg sys-apps/sg3_utils
-
+install_pkg app-emulation/qemu
 install_pkg sys-apps/smartmontools
 rc-update add smartd default
 

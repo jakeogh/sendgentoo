@@ -38,7 +38,7 @@ def install_stage3(c_std_lib, multilib, arch, destination, vm, vm_ram):
         ceprint("For file:", stage3_file)
         ceprint("File is corrupt (most likely partially downloaded). Delete it and try again.")
         quit(1)
-    command = 'tar --xz -xpf ' + stage3_file + ' -C /mnt/gentoo'
+    command = 'tar --xz -xpf ' + stage3_file + ' -C ' + str(destination)
     run_command(command, verbose=True)
 
 

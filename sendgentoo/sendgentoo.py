@@ -110,8 +110,9 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
         assert not root_devices
         assert not boot_device
         assert not boot_filesystem
-        guest_path = Path('/guests') / Path(vm) / Path(hostname)
-        guest_path_chroot = guest_path / Path('-chroot')
+        guests_root = Path('/guests') / Path(vm)
+        guest_path        = guests_root / Path(hostname)
+        guest_path_chroot = guests_root / Path(hostname + "-chroot")
         os.makedirs(guest_path, exist_ok=True)
         os.makedirs(guest_path_chroot, exist_ok=True)
         mount_path = guest_path

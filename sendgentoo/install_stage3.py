@@ -15,6 +15,7 @@ from .download_stage3 import download_stage3
 def install_stage3(c_std_lib, multilib, arch, destination, vm, vm_ram):
     ceprint("c_std_lib:", c_std_lib, "multilib:", multilib, "arch:", arch, "destination:", destination, "vm:", vm)
     os.chdir(destination)
+    ceprint("os.getcwd():", os.getcwd())
     assert os.getcwd() == destination
     if not vm:
         assert path_is_mounted(destination)

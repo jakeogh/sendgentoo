@@ -26,6 +26,7 @@ from .write_boot_partition import write_boot_partition
 
 def validate_ram_size(ctx, param, vm_ram):
     eprint("vm_ram:", vm_ram)
+
     sysram_bytes = virtual_memory().total
     vm_ram_bytes = humanfriendly.parse_size(vm_ram)
     if vm_ram_bytes >= sysram_bytes:
@@ -59,7 +60,7 @@ sendgentoo.add_command(create_root_device)
 @sendgentoo.command()
 @click.argument('root_devices',                required=False, nargs=-1)  # --vm does not need a specified root device
 @click.option('--vm',                          is_flag=False, required=False, type=click.Choice(['qemu']))
-@click.option('--vm-ram',                      is_flag=False, required=False, type=str, callback=validate_ram_size, default=1024**3)
+@click.option('--vm-ram',                      is_flag=False, required=False, type=str, callback=validate_ram_size, default=str(1024**3))
 @click.option('--boot-device',                 is_flag=False, required=False)
 @click.option('--boot-device-partition-table', is_flag=False, required=False, type=click.Choice(['gpt']))
 @click.option('--root-device-partition-table', is_flag=False, required=False, type=click.Choice(['gpt']))

@@ -237,6 +237,8 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
     install_stage3(c_std_lib=c_std_lib, multilib=multilib, arch=arch, destination=mount_path, vm=vm, vm_ram=vm_ram)
 
     #if march == 'native':
+    if not boot_device:
+        boot_device = "False"  # fixme
     chroot_gentoo_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' ' + march + ' ' + root_filesystem + ' ' + newpasswd + ' ' + ip
     eprint("now run:", chroot_gentoo_command)
     return

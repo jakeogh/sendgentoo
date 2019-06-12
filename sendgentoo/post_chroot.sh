@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o nounset
 
 echo -n "post_chroot.sh args: "
 echo "$@"

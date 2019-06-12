@@ -101,6 +101,9 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
     mount_path_boot = mount_path / Path('boot')
     mount_path_boot_efi = mount_path_boot / Path('efi')
 
+    if root_filesystem == '9p':
+        assert vm
+
     if vm:
         assert vm_ram
         assert root_filesystem == "9p"

@@ -165,13 +165,16 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
         eprint("get_file_size(device):     ", get_file_size(device))
         assert get_file_size(boot_device) <= get_file_size(device)
 
-    first_root_device_size = get_file_size(root_devices[0])
-    for device in root_devices:
-        assert get_file_size(device) == first_root_device_size
+    if root_devices:
+        first_root_device_size = get_file_size(root_devices[0])
 
-    if not force:
-        warn((boot_device,))
-        warn(root_devices)
+        for device in root_devices:
+            assert get_file_size(device) == first_root_device_size
+
+    if boot_device or root_devices:
+        if not force:
+            warn((boot_device,))
+            warn(root_devices)
 
     os.makedirs(mount_path, exist_ok=True)
 

@@ -90,9 +90,9 @@ else
 fi
 
 # right here, portage needs to get configured... this stuff ends up at the end of the final make.conf
-echo "ACCEPT_KEYWORDS=\"~amd64\"" >> /etc/portage/make.conf
-echo "EMERGE_DEFAULT_OPTS=\"--quiet-build=y --tree --nospinner\"" >> /etc/portage/make.conf
-echo "FEATURES=\"parallel-fetch splitdebug buildpkg\"" >> /etc/portage/make.conf
+grep "ACCEPT_KEYWORDS=\"~amd64\"" /etc/portage/make.conf || echo "ACCEPT_KEYWORDS=\"~amd64\"" >> /etc/portage/make.conf
+grep "EMERGE_DEFAULT_OPTS=\"--quiet-build=y --tree --nospinner\"" /etc/portage/make.conf || echo "EMERGE_DEFAULT_OPTS=\"--quiet-build=y --tree --nospinner\"" >> /etc/portage/make.conf
+grep "FEATURES=\"parallel-fetch splitdebug buildpkg\"" /etc/portage/make.conf || echo "FEATURES=\"parallel-fetch splitdebug buildpkg\"" >> /etc/portage/make.conf
 
 echo "sys-devel/gcc fortran" > /etc/portage/package.use/gcc #otherwise gcc compiles twice
 
@@ -213,8 +213,14 @@ install_pkg app-admin/sysstat   #mpstat
 install_pkg wpa_supplicant
 install_pkg sys-apps/sg3_utils
 install_pkg app-emulation/qemu
+install_pkg dev-util/fatrace
 install_pkg sys-apps/smartmontools
 rc-update add smartd default
+
+install_pkg dev-util/ccache
+mkdir -p /var/cache/ccache
+chown root:portage /var/cache/ccache
+chmod 2775 /var/cache/ccache
 
 grep -E "^PermitRootLogin yes" /etc/ssh/sshd_config || echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 rc-update add sshd default

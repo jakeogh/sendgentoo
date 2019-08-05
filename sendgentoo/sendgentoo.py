@@ -6,6 +6,8 @@ import humanfriendly
 from pathlib import Path
 from psutil import virtual_memory
 from kcl.fileops import path_is_block_special
+from kcl.fileops import get_block_device_size
+from kcl.fileops import get_file_size
 from kcl.mountops import block_special_path_is_mounted
 from kcl.mountops import path_is_mounted
 from kcl.command import run_command
@@ -36,12 +38,12 @@ def validate_ram_size(ctx, param, vm_ram):
     return vm_ram_bytes
 
 
-def get_file_size(filename):
-    fd = os.open(filename, os.O_RDONLY)
-    try:
-        return os.lseek(fd, 0, os.SEEK_END)
-    finally:
-        os.close(fd)
+#def get_file_size(filename):
+#    fd = os.open(filename, os.O_RDONLY)
+#    try:
+#        return os.lseek(fd, 0, os.SEEK_END)
+#    finally:
+#        os.close(fd)
 
 @click.group()
 @click.pass_context
@@ -162,15 +164,15 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
     for device in root_devices:
         eprint("boot_device:", boot_device)
         eprint("device:", device)
-        eprint("get_file_size(boot_device):", get_file_size(boot_device))
-        eprint("get_file_size(device):     ", get_file_size(device))
-        assert get_file_size(boot_device) <= get_file_size(device)
+        eprint("get_block_device_size(boot_device):", get_block_device_size(boot_device))
+        eprint("get_block_device_size(device):     ", get_block_device_size(device))
+        assert get_block_device_size(boot_device) <= get_block_device_size(device)
 
     if root_devices:
-        first_root_device_size = get_file_size(root_devices[0])
+        first_root_device_size = get_block_device_size(root_devices[0])
 
         for device in root_devices:
-            assert get_file_size(device) == first_root_device_size
+            assert get_block_device_size(device) == first_root_device_size
 
     if boot_device or root_devices:
         if not force:

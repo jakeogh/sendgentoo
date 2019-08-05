@@ -64,7 +64,13 @@ elif [ ! -s "/boot/initramfs" ] && [ ! -e "/usr/src/linux/include/linux/kconfig.
 then
     compile_kernel
 else
-    echo "/boot/initramfs exists, skipping genkernel"
+    echo "/boot/initramfs exists, checking if /usr/src/linux is configured"
+    if [ ! -e "/usr/src/linux/init/.init_task.o.cmd" ];
+    then
+        compile_kernel
+    else
+        echo "found configured /usr/src/linux, skipping recompile."
+    fi
 fi
 
 grub-mkconfig -o /boot/grub/grub.cfg

@@ -133,20 +133,19 @@ cores=`grep processor /proc/cpuinfo | wc -l`
 grep "CONFIG_TRIM_UNUSED_KSYMS is not set" /usr/src/linux/.config || { echo "Rebuild the kernel with CONFIG_TRIM_UNUSED_KSYMS must be =n" ; exit 1 ; }
 grep "CONFIG_FB_EFI is not set" /usr/src/linux/.config && { echo "Rebuild the kernel with CONFIG_FB_EFI=y" ; exit 1 ; }
 
-#echo "=sys-kernel/spl-9999 **"  >> /etc/portage/package.accept_keywords
-#echo "=sys-fs/zfs-9999 **"      >> /etc/portage/package.accept_keywords
-#echo "=sys-fs/zfs-kmod-9999 **" >> /etc/portage/package.accept_keywords
+echo "=sys-fs/zfs-9999 **"      >> /etc/portage/package.accept_keywords
+echo "=sys-fs/zfs-kmod-9999 **" >> /etc/portage/package.accept_keywords
 echo -e "#<fs>\t<mountpoint>\t<type>\t<opts>\t<dump/pass>" > /etc/fstab # create empty fstab
 ln -sf /proc/self/mounts /etc/mtab
 
-if [["${boot_device}" != "False"]];
-this
-    echo "\"grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck ${boot_device}\""
-    grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --no-rs-codes "${boot_device}" || exit 1
+#if [[ "${boot_device}" != "False" ]];
+#then
+#    echo "\"grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck ${boot_device}\""
+#    grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --no-rs-codes "${boot_device}" || exit 1
     
-    echo "\"grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot\""
-    grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes || exit 1
-fi
+echo "\"grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot\""
+grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes || exit 1
+#fi
 
 install_pkg gradm #required for gentoo-hardened RBAC
 echo "sys-apps/util-linux static-libs" > /etc/portage/package.use/util-linux    # required for genkernel
@@ -236,7 +235,7 @@ emaint sync -r jakeogh
 # must be done after overlay is installed
 echo "=dev-python/replace-text-9999 **" >> /etc/portage/package.accept_keywords
 install_pkg replace-text
-export LANG="en_US.utf8"  # to make click happy
+export LANG="en_US.UTF8"  # to make click happy
 grep noclear /etc/inittab || { replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1 ; }
 install_pkg sys-apps/moreutils # need sponge for the next command
 grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/inittab | /home/cfg/text/insert_line_after_match "c6:2345:respawn:/sbin/agetty 38400 tty6 linux" "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" | sponge /etc/inittab ; }
@@ -244,6 +243,8 @@ grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/
 # make sendgentoo deps happy
 echo "dev-lang/python sqlite" >> /etc/portage/package.use/python || exit 1
 echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/python || exit 1
+
+echo "=dev-python/kcl-9999 **"  >> /etc/portage/package.accept_keywords
 install_pkg sendgentoo # must be done after jakeogh overlay
 
 #mkdir /etc/portage/sets

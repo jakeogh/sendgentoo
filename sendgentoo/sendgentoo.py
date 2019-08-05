@@ -86,9 +86,9 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
     assert isinstance(root_devices, tuple)
     assert hostname.lower() == hostname
     os.makedirs('/usr/portage/distfiles', exist_ok=True)
-    if not os.path.isdir('/usr/portage/sys-kernel'):
-        eprint("run emerge--sync first")
-        quit(1)
+    #if not os.path.isdir('/usr/portage/sys-kernel'):
+    #    eprint("run emerge --sync first")
+    #    quit(1)
     if encrypt:
         eprint("encryption not yet supported")
         #quit(1)

@@ -188,7 +188,7 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
             if boot_filesystem == 'zfs':
                 destroy_block_devices_head_and_tail(root_devices, force=True, no_backup=True, size=(1024*1024*128), note=False)
                 # if this is zfs, it will make a gpt table, / and EFI partition
-                create_root_device(devices=root_devices, exclusive=True, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=hostname)
+                ctx.invoke(create_root_device, devices=root_devices, exclusive=True, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=hostname)
                 create_boot_device(device=boot_device, partition_table='none', filesystem=boot_filesystem, force=True) # dont want to delete the gpt that zfs made
                 boot_mount_command = False
                 root_mount_command = False
@@ -196,7 +196,7 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
             elif boot_filesystem == 'ext4':
                 ctx.invoke(destroy_block_device_head_and_tail, device=device, force=True)
                 create_boot_device(ctx, device=boot_device, partition_table=boot_device_partition_table, filesystem=boot_filesystem, force=True) # writes gurb_bios from 48s to 1023s then writes EFI partition from 1024s to 18047s
-                create_root_device(ctx, devices=root_devices, exclusive=False, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=hostname)
+                ctx.invoke(create_root_device, devices=root_devices, exclusive=False, filesystem=root_filesystem, partition_table=root_device_partition_table, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=hostname)
                 root_mount_command = "mount " + root_devices[0] + "3 " + str(mount_path)
                 boot_mount_command = False
             else:  # unknown case

@@ -108,4 +108,3 @@ def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size
     print(command)
     if not simulate:
         run_command(command, verbose=True, expected_exit_code=0)
-

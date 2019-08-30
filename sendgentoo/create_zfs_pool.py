@@ -71,7 +71,6 @@ def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size
             quit(1)
 
     assert device_string != ''
-
     assert len(pool_name) > 2
 
 #    if alt_root:

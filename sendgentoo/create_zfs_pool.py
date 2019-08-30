@@ -69,7 +69,7 @@ def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size
                 eprint("device_string:", device_string)
         elif raid_group_size == 8:
             assert raid == 'raidz3'
-            device_string = "raidz3 "
+            device_string = "raidz3"
             for device in devices:
                 device_string += " " + device
             eprint("device_string:", device_string)

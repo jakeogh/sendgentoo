@@ -121,7 +121,7 @@ fi
 
 grep -E "^GRUB_CMDLINE_LINUX=\"net.ifnames=0 rootflags=noatime\"" /etc/default/grub || { echo "GRUB_CMDLINE_LINUX=\"net.ifnames=0 rootflags=noatime\"" >> /etc/default/grub ; }
 
-
+install_pkg dev-util/strace
 install_pkg memtest86+ # do before generating grub.conf
 mkdir /usr/src/linux_configs
 rm /usr/src/linux/.config           # shouldnt exist yet
@@ -147,8 +147,11 @@ echo "\"grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi
 grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes || exit 1
 #fi
 
+ln -s /home/cfg/sysskel/etc/skel/bin /root/bin
+
 install_pkg gradm #required for gentoo-hardened RBAC
 echo "sys-apps/util-linux static-libs" > /etc/portage/package.use/util-linux    # required for genkernel
+echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license
 install_pkg genkernel
 /home/cfg/_myapps/sendgentoo/sendgentoo/kernel_recompile.sh || exit 1
 cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
@@ -160,13 +163,7 @@ install_pkg dhcpcd  # not in stage3
 ln -rs /etc/init.d/net.lo /etc/init.d/net.eth0
 rc-update add net.eth0 default
 
-#grub-mkconfig -o /boot/grub/grub.cfg || exit 1 # kernel_recompile.sh does that
-#grub-mkconfig -o /root/chroot_grub.cfg || exit 1  # why?
-
-mkdir /mnt/t420s_160GB_intel_ssd_SSDSA2M160G2LE
 mkdir /mnt/t420s_256GB_samsung_ssd_S2R5NX0J707260P
-mkdir /mnt/t420s_160GB_kingston_ssd_SNM225
-mkdir /mnt/t420s_2TB_seagate
 mkdir /poolz3_8x5TB_A
 mkdir /poolz3_8x2TB_A
 mkdir /poolz3_16x3TB_A
@@ -187,7 +184,7 @@ rc-update add gpm default   #console mouse support
 install_pkg app-admin/sysklogd
 rc-update add sysklogd default  # syslog-ng hangs on boot... bloated
 
-
+rm -f /etc/portage/package.mask
 mkdir /etc/portage/package.mask
 echo ">net-misc/unison-2.48.4" > /etc/portage/package.mask/unison
 install_pkg unison
@@ -197,7 +194,9 @@ eselect unison list #todo
 
 echo "=dev-libs/openssl-1.1.1a" > /etc/portage/package.unmask
 install_pkg tmux
+install_pkg app-portage/repoman
 install_pkg vim
+install_pkg www-client/links
 install_pkg dev-db/redis  # later on, fix_cfg_perms will try to use the redis:redis user
 install_pkg sudo
 install_pkg lsof
@@ -211,7 +210,7 @@ install_pkg net-dns/bind-tools
 install_pkg app-admin/sysstat   #mpstat
 install_pkg wpa_supplicant
 install_pkg sys-apps/sg3_utils
-install_pkg app-emulation/qemu
+#install_pkg app-emulation/qemu
 install_pkg dev-util/fatrace
 install_pkg sys-apps/smartmontools
 rc-update add smartd default
@@ -225,6 +224,7 @@ grep -E "^PermitRootLogin yes" /etc/ssh/sshd_config || echo "PermitRootLogin yes
 rc-update add sshd default
 
 install_pkg app-eselect/eselect-repository
+mkdir /etc/portage/repos.conf
 eselect repository add jakeogh git https://github.com/jakeogh/jakeogh  #ignores http_proxy
 #git config --global http.proxy http://192.168.222.100:8888
 emaint sync -r jakeogh

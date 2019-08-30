@@ -9,18 +9,18 @@ test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 
 install_pkg_force_compile()
 {
-        echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
-        emerge -pv     --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
-        echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
-        emerge --quiet --tree --usepkg=n -u --ask n -n $@ > /dev/stderr || exit 1
+    echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
+    emerge -pv     --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
+    echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
+    emerge --quiet --tree --usepkg=n -u --ask n -n $@ > /dev/stderr || exit 1
 }
 
 install_pkg()
 {
-        echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
-        emerge -pv     --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
-        echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
-        emerge --quiet --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr || exit 1
+    echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
+    emerge -pv     --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
+    echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
+    emerge --quiet --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr || exit 1
 }
 
 
@@ -37,14 +37,6 @@ mkdir /delme
 mkdir /usr/portage
 chown -R portage:portage /usr/portage
 
-test -h /home/user/cfg || { ln -s /home/cfg /home/user/cfg || exit 1 ; }
-test -h /root/cfg      || { ln -s /home/cfg /root/cfg      || exit 1 ; }
-test -h /home/user/_myapps || { ln -s /home/cfg/_myapps /home/user/_myapps || exit 1 ; }
-test -h /root/_myapps      || { ln -s /home/cfg/_myapps /root/_myapps      || exit 1 ; }
-
-test -h /home/user/_repos || { ln -s /home/cfg/_repos /home/user/_repos || exit 1 ; }
-test -h /root/_repos      || { ln -s /home/cfg/_repos /root/_repos || exit 1 ; }
-
 /usr/bin/emerge -u --oneshot sys-devel/libtool
 #emerge world --newuse  # this could upgrade gcc and take a long time
 #gcc-config 2
@@ -54,28 +46,35 @@ test -h /root/_repos      || { ln -s /home/cfg/_repos /root/_repos || exit 1 ; }
 
 emerge -u -1 portage
 
-mkdir /etc/dnsmasq.d
-install_pkg dnsmasq || exit 1
-install_pkg dnsproxy
+#mkdir /etc/dnsmasq.d
+#install_pkg dnsmasq || exit 1
+#install_pkg dnsproxy
 
 mkdir /etc/portage/package.use
 grep -E "^dev-lang/python sqlite" /etc/portage/package.use/python || { echo "dev-lang/python sqlite" >> /etc/portage/package.use/python ; }  # this is done in post_chroot too...
 grep -E "^media-libs/gd fontconfig jpeg png truetype" /etc/portage/package.use/gd || { echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/gd ; }  # ditto
 grep -E "^=dev-python/kcl-9999 **" /etc/portage/package.accept_keywords || { echo "=dev-python/kcl-9999 **" >> /etc/portage/package.accept_keywords ; }
 #echo "sys-apps/file python" > /etc/portage/package.use/file
-install_pkg kcl || exit 1 # should not be explicitely installed... 
+#install_pkg kcl || exit 1 # should not be explicitely installed... 
 
 chmod +x /home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py #this depends on kcl
 /home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py /home/cfg/sysskel/ || exit 1
 
-rc-update add dnsmasq default
-rc-update add dnsproxy default
-/etc/init.d/dnsmasq start
-/etc/init.d/dnsproxy start
+test -h /root/cfg      || { ln -s /home/cfg /root/cfg      || exit 1 ; }
+test -h /root/_myapps      || { ln -s /home/cfg/_myapps /root/_myapps      || exit 1 ; }
+test -h /root/_repos      || { ln -s /home/cfg/_repos /root/_repos || exit 1 ; }
 
-install_pkg dnsgate
+#rc-update add dnsmasq default
+#rc-update add dnsproxy default
+#/etc/init.d/dnsmasq start
+#/etc/init.d/dnsproxy start
+
+install_pkg cpuid2cpuflags
+echo CPU_FLAGS_X86=\"`cpuid2cpuflags | cut -d ' ' -f 2-`\" > /etc/portage/00cpu-flags
+
+#install_pkg dnsgate
 install_pkg app-misc/edit  # pulls in commandlock
-install_pkg net-fs/nfs-utils  # nice to have, dont want to wait for the set to install it, needs overlay
+#install_pkg net-fs/nfs-utils  # nice to have, dont want to wait for the set to install it, needs overlay
 
 echo "MACHINE_SIG=\"`/home/cfg/hardware/make_machine_signature_string`\"" > /etc/env.d/99machine_sig
 
@@ -88,8 +87,9 @@ for x in cdrom cdrw usb audio plugdev video wheel; do gpasswd -a user $x ; done
 
 /home/cfg/setup/fix_cfg_perms #must happen when user exists
 
-test -h /home/user/__email_folders || { ln -s /mnt/t420s_160GB_kingston_ssd_SNM225/__email_folders /home/user/__email_folders || exit 1 ; }
+#test -h /home/user/__email_folders || { ln -s /mnt/t420s_160GB_kingston_ssd_SNM225/__email_folders /home/user/__email_folders || exit 1 ; }
 
+# todo /root
 touch /home/user/.lesshst
 chattr +i /home/user/.lesshst
 
@@ -99,8 +99,18 @@ chattr +i /home/user/.mupdf.history
 touch /home/user/.pdfbox.cache
 chattr +i /home/user/.pdfbox.cache
 
+touch /home/user/.rediscli_history
+chattr +i /home/user/.rediscli_history
+
+
+
+test -h /home/user/cfg || { ln -s /home/cfg /home/user/cfg || exit 1 ; }
+test -h /home/user/_myapps || { ln -s /home/cfg/_myapps /home/user/_myapps || exit 1 ; }
+test -h /home/user/_repos || { ln -s /home/cfg/_repos /home/user/_repos || exit 1 ; }
+
+
 # in case the old make.conf is not using the latest python, really the lines should be grabbed from the stock one in the stage 3
-grep -E "PYTHON_TARGETS=\"python2_7 python3_6\"" /etc/portage/make.conf || { echo "PYTHON_TARGETS=\"python2_7 python3_6\"" >> /etc/portage/make.conf ; }
+grep -E "PYTHON_TARGETS=\"python2_7 python3_6 python3.7\"" /etc/portage/make.conf || { echo "PYTHON_TARGETS=\"python2_7 python3_6 python3_7\"" >> /etc/portage/make.conf ; }
 grep -E "PYTHON_SINGLE_TARGET=\"python3_6\"" /etc/portage/make.conf || { echo "PYTHON_SINGLE_TARGET=\"python3_6\"" >> /etc/portage/make.conf ; }
 
 /home/cfg/git/configure_git_global
@@ -129,9 +139,6 @@ then
     layman -a musl || exit 1
     echo "source /var/lib/layman/make.conf" >> /etc/portage/make.conf # musl specific # need to switch to repos.d https://wiki.gentoo.org/wiki/Overlay
 fi
-
-install_pkg cpuid2cpuflags
-echo CPU_FLAGS_X86=\"`cpuid2cpuflags | cut -d ' ' -f 2-`\" > /etc/portage/00cpu-flags
 
 install_pkg dev-vcs/git # need this for any -9999 packages (zfs)
 #emerge @preserved-rebuild # good spot to do this as a bunch of flags just changed
@@ -162,13 +169,7 @@ mkdir /mnt/sdn1 /mnt/sdn2 /mnt/sdn3
 mkdir /mnt/sdo1 /mnt/sdo2 /mnt/sdo3
 mkdir /mnt/xvdi1 /mnt/xvdj1
 mkdir /mnt/loop /mnt/samba /mnt/dvd /mnt/cdrom
-
-#install_pkg dev-db/redis
-##ln -s /home/cfg/sysskel/etc/conf.d/redis redis # symlink_tree does this below
-#rc-update add redis default
-
-#install_pkg psutil
-
+mkdir /mnt/smb
 
 if [[ "${stdlib}" == "musl" ]];
 then
@@ -179,26 +180,17 @@ then
 fi
 
 rc-update add netmount default
-#install_pkg syslog-ng  # done in post-chroot and using sysklogd instead, syslog-ng hangs on boot and is bloated
-#rc-update add syslog-ng default
 
 install_pkg eix
 chown portage:portage /var/cache/eix
 eix-update
 
-install_pkg postgresql
-pg_version=`/home/cfg/postgresql/version`
-rc-update add "postgresql-${pg_version}" default
-emerge --config dev-db/postgresql:"${pg_version}"  # ok to fail if already conf
-
-#perl-cleaner modules # needed to avoid XML::Parser... configure: error
-#perl-cleaner --reallyall
+#install_pkg postgresql
+#pg_version=`/home/cfg/postgresql/version`
+#rc-update add "postgresql-${pg_version}" default
+#emerge --config dev-db/postgresql:"${pg_version}"  # ok to fail if already conf
 
 install_pkg @laptopbase  # https://dev.gentoo.org/~zmedico/portage/doc/ch02.html
-#emerge @laptopbase
-
-# forever compile time
-#install_pkg app-text/pandoc #doc processing, txt to pdf and everything else under the sun
 
 #lspci | grep -i nvidia | grep -i vga && install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
 install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
@@ -215,18 +207,20 @@ else
     kernel_version=`readlink -f /usr/src/linux | cut -d '/' -f4 | cut -d '-' -f 2-`
 fi
 
-install_pkg gpgmda
+#install_pkg gpgmda
 chown root:mail /var/spool/mail/ #invalid group
 chmod 03775 /var/spool/mail/
 
 emerge @laptopxorg -pv
 emerge @laptopxorg
 
-eselect repository enable science
-emaint sync -r science
-emerge @gpib -pv
-emerge @gpib
-gpib_config
+#eselect repository enable science
+#emaint sync -r science
+#emerge @gpib -pv
+#emerge @gpib
+#gpib_config
+
+install_pkg nvim && emerge --unmerge vim
 
 echo "post_chroot.sh complete"
 

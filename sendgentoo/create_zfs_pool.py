@@ -2,6 +2,7 @@
 
 import click
 from kcl.fileops import path_is_block_special
+from kcl.fileops import get_block_device_size
 from kcl.mountops import block_special_path_is_mounted
 from kcl.command import run_command
 from kcl.iterops import grouper
@@ -12,21 +13,32 @@ from .setup_globals import RAID_LIST
 @click.command()
 @click.argument('devices', required=True, nargs=-1)
 @click.option('--force', is_flag=True, required=False)
+@click.option('--simulate', is_flag=True, required=False)
+@click.option('--skip-checks', is_flag=True, required=False)
 @click.option('--raid', is_flag=False, required=True, type=click.Choice(RAID_LIST))
 @click.option('--raid-group-size', is_flag=False, required=True, type=int)
 @click.option('--pool-name', is_flag=False, required=True, type=str)
 #@click.option('--mount-point', is_flag=False, required=False, type=str)
 #@click.option('--alt-root', is_flag=False, required=False, type=str)
-def create_zfs_pool(devices, force, raid, raid_group_size, pool_name):
+def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size, pool_name):
     eprint("make_zfs_filesystem_on_devices()")
+
+    if skip_checks:
+        assert simulate
 
     # https://raw.githubusercontent.com/ryao/zfs-overlay/master/zfs-install
     run_command("modprobe zfs || exit 1")
 
     for device in devices:
-        assert path_is_block_special(device, follow_symlinks=True)
-        assert not block_special_path_is_mounted(device)
+        if not skip_checks:
+            assert path_is_block_special(device, follow_symlinks=True)
+            assert not block_special_path_is_mounted(device)
         assert not device[-1].isdigit()
+
+    if not skip_checks:
+        first_device_size = get_block_device_size(devices[0])
+        for device in devices:
+            assert get_block_device_size(device) == first_device_size
 
     assert raid_group_size >= 1
     assert len(devices) >= raid_group_size
@@ -94,5 +106,6 @@ def create_zfs_pool(devices, force, raid, raid_group_size, pool_name):
     command += ' ' + pool_name + ' ' + device_string
 
     print(command)
-    run_command(command, verbose=True, expected_exit_code=0)
+    if not simulate:
+        run_command(command, verbose=True, expected_exit_code=0)
 

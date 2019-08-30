@@ -7,10 +7,11 @@ from kcl.printops import eprint
 @click.command()
 @click.argument('pool', required=True, nargs=1)
 @click.argument('name', required=True, nargs=1)
+@click.option('--simulate', is_flag=True, required=False)
 @click.option('--encrypt', is_flag=True, required=False)
 @click.option('--force', is_flag=True, required=False)
 @click.option('--exec', 'exe', is_flag=True, required=False)
-def create_zfs_filesystem(pool, name, encrypt, force, exe):
+def create_zfs_filesystem(pool, name, simulate, encrypt, force, exe):
     eprint("make_zfs_filesystem_on_devices()")
 
     assert not pool.startswith('/')
@@ -32,5 +33,6 @@ def create_zfs_filesystem(pool, name, encrypt, force, exe):
     command += " -o mountpoint=/" + pool + '/' + name + ' ' + pool + '/' + name
 
     print(command)
-    run_command(command, verbose=True, expected_exit_code=0)
+    if not simulate:
+        run_command(command, verbose=True, expected_exit_code=0)
 

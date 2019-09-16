@@ -63,7 +63,7 @@ sendgentoo.add_command(create_root_device)
 @click.argument('root_devices',                required=False, nargs=-1)  # --vm does not need a specified root device
 @click.option('--vm',                          is_flag=False, required=False, type=click.Choice(['qemu']))
 @click.option('--vm-ram',                      is_flag=False, required=False, type=str, callback=validate_ram_size, default=str(1024**3))
-@click.option('--boot-device',                 is_flag=False, required=False)
+@click.option('--boot-device',                 is_flag=False, required=True)
 @click.option('--boot-device-partition-table', is_flag=False, required=False, type=click.Choice(['gpt']), default="gpt")
 @click.option('--root-device-partition-table', is_flag=False, required=False, type=click.Choice(['gpt']), default="gpt")
 @click.option('--boot-filesystem',             is_flag=False, required=False, type=click.Choice(['ext4', 'zfs']), default="ext4")

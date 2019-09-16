@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import click
-from kcl.command import run_command
+from kcl.commandops import run_command
 from kcl.printops import eprint
 
 @click.command()

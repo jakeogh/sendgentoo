@@ -50,15 +50,20 @@ emerge -u -1 portage
 #install_pkg dnsmasq || exit 1
 #install_pkg dnsproxy
 
+install_pkg net-dns/dnscrypt-proxy
+rc-update add dnscrypt-proxy default
+
 mkdir /etc/portage/package.use
 grep -E "^dev-lang/python sqlite" /etc/portage/package.use/python || { echo "dev-lang/python sqlite" >> /etc/portage/package.use/python ; }  # this is done in post_chroot too...
 grep -E "^media-libs/gd fontconfig jpeg png truetype" /etc/portage/package.use/gd || { echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/gd ; }  # ditto
 grep -E "^=dev-python/kcl-9999 **" /etc/portage/package.accept_keywords || { echo "=dev-python/kcl-9999 **" >> /etc/portage/package.accept_keywords ; }
 #echo "sys-apps/file python" > /etc/portage/package.use/file
-#install_pkg kcl || exit 1 # should not be explicitely installed... 
+#install_pkg kcl || exit 1 # should not be explicitely installed...
 
 chmod +x /home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py #this depends on kcl
 /home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py /home/cfg/sysskel/ || exit 1
+
+touch /etc/portage/proxy.conf
 
 test -h /root/cfg      || { ln -s /home/cfg /root/cfg      || exit 1 ; }
 test -h /root/_myapps      || { ln -s /home/cfg/_myapps /root/_myapps      || exit 1 ; }
@@ -89,20 +94,20 @@ for x in cdrom cdrw usb audio plugdev video wheel; do gpasswd -a user $x ; done
 
 #test -h /home/user/__email_folders || { ln -s /mnt/t420s_160GB_kingston_ssd_SNM225/__email_folders /home/user/__email_folders || exit 1 ; }
 
+immute() {
+    rm -f "${1}"
+    touch "${1}"
+    chattr +i "${1}"
+}
+
 # todo /root
-touch /home/user/.lesshst
-chattr +i /home/user/.lesshst
-
-touch /home/user/.mupdf.history
-chattr +i /home/user/.mupdf.history
-
-touch /home/user/.pdfbox.cache
-chattr +i /home/user/.pdfbox.cache
-
-touch /home/user/.rediscli_history
-chattr +i /home/user/.rediscli_history
-
-
+immute /home/user/.lesshst
+immute /home/user/.mupdf.history
+immute /home/user/.pdfbox.cache
+immute /home/user/.rediscli_history
+immute /home/user/unison.log
+immute /home/user/tldextract.cache
+immute /home/user/.python_history
 
 test -h /home/user/cfg || { ln -s /home/cfg /home/user/cfg || exit 1 ; }
 test -h /home/user/_myapps || { ln -s /home/cfg/_myapps /home/user/_myapps || exit 1 ; }
@@ -185,12 +190,15 @@ install_pkg eix
 chown portage:portage /var/cache/eix
 eix-update
 
-#install_pkg postgresql
-#pg_version=`/home/cfg/postgresql/version`
-#rc-update add "postgresql-${pg_version}" default
-#emerge --config dev-db/postgresql:"${pg_version}"  # ok to fail if already conf
+install_pkg postgresql
+pg_version=`/home/cfg/postgresql/version`
+rc-update add "postgresql-${pg_version}" default
+emerge --config dev-db/postgresql:"${pg_version}"  # ok to fail if already conf
+sudo su postgres -c "psql template1 -c 'create extension hstore;'"
+sudo su postgres -c "psql template1 -c 'create extension ltree;'"
 
 install_pkg @laptopbase  # https://dev.gentoo.org/~zmedico/portage/doc/ch02.html
+install_pkg @webcam
 
 #lspci | grep -i nvidia | grep -i vga && install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
 install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
@@ -222,7 +230,7 @@ emerge @laptopxorg
 
 install_pkg nvim && emerge --unmerge vim
 
-echo "post_chroot.sh complete"
+echo "post_reboot.sh complete"
 
 ##echo "vm.overcommit_memory=2"   >> /etc/sysctl.conf
 ##echo "vm.overcommit_ratio=100"  >> /etc/sysctl.conf

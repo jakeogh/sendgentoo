@@ -15,7 +15,7 @@ ip="${1}"
 shift
 
 mount | grep "${device}" && { echo "ERROR: device: ${device} appears to be mounted. Exiting." ; exit 1 ; }
-test -b "${device}" || { echo "ERROR: device: ${device} is not block special. Exiting." ; exit 1 ; } 
+test -b "${device}" || { echo "ERROR: device: ${device} is not block special. Exiting." ; exit 1 ; }
 
 
 ./umount_mnt_gentoo.sh || ./umount_mnt_gentoo.sh

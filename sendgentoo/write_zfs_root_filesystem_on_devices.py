@@ -3,7 +3,7 @@
 import click
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
-from kcl.command import run_command
+from kcl.commandops import run_command
 from kcl.iterops import grouper
 from kcl.printops import eprint
 from .setup_globals import RAID_LIST

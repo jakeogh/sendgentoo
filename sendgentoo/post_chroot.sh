@@ -247,6 +247,9 @@ echo "dev-lang/python sqlite" >> /etc/portage/package.use/python || exit 1
 echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/python || exit 1
 
 echo "=dev-python/kcl-9999 **"  >> /etc/portage/package.accept_keywords
+echo "=dev-python/sendgentoo-9999 **"  >> /etc/portage/package.accept_keywords
+echo "=dev-python/sqlalchemy-utils-9999 **"  >> /etc/portage/package.accept_keywords
+grep sendgentoo /etc/portage/package.accept_keywords || exit 1
 install_pkg sendgentoo # must be done after jakeogh overlay
 
 #mkdir /etc/portage/sets

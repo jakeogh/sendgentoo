@@ -50,6 +50,8 @@ shift
 
 mount | grep "/boot/efi" || exit 1
 
+mkdir -p /var/db/repos/gentoo
+
 zfs_module_mode="module"
 env-update || exit 1
 source /etc/profile || exit 1

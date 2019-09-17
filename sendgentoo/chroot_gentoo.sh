@@ -45,7 +45,7 @@ echo "cp -ar /home/cfg ${destination}/home/"
 cd /home || exit 1
 #tar --exclude="_priv" --one-file-system -z -c -f - cfg | pv -trabT -B 600M | tar -C /mnt/gentoo/home -zxpSf - || exit 1
 
-rsync --exclude="_priv" --one-file-system --delete -v -r -z -l --progress /home/cfg "${destination}/home/" || exit 1
+rsync --exclude="_priv" --exclude="_myapps/gentoo" --one-file-system --delete --perms --executability --verbose --recursive --compress --links --progress /home/cfg "${destination}/home/" #|| exit 1
 
 if [[ "${root_filesystem}" == 'zfs' ]];
 then

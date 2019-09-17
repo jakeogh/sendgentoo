@@ -39,19 +39,27 @@ test -d "${destination}/home/cfg" || { mkdir -p "${destination}/home/cfg" || exi
 
 test -d "${destination}/usr/local/portage" || { mkdir -p "${destination}/usr/local/portage" || exit 1 ; }
 
-echo "cp -ar /home/cfg ${destination}/home/"
+echo "copying /home/cfg to ${destination}/home/"
+#echo "cp -ar /home/cfg ${destination}/home/"
 #time cp -ar /home/cfg /mnt/gentoo/home/ || exit 1
 #time (cd /home && tar --one-file-system -z -c -f --exclude "/home/cfg/_priv" - cfg ) | pv -trabT -B 600M | (cd /mnt/gentoo/home && tar zxpSf - )
 cd /home || exit 1
 #tar --exclude="_priv" --one-file-system -z -c -f - cfg | pv -trabT -B 600M | tar -C /mnt/gentoo/home -zxpSf - || exit 1
 
-rsync --exclude="_priv" --exclude="_myapps/gentoo" --one-file-system --delete --perms --executability --verbose --recursive --compress --links --progress /home/cfg "${destination}/home/" #|| exit 1
+#rsync --exclude="_priv" --exclude="_myapps/gentoo" --exclude="virt/iso" --one-file-system --delete --perms --executability --verbose --recursive --compress --links --progress /home/cfg "${destination}/home/" #|| exit 1
 
 if [[ "${root_filesystem}" == 'zfs' ]];
 then
     mkdir -p "${destination}/etc/zfs"
     cp /etc/zfs/zpool.cache "${destination}/etc/zfs/zpool.cache"
 fi
+
+mkdir -p /mnt/gentoo/etc/portage/repos.conf
+cp /home/cfg/sysskel/etc/portage/repos.conf/gentoo.conf /mnt/gentoo/etc/portage/repos.conf/gentoo.conf
+echo "bind mounting /var/db/repos/gentoo"
+test -d "${destination}/var/db/repos/gentoo" || { mkdir -p "${destination}/var/db/repos/gentoo" || exit 1 ; }
+mount | grep "${destination}/var/db/repos/gentoo" || { mount --rbind /var/db/repos/gentoo "${destination}/var/db/repos/gentoo" || exit 1 ; }
+
 
 echo "Entering chroot"
 env -i HOME=/root TERM=$TERM chroot "${destination}" /bin/bash -l -c "su - -c '/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh ${stdlib} ${boot_device} ${cflags} ${root_filesystem} ${newpasswd}'" || { echo "post_chroot.sh exited $?" ; exit 1 ; }

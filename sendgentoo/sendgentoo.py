@@ -72,7 +72,8 @@ sendgentoo.add_command(create_root_device)
 @click.option('--arch',                        is_flag=False, required=False, type=click.Choice(['alpha', 'amd64', 'arm', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86']), default="amd64")
 @click.option('--raid',                        is_flag=False, required=False, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']), default="disk")
 @click.option('--raid-group-size',             is_flag=False, required=False, type=click.IntRange(1, 2), default=1)
-@click.option('--march',                       is_flag=False, required=True, type=click.Choice(['native', 'x86-64']))
+#@click.option('--march',                       is_flag=False, required=True, type=click.Choice(['native', 'x86-64']))
+@click.option('--march',                       is_flag=False, required=True, type=click.Choice(['native', 'nocona']))
 #@click.option('--pool-name',                   is_flag=False, required=True, type=str)
 @click.option('--hostname',                    is_flag=False, required=True)
 @click.option('--newpasswd',                   is_flag=False, required=True)
@@ -244,7 +245,7 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
     if not vm:
         vm = "novm"
     chroot_gentoo_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' ' + march + ' ' + root_filesystem + ' ' + newpasswd + ' ' + ip + ' ' + vm + ' ' + str(mount_path)
-    eprint("now run:", chroot_gentoo_command)
+    eprint("\nnow run:", chroot_gentoo_command)
     return
 
 

@@ -1,11 +1,13 @@
 #!/bin/bash
 
 argcount=2
-usage="boot_device root_device"
+usage="boot_partition root_partition"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" > /dev/stderr && exit 1 ; } #"-ge=>=" "-gt=>" "-le=<=" "-lt=<" "-ne=!="
 
 boot_device="${1}"
+shift
 root_device="${1}"
+shift
 
 mount | grep '/mnt/gentoo' || mount "${root_device}" /mnt/gentoo # bug, deal with seperate boot_device
 

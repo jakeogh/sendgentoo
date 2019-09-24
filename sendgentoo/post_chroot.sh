@@ -19,6 +19,7 @@ install_pkg_force_compile()
 {
         echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
         emerge -pv     --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
+        emerge -pv -F    --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
         emerge --quiet --tree --usepkg=n -u --ask n -n $@ > /dev/stderr || exit 1
 }
 
@@ -26,6 +27,7 @@ install_pkg()
 {
         echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
         emerge -pv     --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
+        emerge -pv -F    --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
         emerge --quiet --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr || exit 1
 }
 
@@ -33,6 +35,7 @@ emerge_world()
 {
         echo "emerge_world()" > /dev/stderr
         emerge -pv     --backtrack=130 --usepkg=n --tree -u --ask n -n world > /dev/stderr
+        emerge -pv -F    --backtrack=130 --usepkg=n --tree -u --ask n -n world > /dev/stderr
         emerge --quiet --backtrack=130 --usepkg=n --tree -u --ask n -n world > /dev/stderr || exit 1
 }
 
@@ -107,12 +110,13 @@ install_pkg grub:2 || exit 1
 
 if [[ "${root_filesystem}" == "zfs" ]];
 then
-    echo "GRUB_PRELOAD_MODULES=\"part_gpt zfs\"" >> /etc/default/grub
+    echo "GRUB_PRELOAD_MODULES=\"part_gpt part_msdos zfs\"" >> /etc/default/grub
    #echo "GRUB_CMDLINE_LINUX_DEFAULT=\"boot=zfs root=ZFS=rpool/ROOT\"" >> /etc/default/grub
    #echo "GRUB_CMDLINE_LINUX_DEFAULT=\"boot=zfs\"" >> /etc/default/grub
    #echo "GRUB_DEVICE=\"ZFS=rpool/ROOT/gentoo\"" >> /etc/default/grub
    # echo "GRUB_DEVICE=\"ZFS=${hostname}/ROOT/gentoo\"" >> /etc/default/grub #this was uncommented, disabled to not use hostname
 else
+    echo "GRUB_PRELOAD_MODULES=\"part_gpt part_msdos\"" >> /etc/default/grub
     root_partition=`/home/cfg/linux/disk/get_root_device`
     echo "-------------- root_partition: ${root_partition} ---------------------"
     partuuid=`/home/cfg/linux/hardware/disk/blkid/PARTUUID "${root_partition}"`
@@ -140,14 +144,8 @@ echo "=sys-fs/zfs-kmod-9999 **" >> /etc/portage/package.accept_keywords
 echo -e "#<fs>\t<mountpoint>\t<type>\t<opts>\t<dump/pass>" > /etc/fstab # create empty fstab
 ln -sf /proc/self/mounts /etc/mtab
 
-#if [[ "${boot_device}" != "False" ]];
-#then
-#    echo "\"grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck ${boot_device}\""
-#    grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --no-rs-codes "${boot_device}" || exit 1
-
-echo "\"grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot\""
-grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes || exit 1
-#fi
+grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes "${boot_device}" || exit 1
+grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --no-rs-codes "${boot_device}" || exit 1
 
 ln -s /home/cfg/sysskel/etc/skel/bin /root/bin
 

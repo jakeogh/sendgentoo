@@ -16,6 +16,8 @@ ip="${7}"
 vm="${8}"
 destination="${9}"
 
+/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh "${boot_device}" # needs to be b4 grub install?
+
 if [[ "${vm}" == "qemu" ]];
 then
     mount --bind "${destination}"{,-chroot} || { echo "${destination} ${destination}-chroot" ; exit 1 ; }
@@ -68,7 +70,7 @@ umount "${destination}/usr/portage" || exit 1
 portage_size=`du -s /usr/portage | cut -f 1`
 portage_size_plus_15_pct=`python -c "print(int($portage_size*1.15))"`
 
-mnt_gentoo_free=`/bin/df | egrep ""${destination}$" | ~/cfg/text/collapse_whitespace | cut -d ' ' -f 4`
+mnt_gentoo_free=`/bin/df | egrep "${destination}$" | ~/cfg/text/collapse_whitespace | cut -d ' ' -f 4`
 
 if [[ "${mnt_gentoo_free}" -gt "${portage_size_plus_15_pct}" ]];
 then
@@ -86,6 +88,5 @@ fi
 /home/cfg/_myapps/sendgentoo/sendgentoo/umount_mnt_gentoo.sh
 /home/cfg/_myapps/sendgentoo/sendgentoo/umount_mnt_gentoo.sh
 
-/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh "${boot_device}" #would be nice to do this earlier
 
 echo "gentoo install complete! might need to fix grub.cfg"

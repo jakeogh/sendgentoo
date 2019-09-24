@@ -45,7 +45,7 @@ if {$force_conservative} {
 set timeout -1
 spawn gdisk [lindex $argv 0]
 match_max 100000
-expect -exact "GPT fdisk (gdisk) version 1.0.1\r
+expect "GPT fdisk (gdisk) version *\r
 \r
 Partition table scan:\r
   MBR: protective\r

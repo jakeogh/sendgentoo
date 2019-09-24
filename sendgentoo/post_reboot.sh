@@ -57,11 +57,20 @@ mkdir /etc/portage/package.use
 grep -E "^dev-lang/python sqlite" /etc/portage/package.use/python || { echo "dev-lang/python sqlite" >> /etc/portage/package.use/python ; }  # this is done in post_chroot too...
 grep -E "^media-libs/gd fontconfig jpeg png truetype" /etc/portage/package.use/gd || { echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/gd ; }  # ditto
 grep -E "^=dev-python/kcl-9999 **" /etc/portage/package.accept_keywords || { echo "=dev-python/kcl-9999 **" >> /etc/portage/package.accept_keywords ; }
+grep -E "^=dev-python/fastentrypoints-9999 **" /etc/portage/package.accept_keywords || { echo "=dev-python/fastentrypoints-9999 **" >> /etc/portage/package.accept_keywords ; }
+grep -E "^=dev-python/python-getdents-9999 **" /etc/portage/package.accept_keywords || { echo "=dev-python/python-getdents-9999 **" >> /etc/portage/package.accept_keywords ; }
+grep -E "^=app-misc/edit-9999 **" /etc/portage/package.accept_keywords || { echo "=app-misc/edit-9999 **" >> /etc/portage/package.accept_keywords ; }
+grep -E "^=app-misc/edit-9999 -python_targets_python3_7" /etc/portage/package.use/edit || { echo "=app-misc/edit-9999 -python_targets_python3_7" >> /etc/portage/package.use/edit ; }
 #echo "sys-apps/file python" > /etc/portage/package.use/file
 #install_pkg kcl || exit 1 # should not be explicitely installed...
 
 chmod +x /home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py #this depends on kcl
 /home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py /home/cfg/sysskel/ || exit 1
+
+/etc/init.d/dnscrypt-proxy start
+/home/cfg/linux/gentoo/layman/update_all_overlays
+install_pkg debugedit
+emerge @world --newuse
 
 touch /etc/portage/proxy.conf
 
@@ -78,7 +87,7 @@ install_pkg cpuid2cpuflags
 echo CPU_FLAGS_X86=\"`cpuid2cpuflags | cut -d ' ' -f 2-`\" > /etc/portage/00cpu-flags
 
 #install_pkg dnsgate
-install_pkg app-misc/edit  # pulls in commandlock
+emerge app-misc/edit  # pulls in commandlock # fails but that's ok for now
 #install_pkg net-fs/nfs-utils  # nice to have, dont want to wait for the set to install it, needs overlay
 
 echo "MACHINE_SIG=\"`/home/cfg/hardware/make_machine_signature_string`\"" > /etc/env.d/99machine_sig

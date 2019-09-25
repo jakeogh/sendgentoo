@@ -225,6 +225,7 @@ install_pkg sys-apps/sg3_utils
 install_pkg dev-util/fatrace
 install_pkg sys-apps/smartmontools
 rc-update add smartd default
+install_pkg sys-fs/multipath-tools
 
 install_pkg dev-util/ccache
 mkdir -p /var/cache/ccache

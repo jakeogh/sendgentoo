@@ -40,6 +40,15 @@ emerge_world()
 }
 
 
+add_accept_keyword() {
+    pkg="${1}"
+    shift
+    line="=${pkg} **"
+    grep -E "^=${pkg} \*\*$" /etc/portage/package.accept_keywords && return 0
+    echo "${line}" >> /etc/portage/package.accept_keywords
+}
+
+
 stdlib="${1}"  # unused
 shift
 boot_device="${1}"
@@ -139,8 +148,10 @@ cores=`grep processor /proc/cpuinfo | wc -l`
 grep "CONFIG_TRIM_UNUSED_KSYMS is not set" /usr/src/linux/.config || { echo "Rebuild the kernel with CONFIG_TRIM_UNUSED_KSYMS must be =n" ; exit 1 ; }
 grep "CONFIG_FB_EFI is not set" /usr/src/linux/.config && { echo "Rebuild the kernel with CONFIG_FB_EFI=y" ; exit 1 ; }
 
-echo "=sys-fs/zfs-9999 **"      >> /etc/portage/package.accept_keywords
-echo "=sys-fs/zfs-kmod-9999 **" >> /etc/portage/package.accept_keywords
+#echo "=sys-fs/zfs-9999 **"      >> /etc/portage/package.accept_keywords
+#echo "=sys-fs/zfs-kmod-9999 **" >> /etc/portage/package.accept_keywords
+add_accept_keyword "sys-fs/zfs-9999"
+add_accept_keyword "sys-fs/zfs-kmod-9999"
 echo -e "#<fs>\t<mountpoint>\t<type>\t<opts>\t<dump/pass>" > /etc/fstab # create empty fstab
 ln -sf /proc/self/mounts /etc/mtab
 
@@ -233,8 +244,10 @@ emaint sync -r jakeogh
 #layman -S # update layman trees
 
 # must be done after overlay is installed
-echo "=dev-python/replace-text-9999 **" >> /etc/portage/package.accept_keywords
+#echo "=dev-python/replace-text-9999 **" >> /etc/portage/package.accept_keywords
+add_accept_keyword "dev-python/replace-text-9999"
 install_pkg replace-text
+
 export LANG="en_US.UTF8"  # to make click happy
 grep noclear /etc/inittab || { replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1 ; }
 install_pkg sys-apps/moreutils # need sponge for the next command
@@ -244,9 +257,16 @@ grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/
 echo "dev-lang/python sqlite" >> /etc/portage/package.use/python || exit 1
 echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/python || exit 1
 
-echo "=dev-python/kcl-9999 **"  >> /etc/portage/package.accept_keywords
-echo "=dev-python/sendgentoo-9999 **"  >> /etc/portage/package.accept_keywords
-echo "=dev-python/sqlalchemy-utils-9999 **"  >> /etc/portage/package.accept_keywords
+
+
+#echo "=dev-python/kcl-9999 **"  >> /etc/portage/package.accept_keywords
+#echo "=dev-python/sendgentoo-9999 **"  >> /etc/portage/package.accept_keywords
+#echo "=dev-python/sqlalchemy-utils-9999 **"  >> /etc/portage/package.accept_keywords
+add_accept_keyword "dev-python/kcl-9999"
+add_accept_keyword "dev-python/sendgentoo-9999"
+add_accept_keyword "dev-python/sqlalchemy-utils-9999"
+add_accept_keyword "dev-python/python-getdents-9999"
+add_accept_keyword "dev-python/fastentrypoints-9999"
 grep sendgentoo /etc/portage/package.accept_keywords || exit 1
 install_pkg sendgentoo # must be done after jakeogh overlay
 

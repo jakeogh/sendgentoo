@@ -9,6 +9,7 @@ test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 
 install_pkg_force_compile()
 {
+    . /etc/profile
     echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
     emerge -pv     --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
     echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
@@ -17,6 +18,7 @@ install_pkg_force_compile()
 
 install_pkg()
 {
+    . /etc/profile
     echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
     emerge -pv     --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
     echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
@@ -205,7 +207,8 @@ rc-update add "postgresql-${pg_version}" default
 emerge --config dev-db/postgresql:"${pg_version}"  # ok to fail if already conf
 sudo su postgres -c "psql template1 -c 'create extension hstore;'"
 sudo su postgres -c "psql template1 -c 'create extension ltree;'"
-
+install_pkg sshd-configurator
+emerge --depclean
 install_pkg @laptopbase  # https://dev.gentoo.org/~zmedico/portage/doc/ch02.html
 install_pkg @webcam
 

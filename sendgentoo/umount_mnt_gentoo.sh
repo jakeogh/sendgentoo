@@ -1,5 +1,6 @@
 #!/bin/bash
 
+umount /mnt/gentoo/var/db/repos/gentoo
 umount /mnt/gentoo/dev/shm
 umount /mnt/gentoo/dev/pts
 umount /mnt/gentoo/dev

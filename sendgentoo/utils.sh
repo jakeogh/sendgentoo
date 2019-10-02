@@ -23,9 +23,9 @@ install_pkg_force_compile()
 {
     . /etc/profile
     echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
-    emerge -pv     --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
+    emerge --with-bdeps=y -pv     --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
     echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
-    emerge --quiet --tree --usepkg=n -u --ask n -n $@ > /dev/stderr || exit 1
+    emerge --with-bdeps=y --quiet --tree --usepkg=n -u --ask n -n $@ > /dev/stderr || exit 1
 }
 
 
@@ -33,9 +33,9 @@ install_pkg()
 {
     . /etc/profile
     echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
-    emerge -pv     --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
+    emerge --with-bdeps=y -pv     --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
     echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
-    emerge --quiet --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr || exit 1
+    emerge --with-bdeps=y --quiet --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr || exit 1
 }
 
 add_accept_keyword "dev-python/kcl-9999"

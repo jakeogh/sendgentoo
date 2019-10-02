@@ -263,17 +263,13 @@ echo "dev-lang/python sqlite" >> /etc/portage/package.use/python || exit 1
 echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/python || exit 1
 
 
-
-#echo "=dev-python/kcl-9999 **"  >> /etc/portage/package.accept_keywords
-#echo "=dev-python/sendgentoo-9999 **"  >> /etc/portage/package.accept_keywords
-#echo "=dev-python/sqlalchemy-utils-9999 **"  >> /etc/portage/package.accept_keywords
-add_accept_keyword "dev-python/kcl-9999"
-add_accept_keyword "dev-python/sendgentoo-9999"
-add_accept_keyword "dev-python/sqlalchemy-utils-9999"
-add_accept_keyword "dev-python/python-getdents-9999"
-add_accept_keyword "dev-python/fastentrypoints-9999"
-add_accept_keyword "dev-python/untokenize-9999"
-add_accept_keyword "dev-python/ic-9999"
+#add_accept_keyword "dev-python/kcl-9999"
+#add_accept_keyword "dev-python/sendgentoo-9999"
+#add_accept_keyword "dev-python/sqlalchemy-utils-9999"
+#add_accept_keyword "dev-python/python-getdents-9999"
+#add_accept_keyword "dev-python/fastentrypoints-9999"
+#add_accept_keyword "dev-python/untokenize-9999"
+#add_accept_keyword "dev-python/ic-9999"
 grep sendgentoo /etc/portage/package.accept_keywords || exit 1
 install_pkg sendgentoo # must be done after jakeogh overlay
 

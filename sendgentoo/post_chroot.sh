@@ -15,38 +15,40 @@ set -o nounset
 #export https_proxy="http://192.168.222.100:8888"
 #export http_proxy="http://192.168.222.100:8888"
 
-install_pkg_force_compile()
-{
-        echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
-        emerge -pv     --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
-        emerge -pv -F    --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
-        emerge --quiet --tree --usepkg=n -u --ask n -n $@ > /dev/stderr || exit 1
-}
+source /home/cfg/_myapps/sendgentoo/sendgentoo/utils.sh
 
-install_pkg()
-{
-        echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
-        emerge -pv     --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
-        emerge -pv -F    --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
-        emerge --quiet --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr || exit 1
-}
-
-emerge_world()
-{
-        echo "emerge_world()" > /dev/stderr
-        emerge -pv     --backtrack=130 --usepkg=n --tree -u --ask n -n world > /dev/stderr
-        emerge -pv -F    --backtrack=130 --usepkg=n --tree -u --ask n -n world > /dev/stderr
-        emerge --quiet --backtrack=130 --usepkg=n --tree -u --ask n -n world > /dev/stderr || exit 1
-}
-
-
-add_accept_keyword() {
-    pkg="${1}"
-    shift
-    line="=${pkg} **"
-    grep -E "^=${pkg} \*\*$" /etc/portage/package.accept_keywords && return 0
-    echo "${line}" >> /etc/portage/package.accept_keywords
-}
+#install_pkg_force_compile()
+#{
+#        echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
+#        emerge -pv     --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
+#        emerge -pv -F    --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
+#        emerge --quiet --tree --usepkg=n -u --ask n -n $@ > /dev/stderr || exit 1
+#}
+#
+#install_pkg()
+#{
+#        echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
+#        emerge -pv     --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
+#        emerge -pv -F    --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
+#        emerge --quiet --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr || exit 1
+#}
+#
+#emerge_world()
+#{
+#        echo "emerge_world()" > /dev/stderr
+#        emerge -pv     --backtrack=130 --usepkg=n --tree -u --ask n -n world > /dev/stderr
+#        emerge -pv -F    --backtrack=130 --usepkg=n --tree -u --ask n -n world > /dev/stderr
+#        emerge --quiet --backtrack=130 --usepkg=n --tree -u --ask n -n world > /dev/stderr || exit 1
+#}
+#
+#
+#add_accept_keyword() {
+#    pkg="${1}"
+#    shift
+#    line="=${pkg} **"
+#    grep -E "^=${pkg} \*\*$" /etc/portage/package.accept_keywords && return 0
+#    echo "${line}" >> /etc/portage/package.accept_keywords
+#}
 
 
 stdlib="${1}"  # unused

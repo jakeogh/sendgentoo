@@ -7,23 +7,25 @@ test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 #musl: http://distfiles.gentoo.org/experimental/amd64/musl/HOWTO
 #spark: https://github.com/holman/spark.git
 
-install_pkg_force_compile()
-{
-    . /etc/profile
-    echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
-    emerge -pv     --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
-    echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
-    emerge --quiet --tree --usepkg=n -u --ask n -n $@ > /dev/stderr || exit 1
-}
+source /home/cfg/_myapps/sendgentoo/sendgentoo/utils.sh
 
-install_pkg()
-{
-    . /etc/profile
-    echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
-    emerge -pv     --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
-    echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
-    emerge --quiet --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr || exit 1
-}
+#install_pkg_force_compile()
+#{
+#    . /etc/profile
+#    echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
+#    emerge -pv     --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
+#    echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
+#    emerge --quiet --tree --usepkg=n -u --ask n -n $@ > /dev/stderr || exit 1
+#}
+#
+#install_pkg()
+#{
+#    . /etc/profile
+#    echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
+#    emerge -pv     --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
+#    echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
+#    emerge --quiet --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr || exit 1
+#}
 
 
 stdlib="${1}"
@@ -60,10 +62,11 @@ rc-update add dnscrypt-proxy default
 mkdir /etc/portage/package.use
 grep -E "^dev-lang/python sqlite" /etc/portage/package.use/python || { echo "dev-lang/python sqlite" >> /etc/portage/package.use/python ; }  # this is done in post_chroot too...
 grep -E "^media-libs/gd fontconfig jpeg png truetype" /etc/portage/package.use/gd || { echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/gd ; }  # ditto
-grep -E "^=dev-python/kcl-9999 **" /etc/portage/package.accept_keywords || { echo "=dev-python/kcl-9999 **" >> /etc/portage/package.accept_keywords ; }
-grep -E "^=dev-python/fastentrypoints-9999 **" /etc/portage/package.accept_keywords || { echo "=dev-python/fastentrypoints-9999 **" >> /etc/portage/package.accept_keywords ; }
-grep -E "^=dev-python/python-getdents-9999 **" /etc/portage/package.accept_keywords || { echo "=dev-python/python-getdents-9999 **" >> /etc/portage/package.accept_keywords ; }
-grep -E "^=app-misc/edit-9999 **" /etc/portage/package.accept_keywords || { echo "=app-misc/edit-9999 **" >> /etc/portage/package.accept_keywords ; }
+
+#grep -E "^=dev-python/kcl-9999 **" /etc/portage/package.accept_keywords || { echo "=dev-python/kcl-9999 **" >> /etc/portage/package.accept_keywords ; }
+#grep -E "^=dev-python/fastentrypoints-9999 **" /etc/portage/package.accept_keywords || { echo "=dev-python/fastentrypoints-9999 **" >> /etc/portage/package.accept_keywords ; }
+#grep -E "^=dev-python/python-getdents-9999 **" /etc/portage/package.accept_keywords || { echo "=dev-python/python-getdents-9999 **" >> /etc/portage/package.accept_keywords ; }
+#grep -E "^=app-misc/edit-9999 **" /etc/portage/package.accept_keywords || { echo "=app-misc/edit-9999 **" >> /etc/portage/package.accept_keywords ; }
 grep -E "^=app-misc/edit-9999 -python_targets_python3_7" /etc/portage/package.use/edit || { echo "=app-misc/edit-9999 -python_targets_python3_7" >> /etc/portage/package.use/edit ; }
 #echo "sys-apps/file python" > /etc/portage/package.use/file
 #install_pkg kcl || exit 1 # should not be explicitely installed...

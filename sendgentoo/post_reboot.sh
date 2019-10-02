@@ -35,7 +35,7 @@ shift
 
 env-update || exit 1
 source /etc/profile || exit 1
-export PS1="(chroot) $PS1"
+#export PS1="(chroot) $PS1"
 
 mkdir /delme
 mkdir /usr/portage

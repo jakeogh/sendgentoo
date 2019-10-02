@@ -73,6 +73,7 @@ grep -E "^=app-misc/edit-9999 -python_targets_python3_7" /etc/portage/package.us
 
 chmod +x /home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py #this depends on kcl
 /home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py /home/cfg/sysskel/ || exit 1
+touch /etc/portage/proxy.conf  # or emerge is really unhappy
 
 /etc/init.d/dnscrypt-proxy start
 /home/cfg/linux/gentoo/layman/update_all_overlays

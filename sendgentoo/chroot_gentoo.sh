@@ -2,19 +2,30 @@
 
 set -o nounset
 
-argcount=9
-usage="stdlib boot_device hostname cflags root_filesystem newpasswd ip vm destination"
+argcount=10
+usage="stdlib boot_device hostname cflags root_filesystem newpasswd ip ip_gateway vm destination"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" > /dev/stderr && exit 1 ; } #"-ge=>=" "-gt=>" "-le=<=" "-lt=<" "-ne=!="
 
 stdlib="${1}"
-boot_device="${2}"
-hostname="${3}"
-cflags="${4}"
-root_filesystem="${5}"
-newpasswd="${6}"
-ip="${7}"
-vm="${8}"
-destination="${9}"
+shift
+boot_device="${1}"
+shift
+hostname="${1}"
+shift
+cflags="${1}"
+shift
+root_filesystem="${1}"
+shift
+newpasswd="${1}"
+shift
+ip="${1}"
+shift
+ip_gateway="${1}"
+shift
+vm="${1}"
+shift
+destination="${1}"
+shift
 
 /home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh "${boot_device}" # needs to be b4 grub install?
 
@@ -24,6 +35,7 @@ then
 fi
 
 grep -E "^config_eth0=\"${ip}/24\"" "${destination}/etc/conf.d/net" || echo "config_eth0=\"${ip}/24\"" >> "${destination}/etc/conf.d/net"
+grep -E "^routes_eth0=\"default via ${ip_gateway}\"" "${destination}/etc/conf.d/net" || echo "routes_eth0=\"default via ${ip_gateway}\"" >> "${destination}/etc/conf.d/net"
 
 echo "hostname=\"${hostname}\"" > "${destination}/etc/conf.d/hostname"
 

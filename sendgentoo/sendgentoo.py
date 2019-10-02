@@ -78,12 +78,13 @@ sendgentoo.add_command(create_root_device)
 @click.option('--hostname',                    is_flag=False, required=True)
 @click.option('--newpasswd',                   is_flag=False, required=True)
 @click.option('--ip',                          is_flag=False, required=True)
+@click.option('--ip-gateway',                     is_flag=False, required=True)
 @click.option('--force',                       is_flag=True,  required=False)
 @click.option('--encrypt',                     is_flag=True,  required=False)
 @click.option('--multilib',                    is_flag=True,  required=False)
 @click.option('--minimal',                     is_flag=True,  required=False)
 @click.pass_context
-def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, arch, raid, raid_group_size, march, hostname, newpasswd, ip, force, encrypt, multilib, minimal):
+def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, arch, raid, raid_group_size, march, hostname, newpasswd, ip, ip_gateway, force, encrypt, multilib, minimal):
     assert isinstance(root_devices, tuple)
     assert hostname.lower() == hostname
     os.makedirs('/usr/portage/distfiles', exist_ok=True)
@@ -244,7 +245,7 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
         boot_device = "False"  # fixme
     if not vm:
         vm = "novm"
-    chroot_gentoo_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' ' + march + ' ' + root_filesystem + ' ' + newpasswd + ' ' + ip + ' ' + vm + ' ' + str(mount_path)
+    chroot_gentoo_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' ' + march + ' ' + root_filesystem + ' ' + newpasswd + ' ' + ip + ' ' + ip_gateway + ' ' + vm + ' ' + str(mount_path)
     eprint("\nnow run:", chroot_gentoo_command)
     return
 

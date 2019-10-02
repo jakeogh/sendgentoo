@@ -39,6 +39,8 @@ mkdir /delme
 mkdir /usr/portage
 chown -R portage:portage /usr/portage
 
+emerge --sync
+
 /usr/bin/emerge -u --oneshot sys-devel/libtool
 #emerge world --newuse  # this could upgrade gcc and take a long time
 #gcc-config 2
@@ -98,7 +100,7 @@ echo "MACHINE_SIG=\"`/home/cfg/hardware/make_machine_signature_string`\"" > /etc
 test -d /home/user || { useradd --create-home user || exit 1 ; }
 echo "user:$newpasswd" | chpasswd || exit 1
 
-# bug: whatever creates the plugdev group has not happened yet (android pic xfer problem)
+emerge -1 -u media-libs/libmtp  # creates plugdev group
 for x in cdrom cdrw usb audio plugdev video wheel; do gpasswd -a user $x ; done
 
 /home/cfg/setup/fix_cfg_perms #must happen when user exists

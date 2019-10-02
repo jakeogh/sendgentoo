@@ -210,6 +210,8 @@ install_pkg vim
 install_pkg www-client/links
 install_pkg dev-db/redis  # later on, fix_cfg_perms will try to use the redis:redis user
 install_pkg sudo
+install_pkg app-text/tree
+install_pkg sys-fs/safecopy
 install_pkg lsof
 install_pkg lshw
 install_pkg pydf
@@ -268,6 +270,8 @@ add_accept_keyword "dev-python/sendgentoo-9999"
 add_accept_keyword "dev-python/sqlalchemy-utils-9999"
 add_accept_keyword "dev-python/python-getdents-9999"
 add_accept_keyword "dev-python/fastentrypoints-9999"
+add_accept_keyword "dev-python/untokenize-9999"
+add_accept_keyword "dev-python/ic-9999"
 grep sendgentoo /etc/portage/package.accept_keywords || exit 1
 install_pkg sendgentoo # must be done after jakeogh overlay
 

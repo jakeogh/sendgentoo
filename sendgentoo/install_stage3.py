@@ -40,7 +40,11 @@ def install_stage3(c_std_lib, multilib, arch, destination, vm, vm_ram):
     #gpg = gnupg.GPG(verbose=True)
     #import_result = gpg.recv_keys('keyserver.ubuntu.com', '0x2D182910')
     #ceprint(import_result)
-    run_command('gpg --keyserver keyserver.ubuntu.com --recv-key 0x2D182910', verbose=True)
+    gpg_cmd = 'gpg --keyserver keyserver.ubuntu.com --recv-key 0x2D182910'
+    if proxy:
+        keyserver_options = " --keyserver-options http_proxy=http://" + proxy
+        gpg_cmd += keyserver_options
+    run_command(gpg_cmd, verbose=True)
     ceprint("stage3_file:", stage3_file)
     run_command('gpg --verify ' + stage3_file + '.DIGESTS.asc', verbose=True)
     whirlpool = run_command("openssl dgst -r -whirlpool " + stage3_file + "| cut -d ' ' -f 1", verbose=True).decode('utf8').strip()

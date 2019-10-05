@@ -2,6 +2,7 @@
 
 #import click
 import os
+from icecream import ic
 #import gnupg
 from subprocess import CalledProcessError
 from kcl.mountops import path_is_mounted
@@ -23,12 +24,15 @@ def install_stage3(c_std_lib, multilib, arch, destination, vm, vm_ram):
     if not vm:
         assert path_is_mounted(destination)
     proxy_config = read_file_bytes('/etc/portage/proxy.conf').decode('utf8').split('\n')
+    ic(proxy_config)
     proxy = None
     for line in proxy_config:
         target = line.split('=')[-1]
         if target.startswith('http'):
-            proxy = target.split('://')[-1]
+            proxy = target.split('://')[-1].split('"')[0]
             break
+    ic(proxy)
+    assert proxy
     url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib, arch=arch, proxy=proxy)
     stage3_file = download_stage3(c_std_lib=c_std_lib, multilib=multilib, url=url, arch=arch, proxy=proxy)
     assert file_exists(stage3_file)

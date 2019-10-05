@@ -27,9 +27,10 @@ def install_stage3(c_std_lib, multilib, arch, destination, vm, vm_ram):
     ic(proxy_config)
     proxy = None
     for line in proxy_config:
-        target = line.split('=')[-1]
-        if target.startswith('http'):
-            proxy = target.split('://')[-1].split('"')[0]
+        line = line.split('=')[-1]
+        line = line.strip('"')
+        if line.startswith('http'):
+            proxy = line.split('://')[-1].split('"')[0]
             break
     ic(proxy)
     assert proxy

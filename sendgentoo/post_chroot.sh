@@ -230,6 +230,7 @@ install_pkg dev-util/fatrace
 install_pkg sys-apps/smartmontools
 rc-update add smartd default
 install_pkg sys-fs/multipath-tools
+install_pkg net-fs/nfs-utils
 
 install_pkg dev-util/ccache
 mkdir -p /var/cache/ccache
@@ -262,14 +263,6 @@ grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/
 echo "dev-lang/python sqlite" >> /etc/portage/package.use/python || exit 1
 echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/python || exit 1
 
-
-#add_accept_keyword "dev-python/kcl-9999"
-#add_accept_keyword "dev-python/sendgentoo-9999"
-#add_accept_keyword "dev-python/sqlalchemy-utils-9999"
-#add_accept_keyword "dev-python/python-getdents-9999"
-#add_accept_keyword "dev-python/fastentrypoints-9999"
-#add_accept_keyword "dev-python/untokenize-9999"
-#add_accept_keyword "dev-python/ic-9999"
 grep sendgentoo /etc/portage/package.accept_keywords || exit 1
 install_pkg sendgentoo # must be done after jakeogh overlay
 

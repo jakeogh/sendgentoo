@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-import click
+#import click
 import os
 #import gnupg
 from subprocess import CalledProcessError
 from kcl.mountops import path_is_mounted
 from kcl.fileops import file_exists
+from kcl.fileops import read_file_bytes
 from kcl.commandops import run_command
 from kcl.printops import ceprint
 from kcl.printops import eprint
@@ -21,8 +22,15 @@ def install_stage3(c_std_lib, multilib, arch, destination, vm, vm_ram):
     assert os.getcwd() == str(destination)
     if not vm:
         assert path_is_mounted(destination)
-    url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib, arch=arch)
-    stage3_file = download_stage3(c_std_lib=c_std_lib, multilib=multilib, url=url, arch=arch)
+    proxy_config = read_file_bytes('/etc/portage/proxy.conf').decode('utf8').split('\n')
+    proxy = None
+    for line in proxy_config:
+        target = line.split('=')[-1]
+        if target.startswith('https://'):
+            proxy = target.split('https://')[-1]
+            break
+    url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib, arch=arch, proxy=proxy)
+    stage3_file = download_stage3(c_std_lib=c_std_lib, multilib=multilib, url=url, arch=arch, proxy=proxy)
     assert file_exists(stage3_file)
     #gpg = gnupg.GPG(verbose=True)
     #import_result = gpg.recv_keys('keyserver.ubuntu.com', '0x2D182910')

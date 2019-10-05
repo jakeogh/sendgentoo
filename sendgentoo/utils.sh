@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o nounset
+#set -o nounset
 
 emerge_world()
 {

@@ -1,23 +1,13 @@
 #!/usr/bin/env python3
-import requests
+
 import click
 from kcl.printops import eprint
+from kcl.netops import download_file
 
 HELP="temp"
 
-def download_file(url):
-    local_filename = '/usr/portage/distfiles/' + url.split('/')[-1]
-    r = requests.get(url, stream=True)
-    try:
-        with open(local_filename, 'bx') as fh:
-            for chunk in r.iter_content(chunk_size=1024*1024):
-                if chunk:
-                    fh.write(chunk)
-    except FileExistsError:
-        eprint("skipping download, file exists:", local_filename)
-    r.close()
 
-def get_stage3_url(c_std_lib, multilib, arch):
+def get_stage3_url(c_std_lib, multilib, arch, proxy):
     #mirror = 'http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/'
     mirror = 'http://gentoo.osuosl.org/releases/' + arch + '/autobuilds/'
     if c_std_lib == 'glibc':
@@ -33,10 +23,12 @@ def get_stage3_url(c_std_lib, multilib, arch):
         latest = 'latest-stage3-' + arch + '-uclibc-hardened.txt'
         eprint("uclibc wont compile efivars")
         quit(1)
-    r = requests.get(mirror + latest)
-    eprint(r)
-    autobuild_file_lines = r.text.split('\n')
-    r.close()
+    get_url = mirror + latest
+    text = download_file(url=get_url, proxy=proxy)
+    #r = requests.get(mirror + latest)
+    eprint(text)
+    autobuild_file_lines = text.split('\n')
+    #r.close()
     for line in autobuild_file_lines:
         if 'stage3-' + arch in line:
             path = line.split(' ')[0]

@@ -7,7 +7,7 @@ from kcl.printops import eprint
 from kcl.deviceops import write_gpt
 from kcl.deviceops import write_grub_bios_partition
 from kcl.deviceops import write_efi_partition
-from kcl.filesystemops import create_filesystem
+from kcl.deviceops import create_filesystem
 from kcl.deviceops import warn
 
 def create_boot_device(ctx, device, partition_table, filesystem, force):

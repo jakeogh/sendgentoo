@@ -26,8 +26,8 @@ def install_stage3(c_std_lib, multilib, arch, destination, vm, vm_ram):
     proxy = None
     for line in proxy_config:
         target = line.split('=')[-1]
-        if target.startswith('https://'):
-            proxy = target.split('https://')[-1]
+        if target.startswith('http'):
+            proxy = target.split('://')[-1]
             break
     url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib, arch=arch, proxy=proxy)
     stage3_file = download_stage3(c_std_lib=c_std_lib, multilib=multilib, url=url, arch=arch, proxy=proxy)

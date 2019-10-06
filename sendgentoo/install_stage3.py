@@ -41,9 +41,9 @@ def install_stage3(c_std_lib, multilib, arch, destination, vm, vm_ram):
     #import_result = gpg.recv_keys('keyserver.ubuntu.com', '0x2D182910')
     #ceprint(import_result)
     gpg_cmd = 'gpg --keyserver keyserver.ubuntu.com --recv-key 0x2D182910'
-    if proxy:
-        keyserver_options = " --keyserver-options http_proxy=http://" + proxy
-        gpg_cmd += keyserver_options
+    #if proxy:
+    #    keyserver_options = " --keyserver-options http_proxy=http://" + proxy
+    #    gpg_cmd += keyserver_options
     run_command(gpg_cmd, verbose=True)
     ceprint("stage3_file:", stage3_file)
     run_command('gpg --verify ' + stage3_file + '.DIGESTS.asc', verbose=True)

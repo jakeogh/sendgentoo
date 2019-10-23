@@ -73,5 +73,10 @@ else
     fi
 fi
 
+rc-update add zfs-import boot
+rc-update add zfs-share default
+rc-update add zfs-zed default
+
+
 grub-mkconfig -o /boot/grub/grub.cfg
 echo "kernel compile and install completed OK"

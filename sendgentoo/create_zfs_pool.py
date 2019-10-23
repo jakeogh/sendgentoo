@@ -67,7 +67,7 @@ def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size
                 assert False # a 4x mirror? or a 2x2 mirror?
                 device_string = device_string + "mirror " + quad[0] + ' ' + quad[1] + ' ' + quad[2] + ' ' + quad[3] + ' '
                 eprint("device_string:", device_string)
-        elif raid_group_size == 8:
+        elif raid_group_size in [8, 16]:
             assert raid == 'raidz3'
             device_string = "raidz3"
             for device in devices:

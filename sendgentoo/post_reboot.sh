@@ -8,6 +8,11 @@ test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 #spark: https://github.com/holman/spark.git
 
 source /home/cfg/_myapps/sendgentoo/sendgentoo/utils.sh
+#cat /etc/portage/proxy.conf | tr '\n' '\0' | xargs -0 -I '{}' export '{}'
+#eval `cat /etc/portage/proxy.conf`
+#echo "${http_proxy}"
+test -e /etc/portage/proxy.conf || touch /etc/portage/proxy.conf
+grep -E "^source /etc/portage/proxy.conf" /etc/portage/make.conf || echo "source /etc/portage/proxy.conf" >> /etc/portage/make.conf
 
 #install_pkg_force_compile()
 #{
@@ -78,6 +83,7 @@ touch /etc/portage/proxy.conf  # or emerge is really unhappy
 /etc/init.d/dnscrypt-proxy start
 /home/cfg/linux/gentoo/layman/update_all_overlays
 install_pkg debugedit
+/home/cfg/_myapps/sendgentoo/sendgentoo/kernel_recompile.sh || exit 1  # make sure can build zfs for @world
 emerge @world --newuse
 
 touch /etc/portage/proxy.conf
@@ -189,6 +195,8 @@ mkdir /mnt/sdl1 /mnt/sdl2 /mnt/sdl3
 mkdir /mnt/sdm1 /mnt/sdm2 /mnt/sdm3
 mkdir /mnt/sdn1 /mnt/sdn2 /mnt/sdn3
 mkdir /mnt/sdo1 /mnt/sdo2 /mnt/sdo3
+mkdir /mnt/sdp1 /mnt/sdp2 /mnt/sdp3
+mkdir /mnt/sdq1 /mnt/sdq2 /mnt/sdq3
 mkdir /mnt/xvdi1 /mnt/xvdj1
 mkdir /mnt/loop /mnt/samba /mnt/dvd /mnt/cdrom
 mkdir /mnt/smb
@@ -237,8 +245,8 @@ fi
 chown root:mail /var/spool/mail/ #invalid group
 chmod 03775 /var/spool/mail/
 
-emerge @laptopxorg -pv
-emerge @laptopxorg
+install_pkg @laptopxorg -pv
+install_pkg @laptopxorg
 
 #eselect repository enable science
 #emaint sync -r science
@@ -246,7 +254,7 @@ emerge @laptopxorg
 #emerge @gpib
 #gpib_config
 
-install_pkg nvim && emerge --unmerge vim
+install_pkg app-editors/neovim && emerge --unmerge vim
 
 echo "post_reboot.sh complete"
 

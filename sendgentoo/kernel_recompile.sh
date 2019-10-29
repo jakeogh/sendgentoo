@@ -24,13 +24,14 @@ am_i_root
 
 compile_kernel()
 {
+    emerge zfs -u       # handle a downgrade from -9999 before genkernel calls @module-rebuild
     genkernel all \
     $menuconfig \
     --no-clean \
     --zfs \
     --symlink \
     --makeopts="-j12" \
-    --callback="/usr/bin/emerge zfs zfs-kmod @module-rebuild" || exit 1
+    --callback="/usr/bin/emerge zfs zfs-kmod sci-libs/linux-gpib-modules @module-rebuild" || exit 1
 }
 
 

@@ -245,8 +245,12 @@ fi
 chown root:mail /var/spool/mail/ #invalid group
 chmod 03775 /var/spool/mail/
 
+
 install_pkg @laptopxorg -pv
 install_pkg @laptopxorg
+
+install_pkg @gpib -pv
+install_pkg @gpib
 
 #eselect repository enable science
 #emaint sync -r science

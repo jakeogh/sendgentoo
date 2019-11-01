@@ -12,7 +12,7 @@ from kcl.deviceops import warn
 
 def create_boot_device(ctx, device, partition_table, filesystem, force):
     assert not device[-1].isdigit()
-    eprint("installing gpt/grub/efi on boot device:", device, '(' + partition_table + ')', '(' + filesystem + ')')
+    eprint("installing gpt/grub_bios/efi on boot device:", device, '(' + partition_table + ')', '(' + filesystem + ')')
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)
 

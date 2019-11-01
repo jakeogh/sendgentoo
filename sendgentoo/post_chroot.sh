@@ -1,8 +1,8 @@
 #!/bin/bash
 set -o nounset
 
-echo -n "post_chroot.sh args: "
-echo "$@"
+echo -n "$0 args: "
+echo -e "$@\n"
 argcount=5
 usage="stdlib boot_device cflags root_filesystem newpasswd"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
@@ -16,40 +16,6 @@ set -o nounset
 #export http_proxy="http://192.168.222.100:8888"
 
 source /home/cfg/_myapps/sendgentoo/sendgentoo/utils.sh
-
-#install_pkg_force_compile()
-#{
-#        echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
-#        emerge -pv     --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
-#        emerge -pv -F    --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
-#        emerge --quiet --tree --usepkg=n -u --ask n -n $@ > /dev/stderr || exit 1
-#}
-#
-#install_pkg()
-#{
-#        echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
-#        emerge -pv     --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
-#        emerge -pv -F    --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
-#        emerge --quiet --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr || exit 1
-#}
-#
-#emerge_world()
-#{
-#        echo "emerge_world()" > /dev/stderr
-#        emerge -pv     --backtrack=130 --usepkg=n --tree -u --ask n -n world > /dev/stderr
-#        emerge -pv -F    --backtrack=130 --usepkg=n --tree -u --ask n -n world > /dev/stderr
-#        emerge --quiet --backtrack=130 --usepkg=n --tree -u --ask n -n world > /dev/stderr || exit 1
-#}
-#
-#
-#add_accept_keyword() {
-#    pkg="${1}"
-#    shift
-#    line="=${pkg} **"
-#    grep -E "^=${pkg} \*\*$" /etc/portage/package.accept_keywords && return 0
-#    echo "${line}" >> /etc/portage/package.accept_keywords
-#}
-
 
 stdlib="${1}"  # unused
 shift
@@ -119,24 +85,26 @@ export KCONFIG_OVERWRITECONFIG=1 # https://www.mail-archive.com/lede-dev@lists.i
 install_pkg gentoo-sources || exit 1
 install_pkg grub:2 || exit 1
 
-if [[ "${root_filesystem}" == "zfs" ]];
-then
-    echo "GRUB_PRELOAD_MODULES=\"part_gpt part_msdos zfs\"" >> /etc/default/grub
-   #echo "GRUB_CMDLINE_LINUX_DEFAULT=\"boot=zfs root=ZFS=rpool/ROOT\"" >> /etc/default/grub
-   #echo "GRUB_CMDLINE_LINUX_DEFAULT=\"boot=zfs\"" >> /etc/default/grub
-   #echo "GRUB_DEVICE=\"ZFS=rpool/ROOT/gentoo\"" >> /etc/default/grub
-   # echo "GRUB_DEVICE=\"ZFS=${hostname}/ROOT/gentoo\"" >> /etc/default/grub #this was uncommented, disabled to not use hostname
-else
-    echo "GRUB_PRELOAD_MODULES=\"part_gpt part_msdos\"" >> /etc/default/grub
-    root_partition=`/home/cfg/linux/disk/get_root_device`
-    echo "-------------- root_partition: ${root_partition} ---------------------"
-    partuuid=`/home/cfg/linux/hardware/disk/blkid/PARTUUID "${root_partition}"`
-    echo "GRUB_DEVICE partuuid: ${partuuid}"
-    grep -E "^GRUB_DEVICE=\"PARTUUID=${partuuid}\"" /etc/default/grub || { echo "GRUB_DEVICE=\"PARTUUID=${partuuid}\"" >> /etc/default/grub ; }
-    echo -e 'PARTUUID='`/home/cfg/linux/disk/blkid/PARTUUID_root_device` '\t/' '\text4' '\tnoatime' '\t0' '\t1' >> /etc/fstab
-fi
+/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh "${boot_device}" || exit 1
 
-grep -E "^GRUB_CMDLINE_LINUX=\"net.ifnames=0 rootflags=noatime\"" /etc/default/grub || { echo "GRUB_CMDLINE_LINUX=\"net.ifnames=0 rootflags=noatime\"" >> /etc/default/grub ; }
+#if [[ "${root_filesystem}" == "zfs" ]];
+#then
+#    echo "GRUB_PRELOAD_MODULES=\"part_gpt part_msdos zfs\"" >> /etc/default/grub
+#   #echo "GRUB_CMDLINE_LINUX_DEFAULT=\"boot=zfs root=ZFS=rpool/ROOT\"" >> /etc/default/grub
+#   #echo "GRUB_CMDLINE_LINUX_DEFAULT=\"boot=zfs\"" >> /etc/default/grub
+#   #echo "GRUB_DEVICE=\"ZFS=rpool/ROOT/gentoo\"" >> /etc/default/grub
+#   # echo "GRUB_DEVICE=\"ZFS=${hostname}/ROOT/gentoo\"" >> /etc/default/grub #this was uncommented, disabled to not use hostname
+#else
+#    echo "GRUB_PRELOAD_MODULES=\"part_gpt part_msdos\"" >> /etc/default/grub
+#    root_partition=`/home/cfg/linux/disk/get_root_device`
+#    echo "-------------- root_partition: ${root_partition} ---------------------"
+#    partuuid=`/home/cfg/linux/hardware/disk/blkid/PARTUUID "${root_partition}"`
+#    echo "GRUB_DEVICE partuuid: ${partuuid}"
+#    grep -E "^GRUB_DEVICE=\"PARTUUID=${partuuid}\"" /etc/default/grub || { echo "GRUB_DEVICE=\"PARTUUID=${partuuid}\"" >> /etc/default/grub ; }
+#    echo -e 'PARTUUID='`/home/cfg/linux/disk/blkid/PARTUUID_root_device` '\t/' '\text4' '\tnoatime' '\t0' '\t1' >> /etc/fstab
+#fi
+
+#grep -E "^GRUB_CMDLINE_LINUX=\"net.ifnames=0 rootflags=noatime\"" /etc/default/grub || { echo "GRUB_CMDLINE_LINUX=\"net.ifnames=0 rootflags=noatime\"" >> /etc/default/grub ; }
 
 install_pkg dev-util/strace
 install_pkg memtest86+ # do before generating grub.conf
@@ -155,10 +123,10 @@ grep "CONFIG_FB_EFI is not set" /usr/src/linux/.config && { echo "Rebuild the ke
 add_accept_keyword "sys-fs/zfs-9999"
 add_accept_keyword "sys-fs/zfs-kmod-9999"
 echo -e "#<fs>\t<mountpoint>\t<type>\t<opts>\t<dump/pass>" > /etc/fstab # create empty fstab
-ln -sf /proc/self/mounts /etc/mtab
+#ln -sf /proc/self/mounts /etc/mtab
 
-grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes "${boot_device}" || exit 1
-grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --no-rs-codes "${boot_device}" || exit 1
+#grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes "${boot_device}" || exit 1
+#grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --no-rs-codes "${boot_device}" || exit 1
 
 ln -s /home/cfg/sysskel/etc/skel/bin /root/bin
 
@@ -266,15 +234,5 @@ echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/py
 grep sendgentoo /etc/portage/package.accept_keywords || exit 1
 install_pkg sendgentoo # must be done after jakeogh overlay
 
-#mkdir /etc/portage/sets
-#cp /home/cfg/sysskel/etc/portage/sets/laptopbeforereboot /etc/portage/sets/
-#emerge @laptopbeforereboot -pv
-#emerge @laptopbeforereboot  # needs global opengl flag
-
-echo "chroot_gentoo.sh complete" > /install_status
-
-echo "post_chroot.sh is done, exiting 0"
-exit 0
-
-#stuff below can happen on reboot
+echo "$(date) $0 complete" | tee -a /install_status
 

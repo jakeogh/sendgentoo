@@ -75,6 +75,7 @@ test -d "${destination}/var/db/repos/gentoo" || { mkdir -p "${destination}/var/d
 mount | grep "${destination}/var/db/repos/gentoo" || { mount --rbind /var/db/repos/gentoo "${destination}/var/db/repos/gentoo" || exit 1 ; }
 
 cp /etc/portage/proxy.conf "${destination}"/etc/portage/proxy.conf || exit 1
+cp /sbin/ischroot "${destination}"/sbin/ischroot || exit 1
 
 echo "Entering chroot"
 env -i HOME=/root TERM=$TERM chroot "${destination}" /bin/bash -l -c "su - -c '/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh ${stdlib} ${boot_device} ${cflags} ${root_filesystem} ${newpasswd}'" || { echo "post_chroot.sh exited $?" ; exit 1 ; }

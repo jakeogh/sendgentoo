@@ -9,9 +9,10 @@ from kcl.printops import eprint
 @click.argument('name', required=True, nargs=1)
 @click.option('--simulate', is_flag=True, required=False)
 @click.option('--encrypt', is_flag=True, required=False)
-@click.option('--force', is_flag=True, required=False)
+@click.option('--nfs', is_flag=True, required=False)
+#@click.option('--force', is_flag=True, required=False)
 @click.option('--exec', 'exe', is_flag=True, required=False)
-def create_zfs_filesystem(pool, name, simulate, encrypt, force, exe):
+def create_zfs_filesystem(pool, name, simulate, encrypt, nfs, exe):
     eprint("make_zfs_filesystem_on_devices()")
 
     assert not pool.startswith('/')
@@ -21,15 +22,19 @@ def create_zfs_filesystem(pool, name, simulate, encrypt, force, exe):
     assert len(name) > 2
 
     # https://raw.githubusercontent.com/ryao/zfs-overlay/master/zfs-install
-    run_command("modprobe zfs || exit 1")
+    #run_command("modprobe zfs || exit 1")
 
     command = "zfs create"
+    command += " -o listsnapshots=on"
     if encrypt:
         command += " -o encryption=aes-256-gcm"
         command += " -o keyformat=passphrase"
         command += " -o keylocation=prompt"
+    if nfs:
+        command += " -o sharenfs=on"
     if not exe:
         command += " -o exec=off"
+
     command += " -o mountpoint=/" + pool + '/' + name + ' ' + pool + '/' + name
 
     print(command)

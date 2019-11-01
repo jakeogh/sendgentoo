@@ -24,16 +24,22 @@ am_i_root
 
 compile_kernel()
 {
-    emerge zfs -u       # handle a downgrade from -9999 before genkernel calls @module-rebuild
+    emerge genkernel -u
+    emerge sys-fs/zfs -u       # handle a downgrade from -9999 before genkernel calls @module-rebuild
+    #emerge @module-rebuild      # linux-gpib fails if gcc was upgraded unless this is done first
+    emerge sci-libs/linux-gpib -u  # might fail if gcc was upgraded and the kernel hasnt been recompiled yet
     genkernel all \
     $menuconfig \
     --no-clean \
     --zfs \
     --symlink \
-    --makeopts="-j12" \
-    --callback="/usr/bin/emerge zfs zfs-kmod sci-libs/linux-gpib-modules @module-rebuild" || exit 1
+    --module-rebuild \
+    --all-ramdisk-modules \
+    --makeopts="-j12"
 }
 
+#    --callback="/usr/bin/emerge zfs zfs-kmod sci-libs/linux-gpib-modules @module-rebuild" || exit 1
+#    --callback="/usr/bin/emerge zfs zfs-kmod sci-libs/linux-gpib sci-libs/linux-gpib-modules @module-rebuild" || exit 1
 
 if [ -e "/usr/src/linux/init/.init_task.o.cmd" ];
 then

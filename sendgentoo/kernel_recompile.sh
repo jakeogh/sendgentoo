@@ -26,8 +26,8 @@ compile_kernel()
 {
     emerge genkernel -u
     emerge sys-fs/zfs -u       # handle a downgrade from -9999 before genkernel calls @module-rebuild
-    #emerge @module-rebuild      # linux-gpib fails if gcc was upgraded unless this is done first
-    emerge sci-libs/linux-gpib -u  # might fail if gcc was upgraded and the kernel hasnt been recompiled yet
+    #emerge @module-rebuild      # linux-gpib fails if gcc was upgraded unless this is done first  #nope. was confused
+    #emerge sci-libs/linux-gpib -u  # might fail if gcc was upgraded and the kernel hasnt been recompiled yet
     genkernel all \
     $menuconfig \
     --no-clean \

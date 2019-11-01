@@ -25,7 +25,6 @@ def create_zfs_filesystem(pool, name, simulate, encrypt, nfs, exe):
     #run_command("modprobe zfs || exit 1")
 
     command = "zfs create"
-    command += " -o listsnapshots=on"
     if encrypt:
         command += " -o encryption=aes-256-gcm"
         command += " -o keyformat=passphrase"

@@ -10,6 +10,12 @@ from kcl.printops import eprint
 from .setup_globals import RAID_LIST
 
 
+ASHIFT_HELP = '''1<<9 == 512
+1<<10 == 1024
+1<<11 == 2048
+1<<12 == 4096
+1<<13 == 8192'''
+
 @click.command()
 @click.argument('devices', required=True, nargs=-1)
 @click.option('--force', is_flag=True, required=False)
@@ -18,10 +24,14 @@ from .setup_globals import RAID_LIST
 @click.option('--raid', is_flag=False, required=True, type=click.Choice(RAID_LIST))
 @click.option('--raid-group-size', is_flag=False, required=True, type=int)
 @click.option('--pool-name', is_flag=False, required=True, type=str)
+@click.option('--ashift', is_flag=False, required=True, type=int, help=ASHIFT_HELP)
 #@click.option('--mount-point', is_flag=False, required=False, type=str)
 #@click.option('--alt-root', is_flag=False, required=False, type=str)
-def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size, pool_name):
+def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size, pool_name, ashift):
+    assert ashift >= 9
+    assert ashift <= 16
     eprint("make_zfs_filesystem_on_devices()")
+    eprint("using block size: {} (ashift={})".format(1<<ashift, ashift) )
 
     if skip_checks:
         assert simulate
@@ -98,6 +108,7 @@ def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size
     command += " -o feature@embedded_data=enabled"       # default   # Blocks which compress very well use even less space.
     command += " -o feature@large_dnode=enabled"         # default   # Variable on-disk size of dnodes.
     command += " -o feature@large_blocks=enabled"        # default   # Support for blocks larger than 128KB.
+    command += " -O ashift={}".format(ashift)            #           #
     command += " -O atime=off"                           #           # (dont write when reading)
     command += " -O compression=lz4"                     #           # (better than lzjb)
     command += " -O copies=1"                            #

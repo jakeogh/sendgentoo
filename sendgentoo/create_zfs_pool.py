@@ -111,6 +111,7 @@ def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size
     command += " -o feature@large_dnode=enabled"         # default   # Variable on-disk size of dnodes.
     command += " -o feature@large_blocks=enabled"        # default   # Support for blocks larger than 128KB.
     command += " -o ashift={}".format(ashift)            #           #
+    command += " -o listsnapshots=on"
     command += " -O atime=off"                           #           # (dont write when reading)
     command += " -O compression=lz4"                     #           # (better than lzjb)
     command += " -O copies=1"                            #
@@ -122,7 +123,6 @@ def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size
     command += " -O utf8only=off"                        # default
     command += " -O mountpoint=none"                     # dont mount raw zpools
     command += " -O setuid=off"                          # only needed on rootfs
-    command += " -O listsnapshots=on"
     command += ' ' + pool_name + ' ' + device_string
 
     print(command)

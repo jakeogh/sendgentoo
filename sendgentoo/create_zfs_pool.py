@@ -25,9 +25,10 @@ ASHIFT_HELP = '''1<<9 == 512
 @click.option('--raid-group-size', is_flag=False, required=True, type=int)
 @click.option('--pool-name', is_flag=False, required=True, type=str)
 @click.option('--ashift', is_flag=False, required=True, type=int, help=ASHIFT_HELP)
+@click.option('--encrypt', is_flag=True)
 #@click.option('--mount-point', is_flag=False, required=False, type=str)
 #@click.option('--alt-root', is_flag=False, required=False, type=str)
-def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size, pool_name, ashift):
+def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size, pool_name, ashift, encrypt):
     assert ashift >= 9
     assert ashift <= 16
     eprint("make_zfs_filesystem_on_devices()")
@@ -94,10 +95,11 @@ def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size
 #        alt_root = '-R ' + alt_root
 #    else:
 #        alt_root = ''
-
     #-o cachefile='/tmp/zpool.cache'\
 
     command = "zpool create"
+    if encrypt:
+        command += " -o feature@encryption=enabled"
     command += " -o feature@async_destroy=enabled"       # default   # Destroy filesystems asynchronously.
     command += " -o feature@empty_bpobj=enabled"         # default   # Snapshots use less space.
     command += " -o feature@lz4_compress=enabled"        # default   # (independent of the zfs compression flag)

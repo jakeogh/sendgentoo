@@ -7,14 +7,15 @@ from kcl.mountops import block_special_path_is_mounted
 from kcl.commandops import run_command
 from kcl.iterops import grouper
 from kcl.printops import eprint
+from kcl.deviceops import passphrase_prompt
 from .setup_globals import RAID_LIST
 
 
-ASHIFT_HELP = '''1<<9 == 512
-1<<10 == 1024
-1<<11 == 2048
-1<<12 == 4096
-1<<13 == 8192'''
+ASHIFT_HELP = '''9: 1<<9 == 512
+10: 1<<10 == 1024
+11: 1<<11 == 2048
+12: 1<<12 == 4096
+13: 1<<13 == 8192'''
 
 @click.command()
 @click.argument('devices', required=True, nargs=-1)
@@ -97,9 +98,10 @@ def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size
 #        alt_root = ''
     #-o cachefile='/tmp/zpool.cache'\
 
-    command = "zpool create"
     if encrypt:
-        command += " -o feature@encryption=enabled"
+        passphrase = passphrase_prompt("zpool")
+
+    command = "zpool create"
     command += " -o feature@async_destroy=enabled"       # default   # Destroy filesystems asynchronously.
     command += " -o feature@empty_bpobj=enabled"         # default   # Snapshots use less space.
     command += " -o feature@lz4_compress=enabled"        # default   # (independent of the zfs compression flag)
@@ -112,6 +114,14 @@ def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size
     command += " -o feature@large_blocks=enabled"        # default   # Support for blocks larger than 128KB.
     command += " -o ashift={}".format(ashift)            #           #
     command += " -o listsnapshots=on"
+
+    if encrypt:
+        command += " -o feature@encryption=enabled"
+        command += " -O encryption=aes-256-gcm"
+        command += " -O keyformat=passphrase"
+        command += " -O keylocation=prompt"
+        command += " -O pbkdf2iters=460000"
+
     command += " -O atime=off"                           #           # (dont write when reading)
     command += " -O compression=lz4"                     #           # (better than lzjb)
     command += " -O copies=1"                            #
@@ -127,4 +137,7 @@ def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size
 
     print(command)
     if not simulate:
-        run_command(command, verbose=True, expected_exit_code=0)
+        stdin = None
+        if encrypt:
+            stdin = passphrase
+        run_command(command, verbose=True, expected_exit_code=0, stdin=stdin)

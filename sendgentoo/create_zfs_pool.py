@@ -99,7 +99,9 @@ def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size
     #-o cachefile='/tmp/zpool.cache'\
 
     if encrypt:
-        passphrase = passphrase_prompt("zpool")
+        if not simulate:
+            passphrase = passphrase_prompt("zpool")
+            passphrase = passphrase.encode('utf8')
 
     command = "zpool create"
     command += " -o feature@async_destroy=enabled"       # default   # Destroy filesystems asynchronously.

@@ -7,7 +7,6 @@ import humanfriendly
 from psutil import virtual_memory
 from kcl.fileops import path_is_block_special
 from kcl.fileops import get_block_device_size
-#from kcl.fileops import get_file_size
 from kcl.mountops import block_special_path_is_mounted
 from kcl.mountops import path_is_mounted
 from kcl.commandops import run_command

@@ -43,8 +43,9 @@ def get_stage3_url(c_std_lib, multilib, arch, proxy):
 @click.command()
 @click.option('--c-std-lib', is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']), help=HELP)
 @click.option('--multilib', is_flag=True, required=False, help=HELP)
-def main(c_std_lib, multilib):
-    url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib)
+@click.option('--arch', is_flag=False, required=True, help=HELP, type=click.Choice(['amd64']))
+def main(c_std_lib, multilib, arch):
+    url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib, arch=arch, proxy=None)
     eprint(url)
 
 

@@ -26,7 +26,7 @@ def create_zfs_filesystem(pool, name, simulate, encrypt, nfs, exe, nomount, rese
     # https://raw.githubusercontent.com/ryao/zfs-overlay/master/zfs-install
     #run_command("modprobe zfs || exit 1")
 
-    command = "zfs create setuid=off devices=off"
+    command = "zfs create -o setuid=off -o devices=off"
     if encrypt:
         command += " -o encryption=aes-256-gcm"
         command += " -o keyformat=passphrase"

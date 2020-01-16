@@ -13,7 +13,8 @@ from kcl.printops import eprint
 #@click.option('--force', is_flag=True, required=False)
 @click.option('--exec', 'exe', is_flag=True, required=False)
 @click.option('--nomount', is_flag=True, required=False)
-def create_zfs_filesystem(pool, name, simulate, encrypt, nfs, exe, nomount):
+@click.option('--reservation', type=str, required=False)
+def create_zfs_filesystem(pool, name, simulate, encrypt, nfs, exe, nomount, reservation):
     eprint("make_zfs_filesystem_on_devices()")
 
     assert not pool.startswith('/')
@@ -34,6 +35,8 @@ def create_zfs_filesystem(pool, name, simulate, encrypt, nfs, exe, nomount):
         command += " -o sharenfs=on"
     if not exe:
         command += " -o exec=off"
+    if reservation:
+        command += " -o reservation=" + reservation
 
     if not nomount:
         command += " -o mountpoint=/" + pool + '/' + name

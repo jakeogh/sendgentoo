@@ -22,6 +22,7 @@ am_i_root()
 
 am_i_root
 
+#    --zfs \
 compile_kernel()
 {
     emerge genkernel -u
@@ -31,7 +32,6 @@ compile_kernel()
     genkernel all \
     $menuconfig \
     --no-clean \
-    --zfs \
     --symlink \
     --module-rebuild \
     --all-ramdisk-modules \

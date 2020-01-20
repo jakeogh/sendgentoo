@@ -76,8 +76,14 @@ grep -E "^=app-misc/edit-9999 -python_targets_python3_7" /etc/portage/package.us
 #echo "sys-apps/file python" > /etc/portage/package.use/file
 #install_pkg kcl || exit 1 # should not be explicitely installed...
 
-chmod +x /home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py #this depends on kcl
-/home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py /home/cfg/sysskel/ || exit 1
+install_pkg symlinktree || exit 1
+symlinktree /home/cfg/sysskel --verbose || exit 1
+symlinktree /home/cfg/sysskel --verbose --re-apply-skel /root || exit 1
+
+#chmod +x /home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py #this depends on kcl
+#/home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py /home/cfg/sysskel/ || exit 1
+
+
 touch /etc/portage/proxy.conf  # or emerge is really unhappy
 
 /etc/init.d/dnscrypt-proxy start

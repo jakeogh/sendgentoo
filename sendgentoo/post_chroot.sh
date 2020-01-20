@@ -118,8 +118,6 @@ cores=`grep processor /proc/cpuinfo | wc -l`
 grep "CONFIG_TRIM_UNUSED_KSYMS is not set" /usr/src/linux/.config || { echo "Rebuild the kernel with CONFIG_TRIM_UNUSED_KSYMS must be =n" ; exit 1 ; }
 grep "CONFIG_FB_EFI is not set" /usr/src/linux/.config && { echo "Rebuild the kernel with CONFIG_FB_EFI=y" ; exit 1 ; }
 
-#echo "=sys-fs/zfs-9999 **"      >> /etc/portage/package.accept_keywords
-#echo "=sys-fs/zfs-kmod-9999 **" >> /etc/portage/package.accept_keywords
 add_accept_keyword "sys-fs/zfs-9999"
 add_accept_keyword "sys-fs/zfs-kmod-9999"
 echo -e "#<fs>\t<mountpoint>\t<type>\t<opts>\t<dump/pass>" > /etc/fstab # create empty fstab
@@ -193,7 +191,6 @@ install_pkg net-dns/bind-tools
 install_pkg app-admin/sysstat   #mpstat
 install_pkg wpa_supplicant
 install_pkg sys-apps/sg3_utils
-#install_pkg app-emulation/qemu
 install_pkg dev-util/fatrace
 install_pkg sys-apps/smartmontools
 rc-update add smartd default
@@ -218,7 +215,6 @@ emaint sync -r jakeogh
 #layman -S # update layman trees
 
 # must be done after overlay is installed
-#echo "=dev-python/replace-text-9999 **" >> /etc/portage/package.accept_keywords
 add_accept_keyword "dev-python/replace-text-9999"
 install_pkg replace-text
 
@@ -233,6 +229,10 @@ echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/py
 
 grep sendgentoo /etc/portage/package.accept_keywords || exit 1
 install_pkg sendgentoo # must be done after jakeogh overlay
+
+install_pkg @sound
+rc-update add alsasound boot
+rc-update add acpid boot
 
 echo "$(date) $0 complete" | tee -a /install_status
 

@@ -7,10 +7,11 @@ from icecream import ic
 from subprocess import CalledProcessError
 from kcl.mountops import path_is_mounted
 from kcl.fileops import file_exists
-from kcl.fileops import read_file_bytes
+#from kcl.fileops import read_file_bytes
 from kcl.commandops import run_command
 from kcl.printops import ceprint
 from kcl.printops import eprint
+from kcl.netops import construct_proxy_dict
 from .get_stage3_url import get_stage3_url
 from .download_stage3 import download_stage3
 
@@ -23,19 +24,22 @@ def install_stage3(c_std_lib, multilib, arch, destination, vm, vm_ram):
     assert os.getcwd() == str(destination)
     if not vm:
         assert path_is_mounted(destination)
-    proxy_config = read_file_bytes('/etc/portage/proxy.conf').decode('utf8').split('\n')
-    ic(proxy_config)
-    proxy = None
-    for line in proxy_config:
-        line = line.split('=')[-1]
-        line = line.strip('"')
-        if line.startswith('http'):
-            proxy = line.split('://')[-1].split('"')[0]
-            break
-    ic(proxy)
-    assert proxy
-    url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib, arch=arch, proxy=proxy)
-    stage3_file = download_stage3(c_std_lib=c_std_lib, multilib=multilib, url=url, arch=arch, proxy=proxy)
+    #proxy_config = read_file_bytes('/etc/portage/proxy.conf').decode('utf8').split('\n')
+    #ic(proxy_config)
+    ##proxy = None
+    #proxy_dict = {}
+    #for line in proxy_config:
+    #    line = line.split('=')[-1]
+    #    line = line.strip('"')
+    #    scheme = line.split('://')[0]
+    #    ic(scheme)
+    #    proxy_dict[scheme] = line
+    #    #proxy = line.split('://')[-1].split('"')[0]
+    proxy_dict = construct_proxy_dict()
+    #ic(proxy)
+    #assert proxy
+    url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib, arch=arch, proxy_dict=proxy_dict)
+    stage3_file = download_stage3(c_std_lib=c_std_lib, multilib=multilib, url=url, arch=arch, proxy_dict=proxy_dict)
     assert file_exists(stage3_file)
     #gpg = gnupg.GPG(verbose=True)
     #import_result = gpg.recv_keys('keyserver.ubuntu.com', '0x2D182910')

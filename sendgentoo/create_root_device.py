@@ -24,7 +24,8 @@ from kcl.deviceops import warn
 def create_root_device(ctx, devices, partition_table, filesystem, force, exclusive, raid, raid_group_size, pool_name=False):
     eprint("installing gentoo on root devices:", ' '.join(devices), '(' + partition_table + ')', '(' + filesystem + ')', '(', pool_name, ')')
     for device in devices:
-        assert not device[-1].isdigit()
+        if not Path(device).name.startswith('nvme'):
+            assert not device[-1].isdigit()
         assert path_is_block_special(device)
         assert not block_special_path_is_mounted(device)
 

@@ -45,7 +45,8 @@ def create_zfs_pool(devices, force, simulate, skip_checks, raid, raid_group_size
         if not skip_checks:
             assert path_is_block_special(device, follow_symlinks=True)
             assert not block_special_path_is_mounted(device)
-        assert not device[-1].isdigit()
+        if not Path(device).name.startswith('nvme'):
+            assert not device[-1].isdigit()
 
     if not skip_checks:
         first_device_size = get_block_device_size(devices[0])

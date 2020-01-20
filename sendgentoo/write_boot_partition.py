@@ -13,7 +13,8 @@ from kcl.deviceops import warn
 @click.option('--force', is_flag=True, required=False)
 def write_boot_partition(device, force):
     eprint("creating boot partition  (for grub config, stage2, vmlinuz) on:", device)
-    assert not device[-1].isdigit()
+    if not Path(device).name.startswith('nvme'):
+        assert not device[-1].isdigit()
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)
 

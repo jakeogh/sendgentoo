@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import click
+from pathlib import Path
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.printops import eprint
@@ -11,7 +12,8 @@ from kcl.deviceops import create_filesystem
 from kcl.deviceops import warn
 
 def create_boot_device(ctx, device, partition_table, filesystem, force):
-    assert not device[-1].isdigit()
+    if not Path(device).name.startswith('nvme'):
+        assert not device[-1].isdigit()
     eprint("installing gpt/grub_bios/efi on boot device:", device, '(' + partition_table + ')', '(' + filesystem + ')')
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)

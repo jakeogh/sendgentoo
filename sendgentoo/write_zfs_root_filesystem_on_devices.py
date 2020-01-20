@@ -26,7 +26,8 @@ def write_zfs_root_filesystem_on_devices(devices, force, raid, raid_group_size, 
     for device in devices:
         assert path_is_block_special(device)
         assert not block_special_path_is_mounted(device)
-        assert not device[-1].isdigit()
+        if not Path(device).name.startswith('nvme'):
+            assert not device[-1].isdigit()
 
     #assert raid_group_size >= 2
     assert len(devices) >= raid_group_size

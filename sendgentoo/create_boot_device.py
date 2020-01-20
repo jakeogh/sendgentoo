@@ -34,9 +34,9 @@ def create_boot_device(ctx, device, partition_table, filesystem, force):
         ctx.invoke(write_grub_bios_partition, device=device, force=True, start='48s', end='1023s', partition_number='1')
 
     if filesystem != 'zfs':
-        #ctx.invoke(write_efi_partition, device=device, force=True, start='1024s', end='18047s', partition_number='2') # this is /dev/sda9 on zfs
+        ctx.invoke(write_efi_partition, device=device, force=True, start='1024s', end='18047s', partition_number='2') # this is /dev/sda9 on zfs
         # 100M = (205824-1024)*512
-        ctx.invoke(write_efi_partition, device=device, force=True, start='1024s', end='205824s', partition_number='2') # this is /dev/sda9 on zfs
+        #ctx.invoke(write_efi_partition, device=device, force=True, start='1024s', end='205824s', partition_number='2') # this is /dev/sda9 on zfs
 
     if filesystem == 'zfs':
         create_filesystem(device=device + '9', partition_type='fat16', force=True)

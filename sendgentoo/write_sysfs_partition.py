@@ -10,6 +10,7 @@ from kcl.printops import eprint
 from .write_zfs_root_filesystem_on_devices import write_zfs_root_filesystem_on_devices
 from .setup_globals import RAID_LIST
 from kcl.deviceops import warn
+from kcl.deviceops import add_partition_number_to_device
 
 
 @click.command()
@@ -51,18 +52,22 @@ def write_sysfs_partition(devices, filesystem, force, exclusive, raid, raid_grou
         run_command("parted -a optimal " + devices[0] + " --script -- mkpart primary " + filesystem + ' ' + start + ' ' + end)
         run_command("parted  " + devices[0] + " --script -- name " + partition_number + " rootfs")
         time.sleep(1)
+        sysfs_partition_path = add_partition_number_to_device(device=devices[0], partition_number=partition_number)
         if filesystem == 'ext4':
-            run_command("mkfs.ext4 " + devices[0] + partition_number)
+            run_command("mkfs.ext4 " + sysfs_partition_path)
         elif filesystem == 'fat32':
-            run_command("mkfs.vfat " + devices[0] + partition_number)
+            run_command("mkfs.vfat " + sysfs_partition_path)
         else:
             eprint("unknown filesystem:", filesystem)
             quit(1)
 
-
     elif filesystem == 'zfs':
         assert exclusive
-        write_zfs_root_filesystem_on_devices(devices=devices, force=True, raid=raid, raid_group_size=raid_group_size, pool_name=pool_name)
+        write_zfs_root_filesystem_on_devices(devices=devices,
+                                             force=True,
+                                             raid=raid,
+                                             raid_group_size=raid_group_size,
+                                             pool_name=pool_name)
     else:
         eprint("unknown filesystem:", filesystem)
         quit(1)

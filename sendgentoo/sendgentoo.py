@@ -251,7 +251,9 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
             elif root_filesystem == 'ext4':
                 root_partition_path = add_partition_number_to_device(device=device, partition_number="1")
                 root_mount_command = "mount " + root_partition_path + " " + str(mount_path)
-            boot_mount_command = "mount " + boot_device + "3 " + str(mount_path_boot)
+
+            boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
+            boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
 
         if root_mount_command:
             run_command(root_mount_command)
@@ -270,9 +272,11 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
             os.makedirs(mount_path_boot_efi, exist_ok=True)
 
         if boot_filesystem == 'zfs':
-            efi_mount_command = "mount " + boot_device + "9 " + str(mount_path_boot_efi)
+            efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="9")
+            efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)
         else:
-            efi_mount_command = "mount " + boot_device + "2 " + str(mount_path_boot_efi)
+            efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2")
+            efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)
 
         if boot_device:
             run_command(efi_mount_command)

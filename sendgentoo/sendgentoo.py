@@ -140,10 +140,12 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
         assert root_device_partition_table == 'gpt'
 
     if boot_device:
-        assert not boot_device[-1].isdigit()
+        if not Path(boot_device).name.startswith('nvme'):
+            assert not boot_device[-1].isdigit()
 
     for device in root_devices:
-        assert not device[-1].isdigit()
+        if not Path(device).name.startswith('nvme'):
+            assert not device[-1].isdigit()
 
     #if raid:
     #    assert root_filesystem == 'zfs'

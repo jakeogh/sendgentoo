@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import click
+from pathlib import Path
 from kcl.fileops import path_is_block_special
 from kcl.mountops import block_special_path_is_mounted
 from kcl.commandops import run_command

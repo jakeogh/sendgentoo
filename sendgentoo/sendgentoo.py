@@ -84,7 +84,9 @@ def create_boot_device_for_existing_root(ctx, boot_device, boot_device_partition
                        partition_table=boot_device_partition_table,
                        filesystem=boot_filesystem,
                        force=True)
-    write_boot_partition(device=boot_device, force=True)
+    ctx.invoke(write_boot_partition,
+               device=boot_device,
+               force=True)
     boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
     boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
 
@@ -297,7 +299,9 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
                                partition_table=boot_device_partition_table,
                                filesystem=boot_filesystem,
                                force=True)
-            write_boot_partition(device=boot_device, force=True)
+            ctx.invoke(write_boot_partition,
+                       device=boot_device,
+                       force=True)
             create_root_device(devices=root_devices,
                                exclusive=True,
                                filesystem=root_filesystem,

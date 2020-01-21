@@ -59,6 +59,57 @@ sendgentoo.add_command(create_zfs_filesystem)
 sendgentoo.add_command(create_root_device)
 #sendgentoo.add_command(create_boot_device)
 
+
+@sendgentoo.command()
+@click.option('--boot-device',                 is_flag=False, required=True)
+@click.option('--boot-device-partition-table', is_flag=False, required=False, type=click.Choice(['gpt']), default="gpt")
+@click.option('--boot-filesystem',             is_flag=False, required=False, type=click.Choice(['ext4']), default="ext4")
+@click.option('--force',                       is_flag=True,  required=False)
+@click.pass_context
+def create_boot_device_for_existing_root(ctx, boot_device, boot_device_partition_table, boot_filesystem, force):
+    mount_path_boot = Path('/boot')
+    mount_path_boot_efi = mount_path_boot / Path('efi')
+    if not Path(boot_device).name.startswith('nvme'):
+        assert not boot_device[-1].isdigit()
+    eprint("installing grub on boot device:",
+           boot_device,
+           '(' + boot_device_partition_table + ')',
+           '(' + boot_filesystem + ')')
+    assert path_is_block_special(boot_device)
+    assert not block_special_path_is_mounted(boot_device)
+    if not force:
+        warn((boot_device,))
+    create_boot_device(ctx,
+                       device=boot_device,
+                       partition_table=boot_device_partition_table,
+                       filesystem=boot_filesystem,
+                       force=True)
+    write_boot_partition(device=boot_device, force=True)
+    boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
+    boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
+
+    os.makedirs(mount_path_boot, exist_ok=True)
+
+    run_command(boot_mount_command, verbose=True)
+    assert path_is_mounted(mount_path_boot)
+
+    os.makedirs(mount_path_boot_efi, exist_ok=True)
+
+    efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2")
+    efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)
+    run_command(efi_mount_command, verbose=True)
+    assert path_is_mounted(mount_path_boot_efi)
+
+    hybrid_mbr_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh" + " " + boot_device
+    run_command(hybrid_mbr_command, verbose=True)
+
+    grub_install_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh" + " " + boot_device
+    run_command(grub_install_command, verbose=True)
+
+    grub_config_command = "grub-mkconfig -o /boot/grub/grub.cfg"
+    run_command(grub_config_command, verbose=True)
+
+
 @sendgentoo.command()
 @click.argument('root_devices',                required=False, nargs=-1)  # --vm does not need a specified root device
 @click.option('--vm',                          is_flag=False, required=False, type=click.Choice(['qemu']))
@@ -72,13 +123,12 @@ sendgentoo.add_command(create_root_device)
 @click.option('--arch',                        is_flag=False, required=False, type=click.Choice(['alpha', 'amd64', 'arm', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86']), default="amd64")
 @click.option('--raid',                        is_flag=False, required=False, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']), default="disk")
 @click.option('--raid-group-size',             is_flag=False, required=False, type=click.IntRange(1, 2), default=1)
-#@click.option('--march',                       is_flag=False, required=True, type=click.Choice(['native', 'x86-64']))
 @click.option('--march',                       is_flag=False, required=True, type=click.Choice(['native', 'nocona']))
 #@click.option('--pool-name',                   is_flag=False, required=True, type=str)
 @click.option('--hostname',                    is_flag=False, required=True)
 @click.option('--newpasswd',                   is_flag=False, required=True)
 @click.option('--ip',                          is_flag=False, required=True)
-@click.option('--ip-gateway',                     is_flag=False, required=True)
+@click.option('--ip-gateway',                  is_flag=False, required=True)
 @click.option('--force',                       is_flag=True,  required=False)
 @click.option('--encrypt',                     is_flag=True,  required=False)
 @click.option('--multilib',                    is_flag=True,  required=False)
@@ -88,6 +138,7 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
     assert isinstance(root_devices, tuple)
     assert hostname.lower() == hostname
     os.makedirs('/usr/portage/distfiles', exist_ok=True)
+
     #if not os.path.isdir('/usr/portage/sys-kernel'):
     #    eprint("run emerge --sync first")
     #    quit(1)
@@ -141,6 +192,9 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
 
     if root_filesystem == 'zfs':
         assert root_device_partition_table == 'gpt'
+
+    if root_filesystem == 'zfs' or boot_filesystem == 'zfs':
+        input("note zfs boot/root is not working, many fixes will be needed, press enter to break things")
 
     if boot_device:
         if not Path(boot_device).name.startswith('nvme'):
@@ -207,7 +261,8 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
                            raid=raid,
                            raid_group_size=raid_group_size,
                            pool_name=hostname)
-                create_boot_device(device=boot_device,
+                create_boot_device(ctx,
+                                   device=boot_device,
                                    partition_table='none',
                                    filesystem=boot_filesystem,
                                    force=True) # dont want to delete the gpt that zfs made
@@ -237,7 +292,8 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
                 assert False
         else:
             eprint("differing root and boot devices: (exclusive) root_devices[0]:", root_devices[0], "boot_device:", boot_device)
-            create_boot_device(device=boot_device,
+            create_boot_device(ctx,
+                               device=boot_device,
                                partition_table=boot_device_partition_table,
                                filesystem=boot_filesystem,
                                force=True)
@@ -282,6 +338,7 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
 
         if boot_device:
             run_command(efi_mount_command)
+            assert path_is_mounted(mount_path_boot_efi)
 
     install_stage3(c_std_lib=c_std_lib, multilib=multilib, arch=arch, destination=mount_path, vm=vm, vm_ram=vm_ram)
 

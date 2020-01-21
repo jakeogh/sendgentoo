@@ -29,7 +29,8 @@ def create_boot_device(ctx, device, partition_table, filesystem, force):
             ctx.invoke(write_gpt, device=device, no_wipe=True, force=force, no_backup=False) # zfs does this
 
     if filesystem == 'zfs':
-        ctx.invoke(write_grub_bios_partition, device=device, force=True, start='48s', end='1023s', partition_number='2') #2 if zfs made sda1 and sda9
+        # 2 if zfs made sda1 and sda9
+        ctx.invoke(write_grub_bios_partition, device=device, force=True, start='48s', end='1023s', partition_number='2')
     else:
         ctx.invoke(write_grub_bios_partition, device=device, force=True, start='48s', end='1023s', partition_number='1')
 
@@ -43,8 +44,8 @@ def create_boot_device(ctx, device, partition_table, filesystem, force):
 
 @click.command()
 @click.option('--device',          is_flag=False, required=True)
-@click.option('--partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
-@click.option('--filesystem',      is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']))
+@click.option('--partition-table', is_flag=False, required=True, type=click.Choice(['gpt']), default='gpt')
+@click.option('--filesystem',      is_flag=False, required=True, type=click.Choice(['ext4', 'zfs']), default='ext4')
 @click.option('--force',           is_flag=True,  required=False)
 @click.pass_context
 def main(ctx, device, partition_table, filesystem, force):

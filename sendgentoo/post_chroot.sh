@@ -73,8 +73,10 @@ fi
 
 # right here, portage needs to get configured... this stuff ends up at the end of the final make.conf
 grep "ACCEPT_KEYWORDS=\"~amd64\"" /etc/portage/make.conf || echo "ACCEPT_KEYWORDS=\"~amd64\"" >> /etc/portage/make.conf
-grep "EMERGE_DEFAULT_OPTS=\"--quiet-build=y --tree --nospinner\"" /etc/portage/make.conf || echo "EMERGE_DEFAULT_OPTS=\"--quiet-build=y --tree --nospinner\"" >> /etc/portage/make.conf
-grep "FEATURES=\"parallel-fetch splitdebug buildpkg\"" /etc/portage/make.conf || echo "FEATURES=\"parallel-fetch splitdebug buildpkg\"" >> /etc/portage/make.conf
+grep "EMERGE_DEFAULT_OPTS=\"--quiet-build=y --tree --nospinner\"" /etc/portage/make.conf || \
+    echo "EMERGE_DEFAULT_OPTS=\"--quiet-build=y --tree --nospinner\"" >> /etc/portage/make.conf
+grep "FEATURES=\"parallel-fetch splitdebug buildpkg\"" /etc/portage/make.conf || \
+    echo "FEATURES=\"parallel-fetch splitdebug buildpkg\"" >> /etc/portage/make.conf
 
 echo "sys-devel/gcc fortran" > /etc/portage/package.use/gcc #otherwise gcc compiles twice
 
@@ -123,8 +125,8 @@ add_accept_keyword "sys-fs/zfs-kmod-9999"
 echo -e "#<fs>\t<mountpoint>\t<type>\t<opts>\t<dump/pass>" > /etc/fstab # create empty fstab
 #ln -sf /proc/self/mounts /etc/mtab
 
-grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes "${boot_device}" || exit 1
-grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --no-rs-codes "${boot_device}" || exit 1
+#grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes "${boot_device}" || exit 1
+#grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --no-rs-codes "${boot_device}" || exit 1
 
 ln -s /home/cfg/sysskel/etc/skel/bin /root/bin
 
@@ -171,7 +173,7 @@ install_pkg unison
 eselect unison list #todo
 
 
-echo "=dev-libs/openssl-1.1.1a" > /etc/portage/package.unmask
+#echo "=dev-libs/openssl-1.1.1a" > /etc/portage/package.unmask
 install_pkg tmux
 install_pkg app-portage/repoman
 install_pkg vim
@@ -219,7 +221,8 @@ add_accept_keyword "dev-python/replace-text-9999"
 install_pkg replace-text
 
 export LANG="en_US.UTF8"  # to make click happy
-grep noclear /etc/inittab || { replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1 ; }
+grep noclear /etc/inittab || \
+    { replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1 ; }
 install_pkg sys-apps/moreutils # need sponge for the next command
 grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/inittab | /home/cfg/text/insert_line_after_match "c6:2345:respawn:/sbin/agetty 38400 tty6 linux" "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" | sponge /etc/inittab ; }
 

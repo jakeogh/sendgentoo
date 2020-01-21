@@ -41,14 +41,19 @@ def install_stage3(c_std_lib, multilib, arch, destination, vm, vm_ram):
     url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib, arch=arch, proxy_dict=proxy_dict)
     stage3_file = download_stage3(c_std_lib=c_std_lib, multilib=multilib, url=url, arch=arch, proxy_dict=proxy_dict)
     assert file_exists(stage3_file)
+
+    # this never worked
     #gpg = gnupg.GPG(verbose=True)
     #import_result = gpg.recv_keys('keyserver.ubuntu.com', '0x2D182910')
     #ceprint(import_result)
-    gpg_cmd = 'gpg --keyserver keyserver.ubuntu.com --recv-key 0x2D182910'
-    #if proxy:
-    #    keyserver_options = " --keyserver-options http_proxy=http://" + proxy
-    #    gpg_cmd += keyserver_options
-    run_command(gpg_cmd, verbose=True)
+
+    ## this works sometimes, but now complaines abut no dirmngr
+    #gpg_cmd = 'gpg --keyserver keyserver.ubuntu.com --recv-key 0x2D182910'
+    ##if proxy:
+    ##    keyserver_options = " --keyserver-options http_proxy=http://" + proxy
+    ##    gpg_cmd += keyserver_options
+    #run_command(gpg_cmd, verbose=True)
+
     ceprint("stage3_file:", stage3_file)
     run_command('gpg --verify ' + stage3_file + '.DIGESTS.asc', verbose=True)
     whirlpool = run_command("openssl dgst -r -whirlpool " + stage3_file + "| cut -d ' ' -f 1", verbose=True).decode('utf8').strip()

@@ -60,7 +60,20 @@ echo "copying /home/cfg to ${destination}/home/"
 cd /home || exit 1
 #tar --exclude="_priv" --one-file-system -z -c -f - cfg | pv -trabT -B 600M | tar -C /mnt/gentoo/home -zxpSf - || exit 1
 
-rsync --exclude="_priv" --exclude="_myapps/gentoo" --exclude="virt/iso" --one-file-system --delete --perms --executability --verbose --recursive --links --progress /home/cfg "${destination}/home/" #|| exit 1
+rsync --exclude="_priv" \
+      --exclude="_myapps/gentoo" \
+      --exclude="virt/iso" \
+      --one-file-system \
+      --delete \
+      --perms \
+      --executability \
+      --human-readable \
+      --verbose \
+      --recursive \
+      --links \
+      --progress \
+      --times \
+      /home/cfg "${destination}/home/" #|| exit 1
 
 if [[ "${root_filesystem}" == 'zfs' ]];
 then
@@ -75,6 +88,7 @@ test -d "${destination}/var/db/repos/gentoo" || { mkdir -p "${destination}/var/d
 mount | grep "${destination}/var/db/repos/gentoo" || { mount --rbind /var/db/repos/gentoo "${destination}/var/db/repos/gentoo" || exit 1 ; }
 
 cp /etc/portage/proxy.conf "${destination}"/etc/portage/proxy.conf || exit 1
+grep -E "^source /etc/portage/proxy.conf" "${destination}"/etc/portage/make.conf || echo "source /etc/portage/proxy.conf" >> "${destination}"/etc/portage/make.conf
 cp /sbin/ischroot "${destination}"/sbin/ischroot || exit 1
 
 echo "Entering chroot"

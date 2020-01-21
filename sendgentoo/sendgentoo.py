@@ -87,6 +87,10 @@ def create_boot_device_for_existing_root(ctx, boot_device, boot_device_partition
     ctx.invoke(write_boot_partition,
                device=boot_device,
                force=True)
+
+    hybrid_mbr_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh" + " " + boot_device
+    run_command(hybrid_mbr_command, verbose=True)
+
     boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
     boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
 
@@ -103,9 +107,6 @@ def create_boot_device_for_existing_root(ctx, boot_device, boot_device_partition
     assert not path_is_mounted(mount_path_boot_efi)
     run_command(efi_mount_command, verbose=True)
     assert path_is_mounted(mount_path_boot_efi)
-
-    hybrid_mbr_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh" + " " + boot_device
-    run_command(hybrid_mbr_command, verbose=True)
 
     grub_install_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh" + " " + boot_device
     run_command(grub_install_command, verbose=True)

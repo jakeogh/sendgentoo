@@ -9,5 +9,5 @@ test -b "${device}" || { echo "${device} not found or is not a block device. Exi
 mount | grep "${device}" && { echo "${device} is mounted. Exiting." ; exit 1 ; }
 
 echo "making hybrid MBR"
-./gpart_make_hybrid_mbr.exp "${device}" || exit 1
+/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.exp "${device}" || exit 1
 echo "making hybrid MBR exited 0, should be good to go."

@@ -74,6 +74,7 @@ else
     echo "/boot/initramfs exists, checking if /usr/src/linux is configured"
     if [ ! -e "/usr/src/linux/init/.init_task.o.cmd" ];
     then
+        echo "compiling kernel"
         compile_kernel
     else
         echo "found configured /usr/src/linux, skipping recompile."

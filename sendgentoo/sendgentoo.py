@@ -92,6 +92,7 @@ def create_boot_device_for_existing_root(ctx, boot_device, boot_device_partition
 
     os.makedirs(mount_path_boot, exist_ok=True)
 
+    assert not path_is_mounted(mount_path_boot)
     run_command(boot_mount_command, verbose=True)
     assert path_is_mounted(mount_path_boot)
 
@@ -99,6 +100,7 @@ def create_boot_device_for_existing_root(ctx, boot_device, boot_device_partition
 
     efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2")
     efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)
+    assert not path_is_mounted(mount_path_boot_efi)
     run_command(efi_mount_command, verbose=True)
     assert path_is_mounted(mount_path_boot_efi)
 

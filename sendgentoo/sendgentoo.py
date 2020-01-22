@@ -89,15 +89,13 @@ def create_boot_device_for_existing_root(ctx, boot_device, boot_device_partition
                force=True)
 
     hybrid_mbr_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh" + " " + boot_device
-    run_command(hybrid_mbr_command, verbose=True)
-
-    boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
-    boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
+    run_command(hybrid_mbr_command, verbose=True, popen=True)
 
     os.makedirs(mount_path_boot, exist_ok=True)
-
+    boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
+    boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
     assert not path_is_mounted(mount_path_boot)
-    run_command(boot_mount_command, verbose=True)
+    run_command(boot_mount_command, verbose=True, popen=True)
     assert path_is_mounted(mount_path_boot)
 
     os.makedirs(mount_path_boot_efi, exist_ok=True)
@@ -105,14 +103,14 @@ def create_boot_device_for_existing_root(ctx, boot_device, boot_device_partition
     efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2")
     efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)
     assert not path_is_mounted(mount_path_boot_efi)
-    run_command(efi_mount_command, verbose=True)
+    run_command(efi_mount_command, verbose=True, popen=True)
     assert path_is_mounted(mount_path_boot_efi)
 
     grub_install_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh" + " " + boot_device
-    run_command(grub_install_command, verbose=True)
+    run_command(grub_install_command, verbose=True, popen=True)
 
     grub_config_command = "grub-mkconfig -o /boot/grub/grub.cfg"
-    run_command(grub_config_command, verbose=True)
+    run_command(grub_config_command, verbose=True, popen=True)
 
 
 @sendgentoo.command()

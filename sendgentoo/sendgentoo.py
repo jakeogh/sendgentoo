@@ -109,6 +109,9 @@ def create_boot_device_for_existing_root(ctx, boot_device, boot_device_partition
     grub_install_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh" + " " + boot_device
     run_command(grub_install_command, verbose=True, popen=True)
 
+    install_kernel_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/kernel_recompile.sh"
+    run_command(install_kernel_command, verbose=True, popen=True)
+
     grub_config_command = "grub-mkconfig -o /boot/grub/grub.cfg"
     run_command(grub_config_command, verbose=True, popen=True)
 

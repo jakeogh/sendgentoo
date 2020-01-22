@@ -9,6 +9,14 @@ else
     menuconfig=""
 fi
 
+if [ "${1}" == '--force' ];
+then
+    force="${1}"
+else
+    force=""
+fi
+shift
+
 
 am_i_root()
 {
@@ -80,6 +88,12 @@ else
     else
         echo "found configured /usr/src/linux, skipping recompile."
     fi
+fi
+
+
+if [ -n "${force}" ];
+then
+    compile_kernel
 fi
 
 rc-update add zfs-import boot

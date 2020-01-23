@@ -309,12 +309,13 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
             ctx.invoke(write_boot_partition,
                        device=boot_device,
                        force=True)
-            create_root_device(devices=root_devices,
-                               exclusive=True,
-                               filesystem=root_filesystem,
-                               partition_table=root_device_partition_table,
-                               force=True,
-                               raid=raid)
+            ctx.invoke(create_root_device,
+                       devices=root_devices,
+                       exclusive=True,
+                       filesystem=root_filesystem,
+                       partition_table=root_device_partition_table,
+                       force=True,
+                       raid=raid)
             if root_filesystem == 'zfs':
                 root_mount_command = False
             elif root_filesystem == 'ext4':

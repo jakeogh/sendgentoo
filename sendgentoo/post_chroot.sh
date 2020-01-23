@@ -137,7 +137,7 @@ install_pkg genkernel
 /home/cfg/_myapps/sendgentoo/sendgentoo/kernel_recompile.sh || exit 1
 cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
 
-rc-update add zfs-mount boot || exit 1
+rc-update add zfs-mount boot # dont exit if this fails
 install_pkg dhcpcd  # not in stage3
 
 #grep -E "^config_eth0=\"${ip}/24\"" /etc/conf.d/net || echo "config_eth0=\"${ip}/24\"" >> /etc/conf.d/net

@@ -221,8 +221,9 @@ emaint sync -r jakeogh
 #layman -S # update layman trees
 
 # must be done after overlay is installed
-add_accept_keyword "dev-python/kcl-9999"
-emerge kcl -1
+#add_accept_keyword "dev-python/kcl-9999"
+#add_accept_keyword "dev-python/icecream-9999"
+#emerge kcl -1
 add_accept_keyword "dev-python/replace-text-9999"
 install_pkg replace-text
 

@@ -92,7 +92,7 @@ grep -E "^source /etc/portage/proxy.conf" "${destination}"/etc/portage/make.conf
 cp /sbin/ischroot "${destination}"/sbin/ischroot || exit 1
 
 echo "Entering chroot"
-env -i HOME=/root TERM=$TERM chroot "${destination}" /bin/bash -l -c "su - -c '/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh ${stdlib} ${boot_device} ${cflags} ${root_filesystem} ${newpasswd}'" || { echo "post_chroot.sh exited $?" ; exit 1 ; }
+env -i HOME=/root TERM=$TERM chroot "${destination}" /bin/bash -l -c "su - -c '/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh ${stdlib} ${boot_device} ${cflags} ${root_filesystem} ${newpasswd}'" || { echo "ERROR post_chroot.sh exited $?" ; exit 1 ; }
 
 umount "${destination}/usr/portage" || exit 1
 portage_size=`du -s /usr/portage | cut -f 1`

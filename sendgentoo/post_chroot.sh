@@ -225,7 +225,8 @@ emaint sync -r jakeogh
 #add_accept_keyword "dev-python/icecream-9999"
 #emerge kcl -1
 add_accept_keyword "dev-python/replace-text-9999"
-install_pkg replace-text
+#install_pkg replace-text
+emerge replace-text
 
 export LANG="en_US.UTF8"  # to make click happy
 grep noclear /etc/inittab || \

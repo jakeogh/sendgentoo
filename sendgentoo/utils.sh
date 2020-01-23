@@ -35,7 +35,7 @@ install_pkg()
     echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
     emerge --with-bdeps=y -pv     --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
     echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
-    emerge --with-bdeps=y --quiet --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr || exit 1
+    emerge --with-bdeps=y --quiet --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
 }
 
 add_accept_keyword "dev-python/kcl-9999"

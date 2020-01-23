@@ -209,6 +209,10 @@ rc-update add sshd default
 
 install_pkg app-eselect/eselect-repository
 mkdir /etc/portage/repos.conf
+for line in `cat /etc/portage/proxy.conf | tr -d '"'`;
+do
+    export "${line}"
+done
 eselect repository add jakeogh git https://github.com/jakeogh/jakeogh  #ignores http_proxy
 #git config --global http.proxy http://192.168.222.100:8888
 emaint sync -r jakeogh
@@ -217,6 +221,8 @@ emaint sync -r jakeogh
 #layman -S # update layman trees
 
 # must be done after overlay is installed
+add_accept_keyword "dev-python/kcl-9999"
+emerge kcl -1
 add_accept_keyword "dev-python/replace-text-9999"
 install_pkg replace-text
 

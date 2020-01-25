@@ -111,10 +111,11 @@ else
     echo "skipping /usr/portage copy"
 fi
 
-/home/cfg/_myapps/sendgentoo/sendgentoo/umount_mnt_gentoo.sh
-/home/cfg/_myapps/sendgentoo/sendgentoo/umount_mnt_gentoo.sh
-/home/cfg/_myapps/sendgentoo/sendgentoo/umount_mnt_gentoo.sh
-/home/cfg/_myapps/sendgentoo/sendgentoo/umount_mnt_gentoo.sh
+# dont do this, so chroot_gentoo.sh can be re-run
+#/home/cfg/_myapps/sendgentoo/sendgentoo/umount_mnt_gentoo.sh
+#/home/cfg/_myapps/sendgentoo/sendgentoo/umount_mnt_gentoo.sh
+#/home/cfg/_myapps/sendgentoo/sendgentoo/umount_mnt_gentoo.sh
+#/home/cfg/_myapps/sendgentoo/sendgentoo/umount_mnt_gentoo.sh
 
 
 echo "gentoo install complete! might need to fix grub.cfg"

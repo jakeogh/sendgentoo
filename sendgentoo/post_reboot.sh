@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 argcount=2
 usage="stdlib newpasswd"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
@@ -13,6 +15,8 @@ source /home/cfg/_myapps/sendgentoo/sendgentoo/utils.sh
 #echo "${http_proxy}"
 test -e /etc/portage/proxy.conf || touch /etc/portage/proxy.conf
 grep -E "^source /etc/portage/proxy.conf" /etc/portage/make.conf || echo "source /etc/portage/proxy.conf" >> /etc/portage/make.conf
+
+eselect python set python3.7 || exit 1
 
 #install_pkg_force_compile()
 #{
@@ -38,6 +42,8 @@ shift
 newpasswd="${1}"
 shift
 
+test -z $TMUX && { echo "start tmux!" ; exit 1 ; }
+
 env-update || exit 1
 source /etc/profile || exit 1
 #export PS1="(chroot) $PS1"
@@ -47,6 +53,11 @@ mkdir /usr/portage
 chown -R portage:portage /usr/portage
 
 emerge --sync
+emerge portage -u -1
+
+grep -E "^<=dev-lang/ocaml-4.09" /etc/portage/package.mask/ocaml || { echo "<=dev-lang/ocaml-4.09" >> /etc/portage/package.mask/ocaml ; }
+emerge ocaml -u -1         # https://bugs.gentoo.org/show_bug.cgi?id=704910
+emerge unison -u
 
 /usr/bin/emerge -u --oneshot sys-devel/libtool
 #emerge world --newuse  # this could upgrade gcc and take a long time
@@ -76,7 +87,12 @@ grep -E "^=app-misc/edit-9999 -python_targets_python3_7" /etc/portage/package.us
 #echo "sys-apps/file python" > /etc/portage/package.use/file
 #install_pkg kcl || exit 1 # should not be explicitely installed...
 
+add_accept_keyword dev-python/symlinktree-9999
+add_accept_keyword dev-python/icecream-9999
+add_accept_keyword dev-python/executing-9999
+add_accept_keyword dev-python/asttokens-9999
 install_pkg symlinktree || exit 1
+export LANG="en_US.UTF8"  # to make click happy
 symlinktree /home/cfg/sysskel --verbose || exit 1
 symlinktree /home/cfg/sysskel --verbose --re-apply-skel /root || exit 1
 
@@ -89,6 +105,7 @@ touch /etc/portage/proxy.conf  # or emerge is really unhappy
 /etc/init.d/dnscrypt-proxy start
 /home/cfg/linux/gentoo/layman/update_all_overlays
 install_pkg debugedit
+export "KCONFIG_OVERWRITECONFIG=1"      # havent rebooted yet so the /etc/conf.d/99kconfig-symlink hasnt run
 /home/cfg/_myapps/sendgentoo/sendgentoo/kernel_recompile.sh || exit 1  # make sure can build zfs for @world
 emerge @world --newuse
 

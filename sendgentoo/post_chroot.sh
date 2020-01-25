@@ -8,6 +8,7 @@ usage="stdlib boot_device cflags root_filesystem newpasswd"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 
 set -o nounset
+set -x
 
 #musl: http://distfiles.gentoo.org/experimental/amd64/musl/HOWTO
 #spark: https://github.com/holman/spark.git
@@ -29,6 +30,8 @@ newpasswd="${1}"
 shift
 
 mount | grep "/boot/efi" || exit 1
+
+emerge --sync
 
 mkdir -p /var/db/repos/gentoo
 
@@ -234,16 +237,17 @@ grep noclear /etc/inittab || \
 install_pkg sys-apps/moreutils # need sponge for the next command
 grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/inittab | /home/cfg/text/insert_line_after_match "c6:2345:respawn:/sbin/agetty 38400 tty6 linux" "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" | sponge /etc/inittab ; }
 
+# nope, need stuff unmasked....
 # make sendgentoo deps happy
-echo "dev-lang/python sqlite" >> /etc/portage/package.use/python || exit 1
-echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/python || exit 1
+#echo "dev-lang/python sqlite" >> /etc/portage/package.use/python || exit 1
+#echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/python || exit 1
+#grep sendgentoo /etc/portage/package.accept_keywords || exit 1
+#install_pkg sendgentoo --autounmask=y # must be done after jakeogh overlay
 
-grep sendgentoo /etc/portage/package.accept_keywords || exit 1
-install_pkg sendgentoo # must be done after jakeogh overlay
-
-install_pkg @sound
-rc-update add alsasound boot
-rc-update add acpid boot
+# this wont work until symlink tree happens
+#install_pkg @sound
+#rc-update add alsasound boot
+#rc-update add acpid boot
 
 echo "$(date) $0 complete" | tee -a /install_status
 

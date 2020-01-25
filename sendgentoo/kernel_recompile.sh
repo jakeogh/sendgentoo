@@ -65,9 +65,13 @@ fi
 #https://www.mail-archive.com/lede-dev@lists.infradead.org/msg07290.html
 export | grep "KCONFIG_OVERWRITECONFIG=\"1\"" || \
     { echo "KCONFIG_OVERWRITECONFIG=1 needs to be set" ; \
-      echo "you may want to add it to /etc/env.d/99kconfig-symlink. Exiting."; exit 1 ; }
+      echo "you may want to add it to /etc/env.d/99kconfig-symlink Exiting."; exit 1 ; }
 
-test -f /usr/src/linux/.config && mv /usr/src/linux/.config /home/cfg/sysskel/usr/src/linux_configs/.config.`date +%s`
+if [[ -f /usr/src/linux/.config ]]; then
+    if [[ ! -h /usr/src/linux/.config ]]; then
+        mv /usr/src/linux/.config /home/cfg/sysskel/usr/src/linux_configs/.config.`date +%s`
+    fi
+fi
 test -e /usr/src/linux/.config || ln -s /home/cfg/sysskel/usr/src/linux_configs/.config /usr/src/linux/.config
 
 cd /usr/src/linux || exit 1

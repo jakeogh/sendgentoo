@@ -161,8 +161,8 @@ test -h /home/user/_repos || { ln -s /home/cfg/_repos /home/user/_repos || exit 
 
 
 # in case the old make.conf is not using the latest python, really the lines should be grabbed from the stock one in the stage 3
-grep -E "PYTHON_TARGETS=\"python2_7 python3_6 python3.7\"" /etc/portage/make.conf || { echo "PYTHON_TARGETS=\"python2_7 python3_6 python3_7\"" >> /etc/portage/make.conf ; }
-grep -E "PYTHON_SINGLE_TARGET=\"python3_6\"" /etc/portage/make.conf || { echo "PYTHON_SINGLE_TARGET=\"python3_6\"" >> /etc/portage/make.conf ; }
+#grep -E "PYTHON_TARGETS=\"python2_7 python3_6 python3.7\"" /etc/portage/make.conf || { echo "PYTHON_TARGETS=\"python2_7 python3_6 python3_7\"" >> /etc/portage/make.conf ; }
+#grep -E "PYTHON_SINGLE_TARGET=\"python3_6\"" /etc/portage/make.conf || { echo "PYTHON_SINGLE_TARGET=\"python3_6\"" >> /etc/portage/make.conf ; }
 
 /home/cfg/git/configure_git_global
 

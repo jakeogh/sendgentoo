@@ -131,7 +131,7 @@ echo "MACHINE_SIG=\"`/home/cfg/hardware/make_machine_signature_string`\"" > /etc
 
 #must be done after symlink_tree so etc/skel gets populated
 test -d /home/user || { useradd --create-home user || exit 1 ; }
-echo "user:$newpasswd" | chpasswd || exit 1
+echo "user:$newpasswd" | chpasswd #|| exit 1  # bug https://unix.stackexchange.com/questions/223965/i-cant-change-users-passwd-on-ubuntu
 
 emerge -1 -u media-libs/libmtp  # creates plugdev group
 for x in cdrom cdrw usb audio plugdev video wheel; do gpasswd -a user $x ; done

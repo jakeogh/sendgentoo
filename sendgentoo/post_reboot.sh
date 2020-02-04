@@ -245,8 +245,9 @@ emerge --config dev-db/postgresql:"${pg_version}"  # ok to fail if already conf
 sudo su postgres -c "psql template1 -c 'create extension hstore;'"
 sudo su postgres -c "psql template1 -c 'create extension ltree;'"
 install_pkg sshd-configurator
-emerge --depclean
+#emerge --depclean  # unmerges partial emerges, do this after install is known good
 install_pkg @laptopbase  # https://dev.gentoo.org/~zmedico/portage/doc/ch02.html
+install_pkg @wwwsurf
 install_pkg @webcam
 
 #lspci | grep -i nvidia | grep -i vga && install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils

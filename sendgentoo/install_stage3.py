@@ -6,7 +6,7 @@ from icecream import ic
 #import gnupg
 from subprocess import CalledProcessError
 from kcl.mountops import path_is_mounted
-from kcl.fileops import file_exists
+from kcl.fileops import path_is_file
 #from kcl.fileops import read_file_bytes
 from kcl.commandops import run_command
 from kcl.printops import ceprint

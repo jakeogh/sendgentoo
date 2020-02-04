@@ -2,21 +2,42 @@
 
 echo "entering kernel_recompile.sh"
 
-if [ "${1}" == '--menuconfig' ];
+if [ "${1}" = '--menuconfig' ];
 then
     menuconfig="${1}"
+    shift
+elif [ "${1}" = '--nconfig' ];
+then
+    menuconfig="${1}"
+    shift
 else
     menuconfig=""
 fi
 
-if [ "${1}" == '--force' ];
+if [ "${1}" = '--force' ];
 then
     force="${1}"
+    shift
 else
     force=""
+    #echo "force: ${force}"
 fi
-shift
 
+if [ "${1}" = '--no-check-boot' ];
+then
+    no_check_boot="${1}"
+    shift
+else
+    no_check_boot=""
+fi
+
+if [ -n "${no_check_boot}" ];
+then
+    echo "skipped checking if /boot was mounted"
+else
+    test -s /boot/grub/grub.cfg || { echo "/boot/grub/grub.cfg not found. Exiting." ; exit 1 ; }
+    ls /boot/vmlinuz || { echo "mount /boot first. Exiting." && exit 1 ; }
+fi
 
 am_i_root()
 {
@@ -27,6 +48,7 @@ am_i_root()
         exit 1
     fi
 }
+
 
 am_i_root
 
@@ -49,6 +71,7 @@ compile_kernel()
 #    --callback="/usr/bin/emerge zfs zfs-kmod sci-libs/linux-gpib-modules @module-rebuild" || exit 1
 #    --callback="/usr/bin/emerge zfs zfs-kmod sci-libs/linux-gpib sci-libs/linux-gpib-modules @module-rebuild" || exit 1
 
+
 if [ -e "/usr/src/linux/init/.init_task.o.cmd" ];
 then
     echo "found previously compiled kernel tree, checking is the current gcc version was used"
@@ -58,17 +81,14 @@ then
         { echo "old gcc version detected, make clean required. Sleeping 5." && cd /usr/src/linux && sleep 5 && make clean ; } && echo "gcc ${gcc_ver} was used to compile kernel previously, not running \"make clean\""
 fi
 
-# these fail on the first compile. fixme
-#test -s /boot/grub/grub.cfg || { echo "/boot/grub/grub.cfg not found. Exiting." ; exit 1 ; }
-#ls /boot/vmlinuz || { echo "mount /boot first. Exiting." && exit 1 ; }
 
 #https://www.mail-archive.com/lede-dev@lists.infradead.org/msg07290.html
 export | grep "KCONFIG_OVERWRITECONFIG=\"1\"" || \
     { echo "KCONFIG_OVERWRITECONFIG=1 needs to be set" ; \
       echo "you may want to add it to /etc/env.d/99kconfig-symlink Exiting."; exit 1 ; }
 
-if [[ -f /usr/src/linux/.config ]]; then
-    if [[ ! -h /usr/src/linux/.config ]]; then
+if [ -f /usr/src/linux/.config ]; then
+    if [ ! -h /usr/src/linux/.config ]; then
         mv /usr/src/linux/.config /home/cfg/sysskel/usr/src/linux_configs/.config.`date +%s`
     fi
 fi
@@ -106,4 +126,16 @@ rc-update add zfs-zed default
 
 
 grub-mkconfig -o /boot/grub/grub.cfg
+
+mkdir /boot_backup
+cd /boot_backup
+test -d /boot_backup/.git || git init
+now=`date +%s`
+mkdir "${now}"
+cp -ar /boot "${now}"/
+git add "${now}" --force
+git commit -m "${now}"
+
+
+
 echo "kernel compile and install completed OK"

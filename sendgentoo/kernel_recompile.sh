@@ -36,7 +36,7 @@ then
     echo "skipped checking if /boot was mounted"
 else
     test -s /boot/grub/grub.cfg || { echo "/boot/grub/grub.cfg not found. Exiting." ; exit 1 ; }
-    ls /boot/vmlinuz || { echo "mount /boot first. Exiting." && exit 1 ; }
+    ls /boot/kernel || { echo "mount /boot first. Exiting." && exit 1 ; }
 fi
 
 am_i_root()
@@ -56,8 +56,9 @@ am_i_root
 compile_kernel()
 {
     emerge genkernel -u
-    emerge sys-fs/zfs -u       # handle a downgrade from -9999 before genkernel calls @module-rebuild
-    #emerge @module-rebuild      # linux-gpib fails if gcc was upgraded unless this is done first  #nope. was confused
+    emerge sys-fs/zfs       # handle a downgrade from -9999 before genkernel calls @module-rebuild
+    emerge sys-fs/zfs-kmod
+    emerge @module-rebuild      # linux-gpib fails if gcc was upgraded unless this is done first  #nope. was confused
     #emerge sci-libs/linux-gpib -u  # might fail if gcc was upgraded and the kernel hasnt been recompiled yet
     genkernel all \
     $menuconfig \
@@ -134,7 +135,7 @@ now=`date +%s`
 mkdir "${now}"
 cp -ar /boot "${now}"/
 git add "${now}" --force
-git commit -m "${now}"
+git commit -m "${now}" > /dev/null
 
 
 

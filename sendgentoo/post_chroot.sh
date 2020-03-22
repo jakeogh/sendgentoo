@@ -201,6 +201,9 @@ install_pkg sys-apps/smartmontools
 rc-update add smartd default
 install_pkg sys-fs/multipath-tools
 install_pkg net-fs/nfs-utils
+install_pkg sys-power/powertop
+install_pkg sys-power/upower
+rc-update add dbus default
 
 install_pkg dev-util/ccache
 mkdir -p /var/cache/ccache

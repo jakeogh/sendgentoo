@@ -137,7 +137,7 @@ install_pkg gradm #required for gentoo-hardened RBAC
 echo "sys-apps/util-linux static-libs" > /etc/portage/package.use/util-linux    # required for genkernel
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license
 install_pkg genkernel
-/home/cfg/_myapps/sendgentoo/sendgentoo/kernel_recompile.sh || exit 1
+/home/cfg/_myapps/sendgentoo/sendgentoo/kernel_recompile.sh --no-check-boot || exit 1
 cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
 
 rc-update add zfs-mount boot # dont exit if this fails

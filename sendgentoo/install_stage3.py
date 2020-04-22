@@ -40,7 +40,7 @@ def install_stage3(c_std_lib, multilib, arch, destination, vm, vm_ram):
     #assert proxy
     url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib, arch=arch, proxy_dict=proxy_dict)
     stage3_file = download_stage3(c_std_lib=c_std_lib, multilib=multilib, url=url, arch=arch, proxy_dict=proxy_dict)
-    assert file_exists(stage3_file)
+    assert path_is_file(stage3_file)
 
     # this never worked
     #gpg = gnupg.GPG(verbose=True)

@@ -4,11 +4,11 @@ echo "entering kernel_recompile.sh"
 
 if [ "${1}" = '--menuconfig' ];
 then
-    menuconfig="${1}"
+    menuconfig="--nconfig"
     shift
 elif [ "${1}" = '--nconfig' ];
 then
-    menuconfig="${1}"
+    menuconfig="--nconfig"
     shift
 else
     menuconfig=""

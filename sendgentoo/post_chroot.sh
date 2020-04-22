@@ -211,7 +211,7 @@ chown root:portage /var/cache/ccache
 chmod 2775 /var/cache/ccache
 
 grep -E "^PermitRootLogin yes" /etc/ssh/sshd_config || echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
-rc-update add sshd default
+#rc-update add sshd default
 
 install_pkg app-eselect/eselect-repository
 mkdir /etc/portage/repos.conf
@@ -251,6 +251,13 @@ grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/
 #install_pkg @sound
 #rc-update add alsasound boot
 #rc-update add acpid boot
+
+install_pkg net-print/cups
+install_pkg net-print/foomatic-db
+gpasswd -a root lp
+gpasswd -a user lp
+gpasswd -a root lpadmin
+gpasswd -a user lpadmin
 
 echo "$(date) $0 complete" | tee -a /install_status
 

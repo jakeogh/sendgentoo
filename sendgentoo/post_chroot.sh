@@ -232,6 +232,7 @@ emaint sync -r jakeogh
 #emerge kcl -1
 add_accept_keyword "dev-python/replace-text-9999"
 add_accept_keyword "dev-python/icecream-9999"  # dep
+add_accept_keyword "dev-python/executing-9999"  # dep
 #install_pkg replace-text
 emerge replace-text
 

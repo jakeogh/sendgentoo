@@ -55,8 +55,8 @@ chown -R portage:portage /usr/portage
 emerge --sync
 emerge portage -u -1
 
-grep -E "^<=dev-lang/ocaml-4.09" /etc/portage/package.mask/ocaml || { echo "<=dev-lang/ocaml-4.09" >> /etc/portage/package.mask/ocaml ; }
-emerge ocaml -u -1         # https://bugs.gentoo.org/show_bug.cgi?id=704910
+grep -E "^>=dev-lang/ocaml-4.09.0" /etc/portage/package.mask/ocaml || { echo ">=dev-lang/ocaml-4.09.0" >> /etc/portage/package.mask/ocaml ; }
+emerge dev-lang/ocaml -u -1         # https://bugs.gentoo.org/show_bug.cgi?id=704910
 emerge unison -u
 
 /usr/bin/emerge -u --oneshot sys-devel/libtool

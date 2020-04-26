@@ -203,6 +203,7 @@ install_pkg sys-fs/multipath-tools
 install_pkg net-fs/nfs-utils
 install_pkg sys-power/powertop
 install_pkg sys-power/upower
+install_pkg sys-apps/dmidecode
 rc-update add dbus default
 
 install_pkg dev-util/ccache

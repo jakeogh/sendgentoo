@@ -55,13 +55,6 @@ def validate_ram_size(ctx, param, vm_ram):
     return vm_ram_bytes
 
 
-#def get_file_size(filename):
-#    fd = os.open(filename, os.O_RDONLY)
-#    try:
-#        return os.lseek(fd, 0, os.SEEK_END)
-#    finally:
-#        os.close(fd)
-
 @click.group()
 @click.pass_context
 def sendgentoo(ctx):

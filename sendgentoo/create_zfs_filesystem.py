@@ -1,6 +1,25 @@
 #!/usr/bin/env python3
 
+# pylint: disable=C0111  # docstrings are always outdated and wrong
+# pylint: disable=W0511  # todo is encouraged
+# pylint: disable=C0301  # line too long
+# pylint: disable=R0902  # too many instance attributes
+# pylint: disable=C0302  # too many lines in module
+# pylint: disable=C0103  # single letter var names, func name too descriptive
+# pylint: disable=R0911  # too many return statements
+# pylint: disable=R0912  # too many branches
+# pylint: disable=R0915  # too many statements
+# pylint: disable=R0913  # too many arguments
+# pylint: disable=R1702  # too many nested blocks
+# pylint: disable=R0914  # too many local variables
+# pylint: disable=R0903  # too few public methods
+# pylint: disable=E1101  # no member for base
+# pylint: disable=W0201  # attribute defined outside __init__
+# pylint: disable=R0916  # Too many boolean expressions in if statement
+
+
 import click
+from icecream import ic
 from kcl.commandops import run_command
 from kcl.printops import eprint
 
@@ -10,12 +29,22 @@ from kcl.printops import eprint
 @click.option('--simulate', is_flag=True, required=False)
 @click.option('--encrypt', is_flag=True, required=False)
 @click.option('--nfs', is_flag=True, required=False)
-#@click.option('--force', is_flag=True, required=False)
 @click.option('--exec', 'exe', is_flag=True, required=False)
 @click.option('--nomount', is_flag=True, required=False)
 @click.option('--reservation', type=str, required=False)
-def create_zfs_filesystem(pool, name, simulate, encrypt, nfs, exe, nomount, reservation):
-    eprint("make_zfs_filesystem_on_devices()")
+@click.option('--verbose', type=str, required=False)
+def create_zfs_filesystem(pool,
+                          name,
+                          simulate,
+                          encrypt,
+                          nfs,
+                          exe,
+                          nomount,
+                          verbose,
+                          reservation):
+
+    if verbose:
+        ic()
 
     assert not pool.startswith('/')
     assert not name.startswith('/')
@@ -43,7 +72,9 @@ def create_zfs_filesystem(pool, name, simulate, encrypt, nfs, exe, nomount, rese
 
     command += ' ' + pool + '/' + name
 
-    print(command)
+    if verbose or simulate:
+        ic(command)
+
     if not simulate:
         run_command(command, verbose=True, expected_exit_code=0)
 

@@ -76,7 +76,11 @@ sendgentoo.add_command(create_root_device)
 @click.option('--boot-filesystem',             is_flag=False, required=False, type=click.Choice(['ext4']), default="ext4")
 @click.option('--force',                       is_flag=True,  required=False)
 @click.pass_context
-def create_boot_device_for_existing_root(ctx, boot_device, boot_device_partition_table, boot_filesystem, force):
+def create_boot_device_for_existing_root(ctx,
+                                         boot_device,
+                                         boot_device_partition_table,
+                                         boot_filesystem,
+                                         force,):
     mount_path_boot = Path('/boot')
     mount_path_boot_efi = mount_path_boot / Path('efi')
     if not Path(boot_device).name.startswith('nvme'):

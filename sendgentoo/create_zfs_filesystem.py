@@ -76,5 +76,5 @@ def create_zfs_filesystem(pool,
         ic(command)
 
     if not simulate:
-        run_command(command, verbose=True, expected_exit_code=0)
+        run_command(command, verbose=True, expected_exit_status=0)
 

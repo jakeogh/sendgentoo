@@ -18,17 +18,19 @@
 # pylint: disable=R0916  # Too many boolean expressions in if statement
 
 
+from pathlib import Path
+
 import click
 from icecream import ic
-from kcl.pathops import path_is_block_special
-from kcl.fileops import get_block_device_size
-from kcl.mountops import block_special_path_is_mounted
 from kcl.commandops import run_command
-from kcl.iterops import grouper
-from kcl.printops import eprint
 from kcl.deviceops import passphrase_prompt
+from kcl.fileops import get_block_device_size
+from kcl.iterops import grouper
+from kcl.mountops import block_special_path_is_mounted
+from kcl.pathops import path_is_block_special
+from kcl.printops import eprint
+
 from .setup_globals import RAID_LIST
-from pathlib import Path
 
 ASHIFT_HELP = '''9: 1<<9 == 512
 10: 1<<10 == 1024
@@ -169,10 +171,10 @@ def create_zfs_pool(devices,
     command += " -O setuid=off"                          # only needed on rootfs
     command += ' ' + pool_name + ' ' + device_string
 
-    print(command)
+    ic(command)
     if not simulate:
         stdin = None
         if encrypt:
             stdin = passphrase
-        run_command(command, verbose=True, expected_exit_code=0, stdin=stdin)
+        run_command(command, verbose=True, expected_exit_status=0, stdin=stdin)
 

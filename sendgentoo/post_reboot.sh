@@ -123,6 +123,8 @@ test -h /root/_repos      || { ln -s /home/cfg/_repos /root/_repos || exit 1 ; }
 install_pkg cpuid2cpuflags
 echo CPU_FLAGS_X86=\"`cpuid2cpuflags | cut -d ' ' -f 2-`\" > /etc/portage/00cpu-flags
 
+emerge dodo  # why not install_pkg?
+emerge echocommand
 #install_pkg dnsgate
 emerge app-misc/edit  # pulls in commandlock # fails but that's ok for now
 #install_pkg net-fs/nfs-utils  # nice to have, dont want to wait for the set to install it, needs overlay

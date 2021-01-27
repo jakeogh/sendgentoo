@@ -17,11 +17,13 @@
 
 
 import os
+import sys
 #import time
 from pathlib import Path
 
 import click
 import humanfriendly
+from icecream import ic
 from kcl.commandops import run_command
 from kcl.deviceops import (add_partition_number_to_device, create_filesystem,
                            destroy_block_device,
@@ -32,6 +34,7 @@ from kcl.fileops import get_block_device_size
 from kcl.mountops import block_special_path_is_mounted, path_is_mounted
 from kcl.pathops import path_is_block_special
 from kcl.printops import eprint
+from kcl.userops import root_user
 from psutil import virtual_memory
 
 from sendgentoo.create_boot_device import create_boot_device
@@ -85,14 +88,18 @@ def create_boot_device_for_existing_root(ctx,
                                          force: bool,
                                          verbose: bool,
                                          debug: bool,):
+    if not root_user():
+        ic('You must be root.')
+        #sys.exit(1)
+
     mount_path_boot = Path('/boot')
     mount_path_boot_efi = mount_path_boot / Path('efi')
     if not Path(boot_device).name.startswith('nvme'):
         assert not boot_device[-1].isdigit()
-    eprint("installing grub on boot device:",
-           boot_device,
-           '(' + boot_device_partition_table + ')',
-           '(' + boot_filesystem + ')')
+    ic('installing grub on boot device:',
+       boot_device,
+       boot_device_partition_table,
+       boot_filesystem)
     assert path_is_block_special(boot_device)
     assert not block_special_path_is_mounted(boot_device)
     if not force:
@@ -106,7 +113,9 @@ def create_boot_device_for_existing_root(ctx,
                        debug=debug,)
     ctx.invoke(write_boot_partition,
                device=boot_device,
-               force=True)
+               force=True,
+               verbose=verbose,
+               debug=debug,)
 
     hybrid_mbr_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh" + " " + boot_device
     run_command(hybrid_mbr_command, verbose=True, popen=True)

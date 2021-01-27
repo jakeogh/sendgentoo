@@ -227,6 +227,9 @@ emaint sync -r jakeogh
 #layman -o "https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml" -f -a jakeogh
 #layman -S # update layman trees
 
+eselect repository enable java
+emaint sync -r java
+
 # must be done after overlay is installed
 #add_accept_keyword "dev-python/kcl-9999"
 #add_accept_keyword "dev-python/icecream-9999"

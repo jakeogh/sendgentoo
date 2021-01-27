@@ -1,6 +1,6 @@
 #!/bin/bash
 set -o nounset
-set +x
+set -x
 
 echo -n "$0 args: "
 echo -e "$@"

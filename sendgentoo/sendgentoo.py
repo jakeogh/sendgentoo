@@ -90,7 +90,7 @@ def create_boot_device_for_existing_root(ctx,
                                          debug: bool,):
     if not root_user():
         ic('You must be root.')
-        #sys.exit(1)
+        sys.exit(1)
 
     mount_path_boot = Path('/boot')
     ic(mount_path_boot)

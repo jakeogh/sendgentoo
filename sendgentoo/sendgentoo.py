@@ -16,31 +16,30 @@
 # pylint: disable=W0201     # attribute defined outside __init__
 
 
-import time
 import os
+import time
 from pathlib import Path
+
 import click
 import humanfriendly
-from psutil import virtual_memory
-from kcl.pathops import path_is_block_special
-from kcl.fileops import get_block_device_size
-from kcl.mountops import block_special_path_is_mounted
-from kcl.mountops import path_is_mounted
 from kcl.commandops import run_command
+from kcl.deviceops import (add_partition_number_to_device, create_filesystem,
+                           destroy_block_device,
+                           destroy_block_device_head_and_tail,
+                           destroy_block_devices_head_and_tail, luksformat,
+                           warn)
+from kcl.fileops import get_block_device_size
+from kcl.mountops import block_special_path_is_mounted, path_is_mounted
+from kcl.pathops import path_is_block_special
 from kcl.printops import eprint
-from kcl.deviceops import warn
-from kcl.deviceops import destroy_block_device
-from kcl.deviceops import destroy_block_device_head_and_tail
-from kcl.deviceops import destroy_block_devices_head_and_tail
-from kcl.deviceops import luksformat
-from kcl.deviceops import create_filesystem
-from kcl.deviceops import add_partition_number_to_device
-from .install_stage3 import install_stage3
-from .create_boot_device import create_boot_device
-from .create_root_device import create_root_device
-from .create_zfs_pool import create_zfs_pool
-from .create_zfs_filesystem import create_zfs_filesystem
-from .write_boot_partition import write_boot_partition
+from psutil import virtual_memory
+
+from sendgentoo.create_boot_device import create_boot_device
+from sendgentoo.create_root_device import create_root_device
+from sendgentoo.create_zfs_filesystem import create_zfs_filesystem
+from sendgentoo.create_zfs_pool import create_zfs_pool
+from sendgentoo.install_stage3 import install_stage3
+from sendgentoo.write_boot_partition import write_boot_partition
 
 
 def validate_ram_size(ctx, param, vm_ram):
@@ -60,6 +59,7 @@ def validate_ram_size(ctx, param, vm_ram):
 def sendgentoo(ctx):
     pass
 
+
 sendgentoo.add_command(destroy_block_device)
 sendgentoo.add_command(destroy_block_device_head_and_tail)
 sendgentoo.add_command(luksformat)
@@ -75,12 +75,16 @@ sendgentoo.add_command(create_root_device)
 @click.option('--boot-device-partition-table', is_flag=False, required=False, type=click.Choice(['gpt']), default="gpt")
 @click.option('--boot-filesystem',             is_flag=False, required=False, type=click.Choice(['ext4']), default="ext4")
 @click.option('--force',                       is_flag=True,  required=False)
+@click.option('--verbose',                     is_flag=True,  required=False)
+@click.option('--debug',                       is_flag=True,  required=False)
 @click.pass_context
 def create_boot_device_for_existing_root(ctx,
                                          boot_device,
                                          boot_device_partition_table,
                                          boot_filesystem,
-                                         force,):
+                                         force: bool,
+                                         verbose: bool,
+                                         debug: bool,):
     mount_path_boot = Path('/boot')
     mount_path_boot_efi = mount_path_boot / Path('efi')
     if not Path(boot_device).name.startswith('nvme'):
@@ -97,7 +101,9 @@ def create_boot_device_for_existing_root(ctx,
                        device=boot_device,
                        partition_table=boot_device_partition_table,
                        filesystem=boot_filesystem,
-                       force=True)
+                       force=True,
+                       verbose=verbose,
+                       debug=debug,)
     ctx.invoke(write_boot_partition,
                device=boot_device,
                force=True)
@@ -155,8 +161,33 @@ def create_boot_device_for_existing_root(ctx,
 @click.option('--encrypt',                     is_flag=True,  required=False)
 @click.option('--multilib',                    is_flag=True,  required=False)
 @click.option('--minimal',                     is_flag=True,  required=False)
+@click.option('--verbose',                     is_flag=True,  required=False)
+@click.option('--debug',                       is_flag=True,  required=False)
 @click.pass_context
-def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_table, root_device_partition_table, boot_filesystem, root_filesystem, c_std_lib, arch, raid, raid_group_size, march, hostname, newpasswd, ip, ip_gateway, force, encrypt, multilib, minimal):
+def install(ctx, *,
+            root_devices,
+            vm,
+            vm_ram,
+            boot_device,
+            boot_device_partition_table,
+            root_device_partition_table,
+            boot_filesystem,
+            root_filesystem,
+            c_std_lib,
+            arch,
+            raid,
+            raid_group_size,
+            march,
+            hostname,
+            newpasswd,
+            ip,
+            ip_gateway,
+            force,
+            encrypt,
+            multilib,
+            minimal,
+            verbose,
+            debug,):
     assert isinstance(root_devices, tuple)
     assert hostname.lower() == hostname
     os.makedirs('/usr/portage/distfiles', exist_ok=True)
@@ -271,8 +302,10 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
                 destroy_block_devices_head_and_tail(root_devices,
                                                     force=True,
                                                     no_backup=True,
-                                                    size=(1024*1024*128),
-                                                    note=False)
+                                                    size=(1024 * 1024 * 128),
+                                                    note=False,
+                                                    verbose=verbose,
+                                                    debug=debug,)
                 # if this is zfs, it will make a gpt table, / and EFI partition
                 ctx.invoke(create_root_device,
                            devices=root_devices,
@@ -282,22 +315,28 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
                            force=True,
                            raid=raid,
                            raid_group_size=raid_group_size,
-                           pool_name=hostname)
+                           pool_name=hostname,)
                 create_boot_device(ctx,
                                    device=boot_device,
                                    partition_table='none',
                                    filesystem=boot_filesystem,
-                                   force=True) # dont want to delete the gpt that zfs made
+                                   force=True,
+                                   verbose=verbose,
+                                   debug=debug,) # dont want to delete the gpt that zfs made
                 boot_mount_command = False
                 root_mount_command = False
 
             elif boot_filesystem == 'ext4':
-                ctx.invoke(destroy_block_device_head_and_tail, device=device, force=True)
+                ctx.invoke(destroy_block_device_head_and_tail,
+                           device=device,
+                           force=True,)
                 create_boot_device(ctx,
                                    device=boot_device,
                                    partition_table=boot_device_partition_table,
                                    filesystem=boot_filesystem,
-                                   force=True) # writes gurb_bios from 48s to 1023s then writes EFI partition from 1024s to 205824s (100M efi) (nope, too big for fat16)
+                                   force=True,
+                                   verbose=verbose,
+                                   debug=debug,) # writes gurb_bios from 48s to 1023s then writes EFI partition from 1024s to 205824s (100M efi) (nope, too big for fat16)
                 ctx.invoke(create_root_device,
                            devices=root_devices,
                            exclusive=False,
@@ -306,7 +345,7 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
                            force=True,
                            raid=raid,
                            raid_group_size=raid_group_size,
-                           pool_name=hostname)
+                           pool_name=hostname,)
                 root_partition_path = add_partition_number_to_device(device=device, partition_number="3")
                 root_mount_command = "mount " + root_partition_path + " " + str(mount_path)
                 boot_mount_command = False
@@ -318,7 +357,9 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
                                device=boot_device,
                                partition_table=boot_device_partition_table,
                                filesystem=boot_filesystem,
-                               force=True)
+                               force=True,
+                               verbose=verbose,
+                               debug=debug,)
             ctx.invoke(write_boot_partition,
                        device=boot_device,
                        force=True)
@@ -328,7 +369,7 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
                        filesystem=root_filesystem,
                        partition_table=root_device_partition_table,
                        force=True,
-                       raid=raid)
+                       raid=raid,)
             if root_filesystem == 'zfs':
                 root_mount_command = False
             elif root_filesystem == 'ext4':
@@ -365,17 +406,29 @@ def install(ctx, root_devices, vm, vm_ram, boot_device, boot_device_partition_ta
             run_command(efi_mount_command)
             assert path_is_mounted(mount_path_boot_efi)
 
-    install_stage3(c_std_lib=c_std_lib, multilib=multilib, arch=arch, destination=mount_path, vm=vm, vm_ram=vm_ram)
+    install_stage3(c_std_lib=c_std_lib,
+                   multilib=multilib,
+                   arch=arch,
+                   destination=mount_path,
+                   vm=vm,
+                   vm_ram=vm_ram,)
 
     #if march == 'native':
     if not boot_device:
         boot_device = "False"  # fixme
     if not vm:
         vm = "novm"
-    chroot_gentoo_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/chroot_gentoo.sh " + c_std_lib + " " + boot_device + " " + hostname + ' ' + march + ' ' + root_filesystem + ' ' + newpasswd + ' ' + ip + ' ' + ip_gateway + ' ' + vm + ' ' + str(mount_path)
+    chroot_gentoo_command = \
+        "/home/cfg/_myapps/sendgentoo/sendgentoo/chroot_gentoo.sh " + \
+        c_std_lib + " " + \
+        boot_device + " " + \
+        hostname + ' ' + \
+        march + ' ' + \
+        root_filesystem + ' ' + \
+        newpasswd + ' ' + \
+        ip + ' ' + \
+        ip_gateway + ' ' + \
+        vm + ' ' + \
+        str(mount_path)
     eprint("\nnow run:", chroot_gentoo_command)
     return
-
-
-if __name__ == '__main__':
-    sendgentoo()

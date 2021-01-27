@@ -4,6 +4,7 @@ set -x
 
 echo -n "$0 args: "
 echo -e "$@"
+echo "UID: ${UID}"
 echo -e "\n"
 argcount=1
 usage="boot_device"

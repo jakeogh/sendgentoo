@@ -19,7 +19,11 @@ shift
 mount | grep "/boot/efi" || { echo "/boot/efi not mounted. Exiting." ; exit 1 ;}
 
 env-update || exit 1
+
+set +o nounset # line 22 has an unbound variable: user_id /etc/profile.d/java-config-2.sh
 source /etc/profile || exit 1
+set -o nounset
+
 install_pkg grub:2 || exit 1
 
 #if [[ "${root_filesystem}" == "zfs" ]];

@@ -372,7 +372,9 @@ def install(ctx, *,
                                debug=debug,)
             ctx.invoke(write_boot_partition,
                        device=boot_device,
-                       force=True)
+                       force=True,
+                       verbose=verbose,
+                       debug=debug,)
             ctx.invoke(create_root_device,
                        devices=root_devices,
                        exclusive=True,

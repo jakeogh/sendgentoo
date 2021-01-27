@@ -17,7 +17,7 @@
 
 
 import os
-import time
+#import time
 from pathlib import Path
 
 import click
@@ -165,29 +165,29 @@ def create_boot_device_for_existing_root(ctx,
 @click.option('--debug',                       is_flag=True,  required=False)
 @click.pass_context
 def install(ctx, *,
-            root_devices,
-            vm,
-            vm_ram,
-            boot_device,
-            boot_device_partition_table,
-            root_device_partition_table,
-            boot_filesystem,
-            root_filesystem,
-            c_std_lib,
-            arch,
-            raid,
-            raid_group_size,
-            march,
-            hostname,
-            newpasswd,
-            ip,
-            ip_gateway,
-            force,
-            encrypt,
-            multilib,
-            minimal,
-            verbose,
-            debug,):
+        root_devices: tuple,
+            vm: str,
+            vm_ram: str,
+            boot_device: str,
+            boot_device_partition_table: str,
+            root_device_partition_table: str,
+            boot_filesystem: str,
+            root_filesystem: str,
+            c_std_lib: str,
+            arch: str,
+            raid: str,
+            raid_group_size: int,
+            march: str,
+            hostname: str,
+            newpasswd: str,
+            ip: str,
+            ip_gateway: str,
+            force: bool,
+            encrypt: bool,
+            multilib: bool,
+            minimal: bool,
+            verbose: bool,
+            debug: bool,):
     assert isinstance(root_devices, tuple)
     assert hostname.lower() == hostname
     os.makedirs('/usr/portage/distfiles', exist_ok=True)
@@ -299,13 +299,14 @@ def install(ctx, *,
             assert boot_filesystem == root_filesystem
             assert boot_device_partition_table == root_device_partition_table
             if boot_filesystem == 'zfs':
-                destroy_block_devices_head_and_tail(root_devices,
-                                                    force=True,
-                                                    no_backup=True,
-                                                    size=(1024 * 1024 * 128),
-                                                    note=False,
-                                                    verbose=verbose,
-                                                    debug=debug,)
+                ctx.invoke(destroy_block_devices_head_and_tail,
+                           devices=root_devices,
+                           force=True,
+                           no_backup=True,
+                           size=(1024 * 1024 * 128),
+                           note=False,
+                           verbose=verbose,
+                           debug=debug,)
                 # if this is zfs, it will make a gpt table, / and EFI partition
                 ctx.invoke(create_root_device,
                            devices=root_devices,

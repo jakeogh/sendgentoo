@@ -79,6 +79,7 @@ sendgentoo.add_command(create_root_device)
 @click.option('--boot-filesystem',             is_flag=False, required=False, type=click.Choice(['ext4']), default="ext4")
 @click.option('--force',                       is_flag=True,  required=False)
 @click.option('--kernel-recompile',            is_flag=True,  required=False)
+@click.option('--kernel-configure',            is_flag=True,  required=False)
 @click.option('--verbose',                     is_flag=True,  required=False)
 @click.option('--debug',                       is_flag=True,  required=False)
 @click.pass_context
@@ -87,6 +88,7 @@ def create_boot_device_for_existing_root(ctx,
                                          boot_device_partition_table,
                                          boot_filesystem,
                                          kernel_recompile: bool,
+                                         kernel_configure: bool,
                                          force: bool,
                                          verbose: bool,
                                          debug: bool,):
@@ -152,6 +154,8 @@ def create_boot_device_for_existing_root(ctx,
         install_kernel_command = ["/home/cfg/_myapps/sendgentoo/sendgentoo/kernel_recompile.sh",
                                   "--force",
                                   "--no-check-boot",]
+        if kernel_configure:
+            install_kernel_command.append('--menuconfig')
         run_command(install_kernel_command, verbose=True, popen=True)
 
     grub_config_command = "grub-mkconfig -o /boot/grub/grub.cfg"

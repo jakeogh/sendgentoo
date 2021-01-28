@@ -111,15 +111,21 @@ else
         echo "compiling kernel"
         compile_kernel
     else
-        echo "found configured /usr/src/linux, skipping recompile."
+        if [ -n "${force}" ];
+        then
+            echo "found configured /usr/src/linux, but --force was specified so not skipping recompile"
+            compile_kernel
+        else
+            echo "found configured /usr/src/linux, skipping recompile."
+        fi
     fi
 fi
 
 
-if [ -n "${force}" ];
-then
-    compile_kernel
-fi
+#if [ -n "${force}" ];
+#then
+#    compile_kernel
+#fi
 
 rc-update add zfs-import boot
 rc-update add zfs-share default

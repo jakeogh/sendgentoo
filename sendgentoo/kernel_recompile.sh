@@ -129,7 +129,7 @@ rc-update add zfs-zed default
 grub-mkconfig -o /boot/grub/grub.cfg
 
 mkdir /boot_backup
-cd /boot_backup
+cd /boot_backup || exit 1
 test -d /boot_backup/.git || git init
 now=`date +%s`
 mkdir "${now}"

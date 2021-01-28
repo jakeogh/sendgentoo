@@ -21,7 +21,9 @@ add_accept_keyword() {
 
 install_pkg_force_compile()
 {
+    set +u
     . /etc/profile
+    set -u
     echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
     emerge --with-bdeps=y -pv     --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
     echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
@@ -31,7 +33,9 @@ install_pkg_force_compile()
 
 install_pkg()
 {
+    set +u
     . /etc/profile
+    set -u
     echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
     emerge --with-bdeps=y -pv     --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
     echo -e "\ninstall_pkg() got args: $@" > /dev/stderr

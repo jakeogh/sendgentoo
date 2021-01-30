@@ -25,13 +25,16 @@ import click
 import humanfriendly
 from icecream import ic
 from kcl.commandops import run_command
-from kcl.deviceops import (add_partition_number_to_device, create_filesystem,
-                           destroy_block_device,
-                           destroy_block_device_head_and_tail,
-                           destroy_block_devices_head_and_tail, luksformat,
-                           warn)
+from kcl.deviceops import add_partition_number_to_device
+from kcl.deviceops import create_filesystem
+from kcl.deviceops import destroy_block_device
+from kcl.deviceops import destroy_block_device_head_and_tail
+from kcl.deviceops import destroy_block_devices_head_and_tail
+from kcl.deviceops import luksformat
+from kcl.deviceops import warn
 from kcl.fileops import get_block_device_size
-from kcl.mountops import block_special_path_is_mounted, path_is_mounted
+from kcl.mountops import block_special_path_is_mounted
+from kcl.mountops import path_is_mounted
 from kcl.pathops import path_is_block_special
 from kcl.printops import eprint
 from kcl.userops import root_user
@@ -156,7 +159,7 @@ def create_boot_device_for_existing_root(ctx,
                                   "--no-check-boot",]
         if kernel_configure:
             install_kernel_command.append('--menuconfig')
-        run_command(install_kernel_command, verbose=True, popen=True)
+        run_command(install_kernel_command, verbose=True, system=True)
 
     grub_config_command = "grub-mkconfig -o /boot/grub/grub.cfg"
     run_command(grub_config_command, verbose=True, popen=True)

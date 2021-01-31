@@ -31,13 +31,13 @@ from kcl.deviceops import destroy_block_device
 from kcl.deviceops import destroy_block_device_head_and_tail
 from kcl.deviceops import destroy_block_devices_head_and_tail
 from kcl.deviceops import luksformat
-from kcl.deviceops import warn
 from kcl.fileops import get_block_device_size
 from kcl.mountops import block_special_path_is_mounted
 from kcl.mountops import path_is_mounted
 from kcl.pathops import path_is_block_special
 from kcl.printops import eprint
 from kcl.userops import root_user
+from kcl.warnops import warn
 from psutil import virtual_memory
 
 from sendgentoo.create_boot_device import create_boot_device
@@ -81,8 +81,8 @@ sendgentoo.add_command(create_root_device)
 @click.option('--boot-device-partition-table', is_flag=False, required=False, type=click.Choice(['gpt']), default="gpt")
 @click.option('--boot-filesystem',             is_flag=False, required=False, type=click.Choice(['ext4']), default="ext4")
 @click.option('--force',                       is_flag=True,  required=False)
-@click.option('--kernel-recompile',            is_flag=True,  required=False)
-@click.option('--kernel-configure',            is_flag=True,  required=False)
+@click.option('--compile-kernel',              is_flag=True,  required=False)
+@click.option('--configure-kernel',            is_flag=True,  required=False)
 @click.option('--verbose',                     is_flag=True,  required=False)
 @click.option('--debug',                       is_flag=True,  required=False)
 @click.pass_context
@@ -90,8 +90,8 @@ def create_boot_device_for_existing_root(ctx,
                                          boot_device,
                                          boot_device_partition_table,
                                          boot_filesystem,
-                                         kernel_recompile: bool,
-                                         kernel_configure: bool,
+                                         compile_kernel: bool,
+                                         configure_kernel: bool,
                                          force: bool,
                                          verbose: bool,
                                          debug: bool,):
@@ -153,11 +153,11 @@ def create_boot_device_for_existing_root(ctx,
     grub_install_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh" + " " + boot_device
     run_command(grub_install_command, verbose=True, popen=True)
 
-    if kernel_recompile:
+    if compile_kernel:
         install_kernel_command = ["/home/cfg/_myapps/sendgentoo/sendgentoo/kernel_recompile.sh",
                                   "--force",
                                   "--no-check-boot",]
-        if kernel_configure:
+        if configure_kernel:
             install_kernel_command.append('--menuconfig')
         run_command(install_kernel_command, verbose=True, system=True)
 

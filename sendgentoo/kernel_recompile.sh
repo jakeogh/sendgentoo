@@ -2,6 +2,19 @@
 
 echo "entering kernel_recompile.sh"
 
+am_i_root()
+{
+    # Sanity Check: Test if the script runs as root
+    if [ "$(whoami)" != root ]
+    then
+        echo -e "\nPlease run this script as root! Exiting.\n" >&2
+        exit 1
+    fi
+}
+
+am_i_root
+
+
 if [ "${1}" = '--menuconfig' ];
 then
     menuconfig="--nconfig"
@@ -14,6 +27,8 @@ else
     menuconfig=""
 fi
 
+echo "menuconfig: ${menuconfig}"
+
 if [ "${1}" = '--force' ];
 then
     force="${1}"
@@ -22,6 +37,7 @@ else
     force=""
     #echo "force: ${force}"
 fi
+echo "force: ${force}"
 
 if [ "${1}" = '--no-check-boot' ];
 then
@@ -30,6 +46,7 @@ then
 else
     no_check_boot=""
 fi
+echo "no_check_boot: ${no_check_boot}"
 
 if [ -n "${no_check_boot}" ];
 then
@@ -39,22 +56,11 @@ else
     ls /boot/kernel || { echo "mount /boot first. Exiting." && exit 1 ; }
 fi
 
-am_i_root()
-{
-    # Sanity Check: Test if the script runs as root
-    if [ "$(whoami)" != root ]
-    then
-        echo -e "\nPlease run this script as root! Exiting.\n" >&2
-        exit 1
-    fi
-}
-
-
-am_i_root
 
 #    --zfs \
 compile_kernel()
 {
+    echo "menuconfig: ${menuconfig}"
     emerge genkernel -u
     emerge sys-fs/zfs       # handle a downgrade from -9999 before genkernel calls @module-rebuild
     emerge sys-fs/zfs-kmod
@@ -97,7 +103,7 @@ test -e /usr/src/linux/.config || ln -s /home/cfg/sysskel/usr/src/linux_configs/
 
 cd /usr/src/linux || exit 1
 
-
+test_path="/usr/src/linux/init/.init_task.o.cmd"
 if [ -n "${menuconfig}" ];
 then
     compile_kernel
@@ -106,9 +112,9 @@ then
     compile_kernel
 else
     echo "/boot/initramfs exists, checking if /usr/src/linux is configured"
-    if [ ! -e "/usr/src/linux/init/.init_task.o.cmd" ];
+    if [ ! -e "${test_path}" ];
     then
-        echo "compiling kernel"
+        echo "${test_path} does not exist, compiling kernel"
         compile_kernel
     else
         if [ -n "${force}" ];

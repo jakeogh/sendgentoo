@@ -23,6 +23,7 @@ from pathlib import Path
 
 import click
 import humanfriendly
+from compile_kernel.compile_kernel import kcompile
 from icecream import ic
 from kcl.commandops import run_command
 from kcl.deviceops import add_partition_number_to_device
@@ -154,12 +155,17 @@ def create_boot_device_for_existing_root(ctx,
     run_command(grub_install_command, verbose=True, popen=True)
 
     if compile_kernel:
-        install_kernel_command = ["/home/cfg/_myapps/sendgentoo/sendgentoo/kernel_recompile.sh",
-                                  "--force",
-                                  "--no-check-boot",]
-        if configure_kernel:
-            install_kernel_command.append('--menuconfig')
-        run_command(install_kernel_command, verbose=True, system=True)
+        #install_kernel_command = ["/home/cfg/_myapps/sendgentoo/sendgentoo/kernel_recompile.sh",
+        #                          "--force",
+        #                          "--no-check-boot",]
+        #if configure_kernel:
+        #    install_kernel_command.append('--menuconfig')
+        #run_command(install_kernel_command, verbose=True, system=True)
+        kcompile(configure=configure_kernel,
+                 force=force,
+                 no_check_boot=True,
+                 verbose=verbose,
+                 debug=debug)
 
     grub_config_command = "grub-mkconfig -o /boot/grub/grub.cfg"
     run_command(grub_config_command, verbose=True, popen=True)
@@ -192,7 +198,7 @@ def create_boot_device_for_existing_root(ctx,
 @click.option('--debug',                       is_flag=True,  required=False)
 @click.pass_context
 def install(ctx, *,
-        root_devices: tuple,
+            root_devices: tuple,
             vm: str,
             vm_ram: str,
             boot_device: str,

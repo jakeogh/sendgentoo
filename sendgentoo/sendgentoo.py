@@ -158,12 +158,6 @@ def create_boot_device_for_existing_root(ctx,
     run_command(grub_install_command, verbose=True, popen=True)
 
     if compile_kernel:
-        #install_kernel_command = ["/home/cfg/_myapps/sendgentoo/sendgentoo/kernel_recompile.sh",
-        #                          "--force",
-        #                          "--no-check-boot",]
-        #if configure_kernel:
-        #    install_kernel_command.append('--menuconfig')
-        #run_command(install_kernel_command, verbose=True, system=True)
         kcompile(configure=configure_kernel,
                  force=force,
                  no_check_boot=True,

@@ -96,6 +96,9 @@ def create_boot_device_for_existing_root(ctx,
                                          force: bool,
                                          verbose: bool,
                                          debug: bool,):
+    if configure_kernel:
+        compile_kernel = True
+
     if not root_user():
         ic('You must be root.')
         sys.exit(1)

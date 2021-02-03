@@ -78,7 +78,6 @@ sendgentoo.add_command(create_root_device)
 
 @sendgentoo.command()
 @click.option('--boot-device',                 is_flag=False, required=True)
-@click.option('--boot-filesystem',             is_flag=False, required=False, type=click.Choice(['ext4']), default="ext4")
 @click.option('--force',                       is_flag=True,  required=False)
 @click.option('--compile-kernel',              is_flag=True,  required=False)
 @click.option('--configure-kernel',            is_flag=True,  required=False)

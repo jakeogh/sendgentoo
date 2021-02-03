@@ -113,6 +113,7 @@ def compile_kernel(ctx,
 
     assert path_is_block_special(boot_device)
     assert not block_special_path_is_mounted(boot_device)
+    warn((boot_device,), msg="about to update the kernel on device:")
     #if not force:
     #    warn((boot_device,))
     #create_boot_device(ctx,

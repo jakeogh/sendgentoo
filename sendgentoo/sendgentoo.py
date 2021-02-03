@@ -76,6 +76,89 @@ sendgentoo.add_command(create_zfs_filesystem)
 sendgentoo.add_command(create_root_device)
 #sendgentoo.add_command(create_boot_device)
 
+@sendgentoo.command()
+@click.option('--boot-device',                 is_flag=False, required=True)
+@click.option('--boot-filesystem',             is_flag=False, required=False, type=click.Choice(['ext4']), default="ext4")
+@click.option('--force',                       is_flag=True,  required=False)
+@click.option('--compile-kernel',              is_flag=True,  required=False)
+@click.option('--configure-kernel',            is_flag=True,  required=False)
+@click.option('--verbose',                     is_flag=True,  required=False)
+@click.option('--debug',                       is_flag=True,  required=False)
+@click.pass_context
+def compile_kernel(ctx,
+                   boot_device,
+                   configure_kernel: bool,
+                   force: bool,
+                   verbose: bool,
+                   debug: bool,):
+
+    if not root_user():
+        ic('You must be root.')
+        sys.exit(1)
+
+    mount_path_boot = Path('/boot')
+    ic(mount_path_boot)
+    assert not path_is_mounted(mount_path_boot)
+
+    mount_path_boot_efi = mount_path_boot / Path('efi')
+    ic(mount_path_boot_efi)
+    assert not path_is_mounted(mount_path_boot_efi)
+
+    if not Path(boot_device).name.startswith('nvme'):
+        assert not boot_device[-1].isdigit()
+    #ic('installing grub on boot device:',
+    #   boot_device,
+    #   boot_device_partition_table,
+    #   boot_filesystem)
+
+    assert path_is_block_special(boot_device)
+    assert not block_special_path_is_mounted(boot_device)
+    #if not force:
+    #    warn((boot_device,))
+    #create_boot_device(ctx,
+    #                   device=boot_device,
+    #                   partition_table=boot_device_partition_table,
+    #                   filesystem=boot_filesystem,
+    #                   force=True,
+    #                   verbose=verbose,
+    #                   debug=debug,)
+    #ctx.invoke(write_boot_partition,
+    #           device=boot_device,
+    #           force=True,
+    #           verbose=verbose,
+    #           debug=debug,)
+
+    #hybrid_mbr_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh" + " " + boot_device
+    #run_command(hybrid_mbr_command, verbose=True, popen=True)
+
+    os.makedirs(mount_path_boot, exist_ok=True)
+    boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
+    boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
+    #print("sleeping")
+    #time.sleep(10)
+    assert not path_is_mounted(mount_path_boot)
+    run_command(boot_mount_command, verbose=True, popen=True)
+    assert path_is_mounted(mount_path_boot)
+
+    os.makedirs(mount_path_boot_efi, exist_ok=True)
+
+    efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2")
+    efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)
+    assert not path_is_mounted(mount_path_boot_efi)
+    run_command(efi_mount_command, verbose=True, popen=True)
+    assert path_is_mounted(mount_path_boot_efi)
+
+    #grub_install_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh" + " " + boot_device
+    #run_command(grub_install_command, verbose=True, popen=True)
+
+    kcompile(configure=configure_kernel,
+             force=force,
+             no_check_boot=True,
+             verbose=verbose,
+             debug=debug)
+
+    grub_config_command = "grub-mkconfig -o /boot/grub/grub.cfg"
+    run_command(grub_config_command, verbose=True, popen=True)
 
 @sendgentoo.command()
 @click.option('--boot-device',                 is_flag=False, required=True)

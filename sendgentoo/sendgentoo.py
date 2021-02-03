@@ -79,13 +79,13 @@ sendgentoo.add_command(create_root_device)
 @sendgentoo.command()
 @click.option('--boot-device',                 is_flag=False, required=True)
 @click.option('--force',                       is_flag=True,  required=False)
-@click.option('--configure-kernel',            is_flag=True,  required=False)
+@click.option('--no-configure-kernel',         is_flag=True,  required=False)
 @click.option('--verbose',                     is_flag=True,  required=False)
 @click.option('--debug',                       is_flag=True,  required=False)
 @click.pass_context
 def compile_kernel(ctx,
                    boot_device,
-                   configure_kernel: bool,
+                   no_configure_kernel: bool,
                    force: bool,
                    verbose: bool,
                    debug: bool,):
@@ -93,6 +93,8 @@ def compile_kernel(ctx,
     if not root_user():
         ic('You must be root.')
         sys.exit(1)
+
+    configure_kernel = not no_configure_kernel
 
     mount_path_boot = Path('/boot')
     ic(mount_path_boot)

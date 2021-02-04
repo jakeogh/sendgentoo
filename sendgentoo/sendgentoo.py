@@ -195,6 +195,8 @@ def create_boot_device_for_existing_root(ctx,
 
     if not (Path(boot_device).name.startswith('nvme') or Path(boot_device).name.startswith('mmcblk')):
         assert not boot_device[-1].isdigit()
+    if (Path(boot_device).name.startswith('nvme') or Path(boot_device).name.startswith('mmcblk')):
+        assert boot_device[-2] != 'p'
 
     ic('installing grub on boot device:',
        boot_device,

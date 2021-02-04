@@ -193,8 +193,9 @@ def create_boot_device_for_existing_root(ctx,
     ic(mount_path_boot_efi)
     assert not path_is_mounted(mount_path_boot_efi)
 
-    if not Path(boot_device).name.startswith('nvme'):
+    if not (Path(boot_device).name.startswith('nvme') or Path(boot_device).name.startswith('mmcblk')):
         assert not boot_device[-1].isdigit()
+
     ic('installing grub on boot device:',
        boot_device,
        boot_device_partition_table,

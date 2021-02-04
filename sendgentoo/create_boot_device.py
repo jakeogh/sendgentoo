@@ -62,7 +62,7 @@ def create_boot_device(ctx, *,
         if filesystem != 'zfs':
             ctx.invoke(destroy_block_device_head_and_tail,
                        device=device,
-                       force=False,
+                       force=force,
                        no_backup=False,
                        verbose=True,
                        debug=debug,)

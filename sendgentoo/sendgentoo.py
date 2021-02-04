@@ -31,6 +31,7 @@ from kcl.deviceops import create_filesystem
 from kcl.deviceops import destroy_block_device
 from kcl.deviceops import destroy_block_device_head_and_tail
 from kcl.deviceops import destroy_block_devices_head_and_tail
+from kcl.deviceops import device_is_not_a_partition
 from kcl.deviceops import luksformat
 from kcl.fileops import get_block_device_size
 from kcl.mountops import block_special_path_is_mounted
@@ -104,12 +105,7 @@ def compile_kernel(ctx,
     ic(mount_path_boot_efi)
     assert not path_is_mounted(mount_path_boot_efi)
 
-    if not Path(boot_device).name.startswith('nvme'):
-        assert not boot_device[-1].isdigit()
-    #ic('installing grub on boot device:',
-    #   boot_device,
-    #   boot_device_partition_table,
-    #   boot_filesystem)
+    assert device_is_not_a_partition(device=boot_device, verbose=verbose, debug=debug,)
 
     assert path_is_block_special(boot_device)
     assert not block_special_path_is_mounted(boot_device)
@@ -193,10 +189,7 @@ def create_boot_device_for_existing_root(ctx,
     ic(mount_path_boot_efi)
     assert not path_is_mounted(mount_path_boot_efi)
 
-    if not (Path(boot_device).name.startswith('nvme') or Path(boot_device).name.startswith('mmcblk')):
-        assert not boot_device[-1].isdigit()
-    if (Path(boot_device).name.startswith('nvme') or Path(boot_device).name.startswith('mmcblk')):
-        assert boot_device[-2] != 'p'
+    assert device_is_not_a_partition(device=device, verbose=verbose, debug=debug,)
 
     ic('installing grub on boot device:',
        boot_device,
@@ -365,12 +358,10 @@ def install(ctx, *,
         input("note zfs boot/root is not working, many fixes will be needed, press enter to break things")
 
     if boot_device:
-        if not Path(boot_device).name.startswith('nvme'):
-            assert not boot_device[-1].isdigit()
+        assert device_is_not_a_partition(device=device, verbose=verbose, debug=debug,)
 
     for device in root_devices:
-        if not Path(device).name.startswith('nvme'):
-            assert not device[-1].isdigit()
+        assert device_is_not_a_partition(device=device, verbose=verbose, debug=debug,)
 
     #if raid:
     #    assert root_filesystem == 'zfs'

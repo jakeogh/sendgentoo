@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 
 
-import click
 from pathlib import Path
-from kcl.pathops import path_is_block_special
-from kcl.mountops import block_special_path_is_mounted
-from kcl.commandops import run_command
-from kcl.printops import eprint
-from kcl.deviceops import warn
+
+import click
 from icecream import ic
+from kcl.commandops import run_command
+from kcl.deviceops import device_is_not_a_partition
+from kcl.deviceops import warn
+from kcl.mountops import block_special_path_is_mounted
+from kcl.pathops import path_is_block_special
+from kcl.printops import eprint
 
 
 @click.command()
@@ -22,8 +24,7 @@ def write_boot_partition(*,
                          verbose: bool,
                          debug: bool,):
     ic('creating boot partition  (for grub config, stage2, vmlinuz) on:', device)
-    if not Path(device).name.startswith('nvme'):
-        assert not device[-1].isdigit()
+    assert device_is_not_a_partition(device=device, verbose=verbose, debug=debug,)
     assert path_is_block_special(device)
     assert not block_special_path_is_mounted(device)
 

@@ -21,6 +21,7 @@
 from pathlib import Path
 
 import click
+from icecream import ic
 from kcl.deviceops import (create_filesystem, warn, write_efi_partition,
                            write_gpt, write_grub_bios_partition)
 from kcl.mountops import block_special_path_is_mounted
@@ -35,8 +36,10 @@ def create_boot_device(ctx, *,
                        force: bool,
                        verbose: bool,
                        debug: bool,):
-    if not Path(device).name.startswith('nvme'):
+
+    if not (Path(device).name.startswith('nvme') or Path(device).name.startswith('mmcblk')):
         assert not device[-1].isdigit()
+
     eprint("installing gpt/grub_bios/efi on boot device:",
            device,
            '(' + partition_table + ')',

@@ -23,6 +23,7 @@ from pathlib import Path
 import click
 from icecream import ic
 from kcl.deviceops import create_filesystem
+from kcl.deviceops import destroy_block_devices_head_and_tail
 from kcl.deviceops import device_is_not_a_partition
 from kcl.deviceops import warn
 from kcl.deviceops import write_efi_partition
@@ -59,6 +60,11 @@ def create_boot_device(ctx, *,
 
     if partition_table == 'gpt':
         if filesystem != 'zfs':
+            ctx.invoke(destroy_block_devices_head_and_tail,
+                       devices=device,
+                       force=False,
+                       no_backup=False,)
+
             ctx.invoke(write_gpt,
                        device=device,
                        no_wipe=True,

@@ -34,7 +34,7 @@ install_pkg grub:2 || exit 1
 #   #echo "GRUB_DEVICE=\"ZFS=rpool/ROOT/gentoo\"" >> /etc/default/grub
 #   # echo "GRUB_DEVICE=\"ZFS=${hostname}/ROOT/gentoo\"" >> /etc/default/grub #this was uncommented, disabled to not use hostname
 #else
-echo "GRUB_PRELOAD_MODULES=\"part_gpt part_msdos\"" >> /etc/default/grub
+grep -E "^GRUB_PRELOAD_MODULES=\"part_gpt part_msdos\"" /etc/default/grub || { echo "GRUB_PRELOAD_MODULES=\"part_gpt part_msdos\"" >> /etc/default/grub ; }
 root_partition=`/home/cfg/linux/disk/get_root_device`
 echo "-------------- root_partition: ${root_partition} ---------------------"
 partuuid=`/home/cfg/linux/hardware/disk/blkid/PARTUUID "${root_partition}"`
@@ -43,7 +43,7 @@ grep -E "^GRUB_DEVICE=\"PARTUUID=${partuuid}\"" /etc/default/grub || { echo "GRU
 echo -e 'PARTUUID='`/home/cfg/linux/disk/blkid/PARTUUID_root_device` '\t/' '\text4' '\tnoatime' '\t0' '\t1' >> /etc/fstab
 #fi
 
-grep -E "^GRUB_CMDLINE_LINUX=\"net.ifnames=0 rootflags=noatime\"" /etc/default/grub || { echo "GRUB_CMDLINE_LINUX=\"net.ifnames=0 rootflags=noatime\"" >> /etc/default/grub ; }
+grep -E "^GRUB_CMDLINE_LINUX=\"net.ifnames=0 rootflags=noatime irqpoll\"" /etc/default/grub || { echo "GRUB_CMDLINE_LINUX=\"net.ifnames=0 rootflags=noatime irqpoll\"" >> /etc/default/grub ; }
 
 ln -sf /proc/self/mounts /etc/mtab
 

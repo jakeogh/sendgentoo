@@ -92,25 +92,6 @@ install_pkg grub:2 || exit 1
 
 /home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh "${boot_device}" || exit 1
 
-#if [[ "${root_filesystem}" == "zfs" ]];
-#then
-#    echo "GRUB_PRELOAD_MODULES=\"part_gpt part_msdos zfs\"" >> /etc/default/grub
-#   #echo "GRUB_CMDLINE_LINUX_DEFAULT=\"boot=zfs root=ZFS=rpool/ROOT\"" >> /etc/default/grub
-#   #echo "GRUB_CMDLINE_LINUX_DEFAULT=\"boot=zfs\"" >> /etc/default/grub
-#   #echo "GRUB_DEVICE=\"ZFS=rpool/ROOT/gentoo\"" >> /etc/default/grub
-#   # echo "GRUB_DEVICE=\"ZFS=${hostname}/ROOT/gentoo\"" >> /etc/default/grub #this was uncommented, disabled to not use hostname
-#else
-#    echo "GRUB_PRELOAD_MODULES=\"part_gpt part_msdos\"" >> /etc/default/grub
-#    root_partition=`/home/cfg/linux/disk/get_root_device`
-#    echo "-------------- root_partition: ${root_partition} ---------------------"
-#    partuuid=`/home/cfg/linux/hardware/disk/blkid/PARTUUID "${root_partition}"`
-#    echo "GRUB_DEVICE partuuid: ${partuuid}"
-#    grep -E "^GRUB_DEVICE=\"PARTUUID=${partuuid}\"" /etc/default/grub || { echo "GRUB_DEVICE=\"PARTUUID=${partuuid}\"" >> /etc/default/grub ; }
-#    echo -e 'PARTUUID='`/home/cfg/linux/disk/blkid/PARTUUID_root_device` '\t/' '\text4' '\tnoatime' '\t0' '\t1' >> /etc/fstab
-#fi
-
-#grep -E "^GRUB_CMDLINE_LINUX=\"net.ifnames=0 rootflags=noatime\"" /etc/default/grub || { echo "GRUB_CMDLINE_LINUX=\"net.ifnames=0 rootflags=noatime\"" >> /etc/default/grub ; }
-
 install_pkg dev-util/strace
 install_pkg memtest86+ # do before generating grub.conf
 mkdir /usr/src/linux_configs

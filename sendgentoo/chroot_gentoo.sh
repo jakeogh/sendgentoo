@@ -89,7 +89,7 @@ mount | grep "${destination}/var/db/repos/gentoo" || { mount --rbind /var/db/rep
 
 cp /etc/portage/proxy.conf "${destination}"/etc/portage/proxy.conf || exit 1
 grep -E "^source /etc/portage/proxy.conf" "${destination}"/etc/portage/make.conf || echo "source /etc/portage/proxy.conf" >> "${destination}"/etc/portage/make.conf
-cp /sbin/ischroot "${destination}"/sbin/ischroot || exit 1
+cp /usr/bin/ischroot "${destination}"/usr/bin/ischroot || exit 1
 
 echo "Entering chroot"
 env -i HOME=/root TERM=$TERM chroot "${destination}" /bin/bash -l -c "su - -c '/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh ${stdlib} ${boot_device} ${cflags} ${root_filesystem} ${newpasswd}'" || { echo "ERROR post_chroot.sh exited $?" ; exit 1 ; }

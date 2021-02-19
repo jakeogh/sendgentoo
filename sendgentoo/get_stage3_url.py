@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 import click
-from kcl.printops import eprint
-from kcl.netops import download_file
 from kcl.netops import construct_proxy_dict
+from kcl.netops import download_file
+from kcl.printops import eprint
 
-HELP="temp"
+HELP = "temp"
 
 
 def get_stage3_url(c_std_lib, multilib, arch, proxy_dict):
@@ -30,6 +30,7 @@ def get_stage3_url(c_std_lib, multilib, arch, proxy_dict):
     eprint(text)
     autobuild_file_lines = text.split('\n')
     #r.close()
+    path = ''
     for line in autobuild_file_lines:
         if 'stage3-' + arch in line:
             path = line.split(' ')[0]
@@ -51,7 +52,3 @@ def main(c_std_lib, multilib, arch, proxy):
         proxy_dict = construct_proxy_dict()
     url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib, arch=arch, proxy_dict=proxy_dict)
     eprint(url)
-
-
-if __name__ == '__main__':
-    main()

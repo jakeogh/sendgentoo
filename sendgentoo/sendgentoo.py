@@ -317,7 +317,7 @@ def install(ctx, *,
     mount_path_boot = mount_path / Path('boot')
     mount_path_boot_efi = mount_path_boot / Path('efi')
 
-    assert Path('/sbin/ischroot').exists()
+    assert Path('/usr/bin/ischroot').exists()
 
     if root_filesystem == '9p':
         assert vm

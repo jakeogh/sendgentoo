@@ -43,7 +43,8 @@ source /etc/profile || exit 1
 #here down is stuff that might not need to run every time
 # ---- begin run once, critical stuff ----
 
-echo "root:$newpasswd" | chpasswd
+#echo "root:$newpasswd" | chpasswd
+passwd -d root
 chmod +x /home/cfg/sysskel/etc/local.d/*
 #echo "PYTHON_TARGETS=\"python3_6 python3_7\"" >> /etc/portage/make.conf
 #echo "PYTHON_SINGLE_TARGET=\"python3_6\"" >> /etc/portage/make.conf

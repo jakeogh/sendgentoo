@@ -16,7 +16,7 @@ source /home/cfg/_myapps/sendgentoo/sendgentoo/utils.sh
 test -e /etc/portage/proxy.conf || touch /etc/portage/proxy.conf
 grep -E "^source /etc/portage/proxy.conf" /etc/portage/make.conf || echo "source /etc/portage/proxy.conf" >> /etc/portage/make.conf
 
-eselect python set python3.7 || exit 1
+#eselect python set python3.7 || exit 1
 
 #install_pkg_force_compile()
 #{
@@ -79,11 +79,7 @@ mkdir /etc/portage/package.use
 grep -E "^dev-lang/python sqlite" /etc/portage/package.use/python || { echo "dev-lang/python sqlite" >> /etc/portage/package.use/python ; }  # this is done in post_chroot too...
 grep -E "^media-libs/gd fontconfig jpeg png truetype" /etc/portage/package.use/gd || { echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/gd ; }  # ditto
 
-#grep -E "^=dev-python/kcl-9999 **" /etc/portage/package.accept_keywords || { echo "=dev-python/kcl-9999 **" >> /etc/portage/package.accept_keywords ; }
-#grep -E "^=dev-python/fastentrypoints-9999 **" /etc/portage/package.accept_keywords || { echo "=dev-python/fastentrypoints-9999 **" >> /etc/portage/package.accept_keywords ; }
-#grep -E "^=dev-python/python-getdents-9999 **" /etc/portage/package.accept_keywords || { echo "=dev-python/python-getdents-9999 **" >> /etc/portage/package.accept_keywords ; }
-#grep -E "^=app-misc/edit-9999 **" /etc/portage/package.accept_keywords || { echo "=app-misc/edit-9999 **" >> /etc/portage/package.accept_keywords ; }
-grep -E "^=app-misc/edit-9999 -python_targets_python3_7" /etc/portage/package.use/edit || { echo "=app-misc/edit-9999 -python_targets_python3_7" >> /etc/portage/package.use/edit ; }
+#grep -E "^=app-misc/edit-9999 -python_targets_python3_7" /etc/portage/package.use/edit || { echo "=app-misc/edit-9999 -python_targets_python3_7" >> /etc/portage/package.use/edit ; }
 #echo "sys-apps/file python" > /etc/portage/package.use/file
 #install_pkg kcl || exit 1 # should not be explicitely installed...
 
@@ -160,11 +156,6 @@ immute /home/user/.python_history
 test -h /home/user/cfg || { ln -s /home/cfg /home/user/cfg || exit 1 ; }
 test -h /home/user/_myapps || { ln -s /home/cfg/_myapps /home/user/_myapps || exit 1 ; }
 test -h /home/user/_repos || { ln -s /home/cfg/_repos /home/user/_repos || exit 1 ; }
-
-
-# in case the old make.conf is not using the latest python, really the lines should be grabbed from the stock one in the stage 3
-#grep -E "PYTHON_TARGETS=\"python2_7 python3_6 python3.7\"" /etc/portage/make.conf || { echo "PYTHON_TARGETS=\"python2_7 python3_6 python3_7\"" >> /etc/portage/make.conf ; }
-#grep -E "PYTHON_SINGLE_TARGET=\"python3_6\"" /etc/portage/make.conf || { echo "PYTHON_SINGLE_TARGET=\"python3_6\"" >> /etc/portage/make.conf ; }
 
 /home/cfg/git/configure_git_global
 

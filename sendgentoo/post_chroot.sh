@@ -45,10 +45,10 @@ source /etc/profile || exit 1
 
 echo "root:$newpasswd" | chpasswd
 chmod +x /home/cfg/sysskel/etc/local.d/*
-echo "PYTHON_TARGETS=\"python3_6 python3_7\"" >> /etc/portage/make.conf
-echo "PYTHON_SINGLE_TARGET=\"python3_6\"" >> /etc/portage/make.conf
-eselect python set --python3 python3.6 || exit 1
-eselect python set python3.6 || exit 1
+#echo "PYTHON_TARGETS=\"python3_6 python3_7\"" >> /etc/portage/make.conf
+#echo "PYTHON_SINGLE_TARGET=\"python3_6\"" >> /etc/portage/make.conf
+#eselect python set --python3 python3.6 || exit 1
+#eselect python set python3.6 || exit 1
 eselect python list
 eselect profile list
 

@@ -24,14 +24,14 @@ from pathlib import Path
 import click
 import humanfriendly
 from compile_kernel.compile_kernel import kcompile
+from create_luks_device import create_luks_device
+from destroy_block_device import destroy_block_device
+from destroy_block_device import destroy_block_device_head_and_tail
+from destroy_block_device import destroy_block_devices_head_and_tail
 from icecream import ic
 from kcl.deviceops import add_partition_number_to_device
 from kcl.deviceops import create_filesystem
-from kcl.deviceops import destroy_block_device
-from kcl.deviceops import destroy_block_device_head_and_tail
-from kcl.deviceops import destroy_block_devices_head_and_tail
 from kcl.deviceops import device_is_not_a_partition
-from kcl.deviceops import luksformat
 from kcl.fileops import get_block_device_size
 from kcl.mountops import block_special_path_is_mounted
 from kcl.mountops import path_is_mounted
@@ -70,7 +70,7 @@ def sendgentoo(ctx):
 
 sendgentoo.add_command(destroy_block_device)
 sendgentoo.add_command(destroy_block_device_head_and_tail)
-sendgentoo.add_command(luksformat)
+sendgentoo.add_command(create_luks_device)
 sendgentoo.add_command(create_filesystem)
 sendgentoo.add_command(create_zfs_pool)
 sendgentoo.add_command(create_zfs_filesystem)
@@ -111,23 +111,6 @@ def compile_kernel(ctx, *,
     assert path_is_block_special(boot_device)
     assert not block_special_path_is_mounted(boot_device)
     warn((boot_device,), msg="about to update the kernel on device:")
-    #if not force:
-    #    warn((boot_device,))
-    #create_boot_device(ctx,
-    #                   device=boot_device,
-    #                   partition_table=boot_device_partition_table,
-    #                   filesystem=boot_filesystem,
-    #                   force=True,
-    #                   verbose=verbose,
-    #                   debug=debug,)
-    #ctx.invoke(write_boot_partition,
-    #           device=boot_device,
-    #           force=True,
-    #           verbose=verbose,
-    #           debug=debug,)
-
-    #hybrid_mbr_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh" + " " + boot_device
-    #run_command(hybrid_mbr_command, verbose=True, popen=True)
 
     os.makedirs(mount_path_boot, exist_ok=True)
     boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
@@ -144,9 +127,6 @@ def compile_kernel(ctx, *,
     run_command(efi_mount_command, verbose=True, popen=True)
     assert path_is_mounted(mount_path_boot_efi)
 
-    #grub_install_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh" + " " + boot_device
-    #run_command(grub_install_command, verbose=True, popen=True)
-
     kcompile(configure=configure_kernel,
              force=force,
              no_check_boot=True,
@@ -155,6 +135,7 @@ def compile_kernel(ctx, *,
 
     grub_config_command = "grub-mkconfig -o /boot/grub/grub.cfg"
     run_command(grub_config_command, verbose=True, popen=True)
+
 
 @sendgentoo.command()
 @click.option('--boot-device',                 is_flag=False, required=True)
@@ -296,23 +277,24 @@ def install(ctx, *,
             multilib: bool,
             minimal: bool,
             verbose: bool,
-            debug: bool,):
+            debug: bool,
+            ):
     assert isinstance(root_devices, tuple)
     assert hostname.lower() == hostname
     os.makedirs('/usr/portage/distfiles', exist_ok=True)
 
-    #if not os.path.isdir('/usr/portage/sys-kernel'):
-    #    eprint("run emerge --sync first")
-    #    quit(1)
+    if not os.path.isdir('/var/db/repos/gentoo/sys-kernel'):
+        eprint("run emerge --sync first")
+        sys.exit(1)
     if encrypt:
         eprint("encryption not yet supported")
-        #quit(1)
+        #sys.exit(1)
     if c_std_lib == 'musl':
         eprint("musl not supported yet")
-        quit(1)
+        sys.exit(1)
     if c_std_lib == 'uclibc':
         eprint("uclibc fails with efi grub because efivar fails to compile. See Note.")
-        quit(1)
+        sys.exit(1)
 
     mount_path = Path("/mnt/gentoo")
     mount_path_boot = mount_path / Path('boot')
@@ -359,13 +341,14 @@ def install(ctx, *,
         input("note zfs boot/root is not working, many fixes will be needed, press enter to break things")
 
     if boot_device:
-        assert device_is_not_a_partition(device=boot_device, verbose=verbose, debug=debug,)
+        assert device_is_not_a_partition(device=boot_device,
+                                         verbose=verbose,
+                                         debug=debug,)
 
     for device in root_devices:
-        assert device_is_not_a_partition(device=device, verbose=verbose, debug=debug,)
-
-    #if raid:
-    #    assert root_filesystem == 'zfs'
+        assert device_is_not_a_partition(device=device,
+                                         verbose=verbose,
+                                         debug=debug,)
 
     if boot_device:
         eprint("installing gentoo on boot device:", boot_device, '(' + boot_device_partition_table + ')', '(' + boot_filesystem + ')')
@@ -430,7 +413,7 @@ def install(ctx, *,
                                    filesystem=boot_filesystem,
                                    force=True,
                                    verbose=verbose,
-                                   debug=debug,) # dont want to delete the gpt that zfs made
+                                   debug=debug,)  # dont want to delete the gpt that zfs made
                 boot_mount_command = False
                 root_mount_command = False
 
@@ -444,7 +427,7 @@ def install(ctx, *,
                                    filesystem=boot_filesystem,
                                    force=True,
                                    verbose=verbose,
-                                   debug=debug,) # writes gurb_bios from 48s to 1023s then writes EFI partition from 1024s to 205824s (100M efi) (nope, too big for fat16)
+                                   debug=debug,)  # writes gurb_bios from 48s to 1023s then writes EFI partition from 1024s to 205824s (100M efi) (nope, too big for fat16)
                 ctx.invoke(create_root_device,
                            devices=root_devices,
                            exclusive=False,

@@ -20,7 +20,7 @@
 
 import click
 from icecream import ic
-from kcl.commandops import run_command
+from run_command import run_command
 from kcl.printops import eprint
 
 @click.command()

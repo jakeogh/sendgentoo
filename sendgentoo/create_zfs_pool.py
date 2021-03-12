@@ -22,7 +22,7 @@ from pathlib import Path
 
 import click
 from icecream import ic
-from kcl.commandops import run_command
+from run_command import run_command
 from kcl.deviceops import passphrase_prompt
 from kcl.fileops import get_block_device_size
 from kcl.iterops import grouper

@@ -12,7 +12,7 @@ from kcl.pathops import path_is_block_special
 
 from kcl.mountops import block_special_path_is_mounted
 
-from kcl.commandops import run_command
+from run_command import run_command
 
 from kcl.printops import eprint
 

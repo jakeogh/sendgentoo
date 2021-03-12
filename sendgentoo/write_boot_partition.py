@@ -5,7 +5,7 @@ from pathlib import Path
 
 import click
 from icecream import ic
-from kcl.commandops import run_command
+from run_command import run_command
 from kcl.deviceops import add_partition_number_to_device
 from kcl.deviceops import device_is_not_a_partition
 from kcl.deviceops import warn

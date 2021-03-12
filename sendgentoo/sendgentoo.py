@@ -25,7 +25,6 @@ import click
 import humanfriendly
 from compile_kernel.compile_kernel import kcompile
 from icecream import ic
-from kcl.commandops import run_command
 from kcl.deviceops import add_partition_number_to_device
 from kcl.deviceops import create_filesystem
 from kcl.deviceops import destroy_block_device
@@ -41,6 +40,7 @@ from kcl.printops import eprint
 from kcl.userops import root_user
 from kcl.warnops import warn
 from psutil import virtual_memory
+from run_command import run_command
 
 from sendgentoo.create_boot_device import create_boot_device
 from sendgentoo.create_root_device import create_root_device
@@ -84,12 +84,13 @@ sendgentoo.add_command(create_root_device)
 @click.option('--verbose',                     is_flag=True,  required=False)
 @click.option('--debug',                       is_flag=True,  required=False)
 @click.pass_context
-def compile_kernel(ctx,
+def compile_kernel(ctx, *,
                    boot_device,
                    no_configure_kernel: bool,
                    force: bool,
                    verbose: bool,
-                   debug: bool,):
+                   debug: bool
+                   ,):
 
     if not root_user():
         ic('You must be root.')

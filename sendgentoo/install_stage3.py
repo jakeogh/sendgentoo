@@ -8,7 +8,7 @@ from subprocess import CalledProcessError
 from kcl.mountops import path_is_mounted
 from kcl.fileops import path_is_file
 #from kcl.fileops import read_file_bytes
-from kcl.commandops import run_command
+from run_command import run_command
 from kcl.printops import ceprint
 from kcl.printops import eprint
 from kcl.netops import construct_proxy_dict

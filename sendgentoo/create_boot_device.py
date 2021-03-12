@@ -21,9 +21,9 @@
 from pathlib import Path
 
 import click
+from destroy_block_device import destroy_block_device_head_and_tail
 from icecream import ic
 from kcl.deviceops import create_filesystem
-from kcl.deviceops import destroy_block_device_head_and_tail
 from kcl.deviceops import device_is_not_a_partition
 from kcl.deviceops import warn
 from kcl.deviceops import write_efi_partition

@@ -24,7 +24,7 @@ from pathlib import Path
 import click
 import humanfriendly
 from compile_kernel.compile_kernel import kcompile
-from create_luks_device import create_luks_device
+#from create_luks_device import create_luks_device
 from destroy_block_device import destroy_block_device
 from destroy_block_device import destroy_block_device_head_and_tail
 from destroy_block_device import destroy_block_devices_head_and_tail
@@ -70,7 +70,7 @@ def sendgentoo(ctx):
 
 sendgentoo.add_command(destroy_block_device)
 sendgentoo.add_command(destroy_block_device_head_and_tail)
-sendgentoo.add_command(create_luks_device)
+#sendgentoo.add_command(create_luks_device)
 sendgentoo.add_command(create_filesystem)
 sendgentoo.add_command(create_zfs_pool)
 sendgentoo.add_command(create_zfs_filesystem)
@@ -142,7 +142,7 @@ def compile_kernel(ctx, *,
 @click.option('--boot-device-partition-table', is_flag=False, required=False, type=click.Choice(['gpt']), default="gpt")
 @click.option('--boot-filesystem',             is_flag=False, required=False, type=click.Choice(['ext4']), default="ext4")
 @click.option('--force',                       is_flag=True,  required=False)
-@click.option('--compile-kernel', "_compile_kernel", is_flag=True,  required=False)
+@click.option('--compile-kernel', "_compile_kernel", is_flag=True, required=False)
 @click.option('--configure-kernel',            is_flag=True,  required=False)
 @click.option('--verbose',                     is_flag=True,  required=False)
 @click.option('--debug',                       is_flag=True,  required=False)

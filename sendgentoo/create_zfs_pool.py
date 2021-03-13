@@ -22,13 +22,13 @@ from pathlib import Path
 
 import click
 from icecream import ic
-from run_command import run_command
-from kcl.deviceops import passphrase_prompt
 from kcl.fileops import get_block_device_size
+from kcl.inputops import passphrase_prompt
 from kcl.iterops import grouper
 from kcl.mountops import block_special_path_is_mounted
 from kcl.pathops import path_is_block_special
 from kcl.printops import eprint
+from run_command import run_command
 
 from .setup_globals import RAID_LIST
 
@@ -50,6 +50,7 @@ ASHIFT_HELP = '''9: 1<<9 == 512
 @click.option('--ashift', is_flag=False, required=True, type=int, help=ASHIFT_HELP)
 @click.option('--encrypt', is_flag=True)
 @click.option('--verbose', is_flag=True)
+@click.option('--debug', is_flag=True)
 #@click.option('--mount-point', is_flag=False, required=False, type=str)
 #@click.option('--alt-root', is_flag=False, required=False, type=str)
 def create_zfs_pool(devices,
@@ -61,6 +62,7 @@ def create_zfs_pool(devices,
                     pool_name,
                     ashift,
                     verbose,
+                    debug,
                     encrypt):
     if verbose:
         ic()
@@ -134,7 +136,7 @@ def create_zfs_pool(devices,
 
     if encrypt:
         if not simulate:
-            passphrase = passphrase_prompt("zpool")
+            passphrase = passphrase_prompt("zpool", verbose=verbose, debug=debug,)
             passphrase = passphrase.decode('utf8')
 
     command = "zpool create"

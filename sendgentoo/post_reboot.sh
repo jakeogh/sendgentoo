@@ -244,6 +244,13 @@ install_pkg @laptopbase  # https://dev.gentoo.org/~zmedico/portage/doc/ch02.html
 install_pkg @wwwsurf
 install_pkg @webcam
 
+install_pkg @print
+gpasswd -a root lp
+gpasswd -a user lp
+gpasswd -a root lpadmin
+gpasswd -a user lpadmin
+
+
 #lspci | grep -i nvidia | grep -i vga && install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
 install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
 

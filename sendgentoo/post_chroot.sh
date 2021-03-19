@@ -233,7 +233,6 @@ grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/
 # make sendgentoo deps happy
 #echo "dev-lang/python sqlite" >> /etc/portage/package.use/python || exit 1
 #echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/python || exit 1
-#grep sendgentoo /etc/portage/package.accept_keywords || exit 1
 #install_pkg sendgentoo --autounmask=y # must be done after jakeogh overlay
 
 # this wont work until symlink tree happens
@@ -241,12 +240,4 @@ grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/
 #rc-update add alsasound boot
 #rc-update add acpid boot
 
-install_pkg net-print/cups
-install_pkg net-print/foomatic-db
-gpasswd -a root lp
-gpasswd -a user lp
-gpasswd -a root lpadmin
-gpasswd -a user lpadmin
-
 echo "$(date) $0 complete" | tee -a /install_status
-

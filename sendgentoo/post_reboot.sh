@@ -51,11 +51,11 @@ source /etc/profile || exit 1
 mkdir /delme
 chown -R portage:portage /var/db/repos
 
-emerge --sync
-emerge portage -u -1
+emerge --sync || exit 1
+emerge portage -u -1 || exit 1
 
-grep -E "^>=dev-lang/ocaml-4.09.0" /etc/portage/package.mask/ocaml || { echo ">=dev-lang/ocaml-4.09.0" >> /etc/portage/package.mask/ocaml ; }
-emerge dev-lang/ocaml -u -1         # https://bugs.gentoo.org/show_bug.cgi?id=704910
+#grep -E "^>=dev-lang/ocaml-4.09.0" /etc/portage/package.mask/ocaml || { echo ">=dev-lang/ocaml-4.09.0" >> /etc/portage/package.mask/ocaml ; }
+#emerge dev-lang/ocaml -u -1         # https://bugs.gentoo.org/show_bug.cgi?id=704910
 emerge unison -u
 
 /usr/bin/emerge -u --oneshot sys-devel/libtool
@@ -65,7 +65,7 @@ emerge unison -u
 #emerge @preserved-rebuild
 #perl-cleaner --all
 
-emerge -u -1 portage
+#emerge -u -1 portage
 
 #mkdir /etc/dnsmasq.d
 #install_pkg dnsmasq || exit 1

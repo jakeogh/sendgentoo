@@ -49,8 +49,7 @@ source /etc/profile || exit 1
 #export PS1="(chroot) $PS1"
 
 mkdir /delme
-mkdir /usr/portage
-chown -R portage:portage /usr/portage
+chown -R portage:portage /var/db/repos
 
 emerge --sync
 emerge portage -u -1

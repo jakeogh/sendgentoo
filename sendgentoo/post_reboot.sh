@@ -49,7 +49,7 @@ source /etc/profile || exit 1
 #export PS1="(chroot) $PS1"
 
 mkdir /delme
-chown -R portage:portage /var/db/repos
+#chown -R portage:portage /var/db/repos
 
 emerge --sync || exit 1
 emerge portage -u -1 || exit 1
@@ -82,10 +82,11 @@ grep -E "^media-libs/gd fontconfig jpeg png truetype" /etc/portage/package.use/g
 #echo "sys-apps/file python" > /etc/portage/package.use/file
 #install_pkg kcl || exit 1 # should not be explicitely installed...
 
-add_accept_keyword dev-python/symlinktree-9999
-add_accept_keyword dev-python/icecream-9999
-add_accept_keyword dev-python/executing-9999
-add_accept_keyword dev-python/asttokens-9999
+add_accept_keyword "dev-python/symlinktree-9999"
+add_accept_keyword "dev-python/icecream-9999"
+add_accept_keyword "dev-python/retry_on_exception-9999"
+#add_accept_keyword "dev-python/executing-9999"
+add_accept_keyword "dev-python/asttokens-9999"
 install_pkg symlinktree || exit 1
 export LANG="en_US.UTF8"  # to make click happy
 symlinktree /home/cfg/sysskel --verbose || exit 1

@@ -85,6 +85,7 @@ grep -E "^media-libs/gd fontconfig jpeg png truetype" /etc/portage/package.use/g
 add_accept_keyword "dev-python/symlinktree-9999"
 add_accept_keyword "dev-python/icecream-9999"
 add_accept_keyword "dev-python/retry_on_exception-9999"
+add_accept_keyword "dev-python/delay_timer-9999"
 #add_accept_keyword "dev-python/executing-9999"
 add_accept_keyword "dev-python/asttokens-9999"
 install_pkg symlinktree || exit 1

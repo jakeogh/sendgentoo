@@ -80,7 +80,7 @@ def create_zfs_pool(devices,
         if not skip_checks:
             assert path_is_block_special(device, follow_symlinks=True)
             assert not block_special_path_is_mounted(device)
-        if not Path(device).name.startswith('nvme'):
+        if not (Path(device).name.startswith('nvme') or Path(device).name.startswith('mmcblk')):
             assert not device[-1].isdigit()
 
     if not skip_checks:

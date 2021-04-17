@@ -247,6 +247,7 @@ def create_boot_device_for_existing_root(ctx,
 @click.option('--newpasswd',                   is_flag=False, required=True)
 @click.option('--ip',                          is_flag=False, required=True)
 @click.option('--ip-gateway',                  is_flag=False, required=True)
+@click.option('--proxy',                       is_flag=False, required=True)
 @click.option('--force',                       is_flag=True,  required=False)
 @click.option('--encrypt',                     is_flag=True,  required=False)
 @click.option('--multilib',                    is_flag=True,  required=False)
@@ -272,6 +273,7 @@ def install(ctx, *,
             newpasswd: str,
             ip: str,
             ip_gateway: str,
+            proxy: str,
             force: bool,
             encrypt: bool,
             multilib: bool,
@@ -279,6 +281,7 @@ def install(ctx, *,
             verbose: bool,
             debug: bool,
             ):
+
     assert isinstance(root_devices, tuple)
     assert hostname.lower() == hostname
     os.makedirs('/usr/portage/distfiles', exist_ok=True)

@@ -152,7 +152,7 @@ rc-update add sysklogd default  # syslog-ng hangs on boot... bloated
 
 rm -f /etc/portage/package.mask
 mkdir /etc/portage/package.mask
-echo ">net-misc/unison-2.48.4" > /etc/portage/package.mask/unison
+#echo ">net-misc/unison-2.48.4" > /etc/portage/package.mask/unison
 install_pkg unison
 #ln -s /usr/bin/unison-2.48 /usr/bin/unison
 eselect unison list #todo
@@ -218,7 +218,8 @@ emaint sync -r java
 #emerge kcl -1
 add_accept_keyword "dev-python/replace-text-9999"
 add_accept_keyword "dev-python/icecream-9999"  # dep
-add_accept_keyword "dev-python/executing-9999"  # dep
+#add_accept_keyword "dev-python/retry_on_exception-9999"  # dep
+#add_accept_keyword "dev-python/executing-9999"  # dep
 add_accept_keyword "dev-python/asttokens-9999"  # dep
 #install_pkg replace-text
 emerge replace-text

@@ -50,6 +50,7 @@ source /etc/profile || exit 1
 
 mkdir /delme
 #chown -R portage:portage /var/db/repos
+chown -R portage:portage /var/db/repos
 
 emerge --sync || exit 1
 emerge portage -u -1 || exit 1
@@ -102,8 +103,10 @@ touch /etc/portage/proxy.conf  # or emerge is really unhappy
 /etc/init.d/dnscrypt-proxy start
 /home/cfg/linux/gentoo/layman/update_all_overlays
 install_pkg debugedit
+add_accept_keyword "dev-python/compile-kernel-9999"
+install_pkg compile-kernel
 export "KCONFIG_OVERWRITECONFIG=1"      # havent rebooted yet so the /etc/conf.d/99kconfig-symlink hasnt run
-/home/cfg/_myapps/sendgentoo/sendgentoo/kernel_recompile.sh || exit 1  # make sure can build zfs for @world
+compile-kernel || exit 1  # make sure zfs can be built for @world
 emerge @world --newuse
 
 touch /etc/portage/proxy.conf

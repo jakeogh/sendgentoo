@@ -105,6 +105,7 @@ cores=`grep processor /proc/cpuinfo | wc -l`
 grep "CONFIG_TRIM_UNUSED_KSYMS is not set" /usr/src/linux/.config || { echo "Rebuild the kernel with CONFIG_TRIM_UNUSED_KSYMS must be =n" ; exit 1 ; }
 grep "CONFIG_FB_EFI is not set" /usr/src/linux/.config && { echo "Rebuild the kernel with CONFIG_FB_EFI=y" ; exit 1 ; }
 
+# zfs-2.0.4 does not work with gentoo-sources > 5.11...
 add_accept_keyword "sys-fs/zfs-9999"
 add_accept_keyword "sys-fs/zfs-kmod-9999"
 echo -e "#<fs>\t<mountpoint>\t<type>\t<opts>\t<dump/pass>" > /etc/fstab # create empty fstab
@@ -119,7 +120,9 @@ install_pkg gradm #required for gentoo-hardened RBAC
 echo "sys-apps/util-linux static-libs" > /etc/portage/package.use/util-linux    # required for genkernel
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license
 install_pkg genkernel
-/home/cfg/_myapps/sendgentoo/sendgentoo/kernel_recompile.sh --no-check-boot || exit 1
+add_accept_keyword "dev-python/compile-kernel-9999"
+install_pkg compile-kernel
+compile-kernel --no-check-boot || exit 1
 cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
 
 rc-update add zfs-mount boot # dont exit if this fails

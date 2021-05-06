@@ -515,7 +515,7 @@ def install(ctx, *,
     if not vm:
         vm = "novm"
     chroot_gentoo_command = \
-        "/home/cfg/_myapps/sendgentoo/sendgentoo/chroot_gentoo.sh " + \
+        "/home/cfg/_myapps/sendgentoo/sendgentoo/chroot_gentoo.py " + \
         c_std_lib + " " + \
         boot_device + " " + \
         hostname + ' ' + \

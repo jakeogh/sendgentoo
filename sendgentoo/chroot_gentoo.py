@@ -196,3 +196,7 @@ def cli(ctx,
     run_command(' '.join(chroot_command), verbose=True, ask=True, system=True)
 
     ic('chroot_gentoo.py complete!')
+
+
+if __name__ == '__main__':
+    cli()

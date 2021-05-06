@@ -24,15 +24,13 @@ from pathlib import Path
 import click
 import humanfriendly
 from compile_kernel.compile_kernel import kcompile
-#from create_luks_device import create_luks_device
-from destroy_block_device import destroy_block_device
 from destroy_block_device import destroy_block_device_head_and_tail
 from destroy_block_device import destroy_block_devices_head_and_tail
 from icecream import ic
-from kcl.deviceops import add_partition_number_to_device
-from kcl.deviceops import create_filesystem
-from kcl.deviceops import device_is_not_a_partition
-from kcl.fileops import get_block_device_size
+from blocktool import add_partition_number_to_device
+from blocktool import create_filesystem
+from blocktool import device_is_not_a_partition
+from blocktool import get_block_device_size
 from kcl.mountops import block_special_path_is_mounted
 from kcl.mountops import path_is_mounted
 from kcl.pathops import path_is_block_special
@@ -68,8 +66,8 @@ def sendgentoo(ctx):
     pass
 
 
-sendgentoo.add_command(destroy_block_device)
-sendgentoo.add_command(destroy_block_device_head_and_tail)
+#sendgentoo.add_command(destroy_block_device)
+#sendgentoo.add_command(destroy_block_device_head_and_tail)
 #sendgentoo.add_command(create_luks_device)
 sendgentoo.add_command(create_filesystem)
 sendgentoo.add_command(create_zfs_pool)

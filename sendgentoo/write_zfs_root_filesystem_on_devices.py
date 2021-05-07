@@ -17,15 +17,29 @@
 # pylint: disable=W0201  # attribute defined outside __init__
 # pylint: disable=R0916  # Too many boolean expressions in if statement
 
+import sys
+from pathlib import Path
 
 import click
+from blocktool import path_is_block_special
 from icecream import ic
-from kcl.pathops import path_is_block_special
-from kcl.mountops import block_special_path_is_mounted
-from run_command import run_command
 from kcl.iterops import grouper
-from kcl.printops import eprint
+from mounttool import block_special_path_is_mounted
+from run_command import run_command
+
 from .setup_globals import RAID_LIST
+
+
+def eprint(*args, **kwargs):
+    if 'file' in kwargs.keys():
+        kwargs.pop('file')
+    print(*args, file=sys.stderr, **kwargs)
+
+
+try:
+    from icecream import ic  # https://github.com/gruns/icecream
+except ImportError:
+    ic = eprint
 
 
 @click.command()
@@ -36,13 +50,16 @@ from .setup_globals import RAID_LIST
 @click.option('--pool-name', is_flag=False, required=True, type=str)
 @click.option('--mount-point', is_flag=False, required=True, type=str)
 @click.option('--verbose', is_flag=True)
+@click.option('--debug', is_flag=True)
 def write_zfs_root_filesystem_on_devices(devices,
                                          force,
                                          raid,
                                          raid_group_size,
                                          pool_name,
                                          mount_point,
-                                         verbose):
+                                         verbose,
+                                         debug,
+                                         ):
 
     if verbose:
         ic()
@@ -52,7 +69,7 @@ def write_zfs_root_filesystem_on_devices(devices,
 
     for device in devices:
         assert path_is_block_special(device)
-        assert not block_special_path_is_mounted(device)
+        assert not block_special_path_is_mounted(device, verbose=verbose, debug=debug,)
         if not Path(device).name.startswith('nvme'):
             assert not device[-1].isdigit()
 

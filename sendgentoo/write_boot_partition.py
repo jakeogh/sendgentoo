@@ -1,17 +1,28 @@
 #!/usr/bin/env python3
 
 
+import sys
 from pathlib import Path
 
 import click
-from icecream import ic
-from run_command import run_command
-from kcl.deviceops import add_partition_number_to_device
-from kcl.deviceops import device_is_not_a_partition
-from kcl.deviceops import warn
-from kcl.mountops import block_special_path_is_mounted
+from blocktool import add_partition_number_to_device
+from blocktool import device_is_not_a_partition
+from blocktool import warn
 from kcl.pathops import path_is_block_special
-from kcl.printops import eprint
+from mounttool import block_special_path_is_mounted
+from run_command import run_command
+
+
+def eprint(*args, **kwargs):
+    if 'file' in kwargs.keys():
+        kwargs.pop('file')
+    print(*args, file=sys.stderr, **kwargs)
+
+
+try:
+    from icecream import ic  # https://github.com/gruns/icecream
+except ImportError:
+    ic = eprint
 
 
 @click.command()
@@ -27,10 +38,10 @@ def write_boot_partition(*,
     ic('creating boot partition  (for grub config, stage2, vmlinuz) on:', device)
     assert device_is_not_a_partition(device=device, verbose=verbose, debug=debug,)
     assert path_is_block_special(device)
-    assert not block_special_path_is_mounted(device)
+    assert not block_special_path_is_mounted(device, verbose=verbose, debug=debug,)
 
     if not force:
-        warn((device,))
+        warn((device,), verbose=verbose, debug=debug,)
 
     partition_number = '3'
     partition = add_partition_number_to_device(device=device,

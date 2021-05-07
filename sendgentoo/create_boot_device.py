@@ -18,20 +18,31 @@
 # pylint: disable=R0916  # Too many boolean expressions in if statement
 
 
+import sys
 from pathlib import Path
 
 import click
+from blocktool import create_filesystem
+from blocktool import device_is_not_a_partition
+from blocktool import path_is_block_special
+from blocktool import warn
+from blocktool import write_efi_partition
+from blocktool import write_gpt
+from blocktool import write_grub_bios_partition
 from destroy_block_device import destroy_block_device_head_and_tail
-from icecream import ic
-from kcl.deviceops import create_filesystem
-from kcl.deviceops import device_is_not_a_partition
-from kcl.deviceops import warn
-from kcl.deviceops import write_efi_partition
-from kcl.deviceops import write_gpt
-from kcl.deviceops import write_grub_bios_partition
-from kcl.mountops import block_special_path_is_mounted
-from kcl.pathops import path_is_block_special
-from kcl.printops import eprint
+from mounttool import block_special_path_is_mounted
+
+
+def eprint(*args, **kwargs):
+    if 'file' in kwargs.keys():
+        kwargs.pop('file')
+    print(*args, file=sys.stderr, **kwargs)
+
+
+try:
+    from icecream import ic  # https://github.com/gruns/icecream
+except ImportError:
+    ic = eprint
 
 
 def create_boot_device(ctx, *,
@@ -49,10 +60,10 @@ def create_boot_device(ctx, *,
            '(' + partition_table + ')',
            '(' + filesystem + ')',)
     assert path_is_block_special(device)
-    assert not block_special_path_is_mounted(device)
+    assert not block_special_path_is_mounted(device, verbose=verbose, debug=debug,)
 
     if not force:
-        warn((device,))
+        warn((device,), verbose=verbose, debug=debug,)
 
     # dont do this here, want to be able to let zfs make
     # the gpt and it's partitions before making bios_grub and EFI

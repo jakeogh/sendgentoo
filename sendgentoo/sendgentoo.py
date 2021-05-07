@@ -18,7 +18,6 @@
 
 import os
 import sys
-#import time
 from pathlib import Path
 
 import click
@@ -29,12 +28,10 @@ from blocktool import destroy_block_device_head_and_tail
 from blocktool import destroy_block_devices_head_and_tail
 from blocktool import device_is_not_a_partition
 from blocktool import get_block_device_size
+from blocktool import path_is_block_special
+from blocktool import warn
 from compile_kernel.compile_kernel import kcompile
-from icecream import ic
-from kcl.pathops import path_is_block_special
-from kcl.printops import eprint
 from kcl.userops import root_user
-from kcl.warnops import warn
 from mounttool import block_special_path_is_mounted
 from mounttool import path_is_mounted
 from psutil import virtual_memory
@@ -46,6 +43,18 @@ from sendgentoo.create_zfs_filesystem import create_zfs_filesystem
 from sendgentoo.create_zfs_pool import create_zfs_pool
 from sendgentoo.install_stage3 import install_stage3
 from sendgentoo.write_boot_partition import write_boot_partition
+
+
+def eprint(*args, **kwargs):
+    if 'file' in kwargs.keys():
+        kwargs.pop('file')
+    print(*args, file=sys.stderr, **kwargs)
+
+
+try:
+    from icecream import ic  # https://github.com/gruns/icecream
+except ImportError:
+    ic = eprint
 
 
 def validate_ram_size(ctx, param, vm_ram):
@@ -66,14 +75,10 @@ def sendgentoo(ctx):
     pass
 
 
-#sendgentoo.add_command(destroy_block_device)
-#sendgentoo.add_command(destroy_block_device_head_and_tail)
-#sendgentoo.add_command(create_luks_device)
 sendgentoo.add_command(create_filesystem)
 sendgentoo.add_command(create_zfs_pool)
 sendgentoo.add_command(create_zfs_filesystem)
 sendgentoo.add_command(create_root_device)
-#sendgentoo.add_command(create_boot_device)
 
 @sendgentoo.command()
 @click.option('--boot-device',                 is_flag=False, required=True)
@@ -98,32 +103,32 @@ def compile_kernel(ctx, *,
 
     mount_path_boot = Path('/boot')
     ic(mount_path_boot)
-    assert not path_is_mounted(mount_path_boot)
+    assert not path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
 
     mount_path_boot_efi = mount_path_boot / Path('efi')
     ic(mount_path_boot_efi)
-    assert not path_is_mounted(mount_path_boot_efi)
+    assert not path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
 
     assert device_is_not_a_partition(device=boot_device, verbose=verbose, debug=debug,)
 
     assert path_is_block_special(boot_device)
-    assert not block_special_path_is_mounted(boot_device)
+    assert not block_special_path_is_mounted(boot_device, verbose=verbose, debug=debug,)
     warn((boot_device,), msg="about to update the kernel on device:")
 
     os.makedirs(mount_path_boot, exist_ok=True)
     boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
     boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
-    assert not path_is_mounted(mount_path_boot)
+    assert not path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
     run_command(boot_mount_command, verbose=True, popen=True)
-    assert path_is_mounted(mount_path_boot)
+    assert path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
 
     os.makedirs(mount_path_boot_efi, exist_ok=True)
 
     efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2")
     efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)
-    assert not path_is_mounted(mount_path_boot_efi)
+    assert not path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
     run_command(efi_mount_command, verbose=True, popen=True)
-    assert path_is_mounted(mount_path_boot_efi)
+    assert path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
 
     kcompile(configure=configure_kernel,
              force=force,
@@ -163,11 +168,11 @@ def create_boot_device_for_existing_root(ctx,
 
     mount_path_boot = Path('/boot')
     ic(mount_path_boot)
-    assert not path_is_mounted(mount_path_boot)
+    assert not path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
 
     mount_path_boot_efi = mount_path_boot / Path('efi')
     ic(mount_path_boot_efi)
-    assert not path_is_mounted(mount_path_boot_efi)
+    assert not path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
 
     assert device_is_not_a_partition(device=boot_device, verbose=verbose, debug=debug,)
 
@@ -176,7 +181,7 @@ def create_boot_device_for_existing_root(ctx,
        boot_device_partition_table,
        boot_filesystem)
     assert path_is_block_special(boot_device)
-    assert not block_special_path_is_mounted(boot_device)
+    assert not block_special_path_is_mounted(boot_device, verbose=verbose, debug=debug,)
     if not force:
         warn((boot_device,))
     create_boot_device(ctx,
@@ -200,17 +205,17 @@ def create_boot_device_for_existing_root(ctx,
     boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
     #print("sleeping")
     #time.sleep(10)
-    assert not path_is_mounted(mount_path_boot)
+    assert not path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
     run_command(boot_mount_command, verbose=True, popen=True)
-    assert path_is_mounted(mount_path_boot)
+    assert path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
 
     os.makedirs(mount_path_boot_efi, exist_ok=True)
 
     efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2")
     efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)
-    assert not path_is_mounted(mount_path_boot_efi)
+    assert not path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
     run_command(efi_mount_command, verbose=True, popen=True)
-    assert path_is_mounted(mount_path_boot_efi)
+    assert path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
 
     grub_install_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh" + " " + boot_device
     run_command(grub_install_command, verbose=True, popen=True)
@@ -354,13 +359,13 @@ def install(ctx, *,
     if boot_device:
         eprint("installing gentoo on boot device:", boot_device, '(' + boot_device_partition_table + ')', '(' + boot_filesystem + ')')
         assert path_is_block_special(boot_device)
-        assert not block_special_path_is_mounted(boot_device)
+        assert not block_special_path_is_mounted(boot_device, verbose=verbose, debug=debug,)
 
     if root_devices:
         eprint("installing gentoo on root device(s):", root_devices, '(' + root_device_partition_table + ')', '(' + root_filesystem + ')')
         for device in root_devices:
             assert path_is_block_special(device)
-            assert not block_special_path_is_mounted(device)
+            assert not block_special_path_is_mounted(device, verbose=verbose, debug=debug,)
 
     eprint("using C library:", c_std_lib)
     eprint("hostname:", hostname)
@@ -476,15 +481,15 @@ def install(ctx, *,
         if root_mount_command:
             run_command(root_mount_command)
 
-        assert path_is_mounted(mount_path)
+        assert path_is_mounted(mount_path, verbose=verbose, debug=debug,)
 
         os.makedirs(mount_path_boot, exist_ok=True)
 
         if boot_mount_command:
             run_command(boot_mount_command)
-            assert path_is_mounted(mount_path_boot)
+            assert path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
         else:
-            assert not path_is_mounted(mount_path_boot)
+            assert not path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
 
         if boot_device:
             os.makedirs(mount_path_boot_efi, exist_ok=True)
@@ -498,7 +503,7 @@ def install(ctx, *,
 
         if boot_device:
             run_command(efi_mount_command)
-            assert path_is_mounted(mount_path_boot_efi)
+            assert path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
 
     install_stage3(c_std_lib=c_std_lib,
                    multilib=multilib,

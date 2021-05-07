@@ -18,19 +18,31 @@
 # pylint: disable=R0916  # Too many boolean expressions in if statement
 
 
+import sys
 from pathlib import Path
 
 import click
-from icecream import ic
-from kcl.fileops import get_block_device_size
+from blocktool import get_block_device_size
+from blocktool import path_is_block_special
 from kcl.inputops import passphrase_prompt
 from kcl.iterops import grouper
-from kcl.mountops import block_special_path_is_mounted
-from kcl.pathops import path_is_block_special
-from kcl.printops import eprint
+from mounttool import block_special_path_is_mounted
 from run_command import run_command
 
 from .setup_globals import RAID_LIST
+
+
+def eprint(*args, **kwargs):
+    if 'file' in kwargs.keys():
+        kwargs.pop('file')
+    print(*args, file=sys.stderr, **kwargs)
+
+
+try:
+    from icecream import ic  # https://github.com/gruns/icecream
+except ImportError:
+    ic = eprint
+
 
 ASHIFT_HELP = '''9: 1<<9 == 512
 10: 1<<10 == 1024
@@ -79,7 +91,7 @@ def create_zfs_pool(devices,
     for device in devices:
         if not skip_checks:
             assert path_is_block_special(device, follow_symlinks=True)
-            assert not block_special_path_is_mounted(device)
+            assert not block_special_path_is_mounted(device, verbose=verbose, debug=debug,)
         if not (Path(device).name.startswith('nvme') or Path(device).name.startswith('mmcblk')):
             assert not device[-1].isdigit()
 

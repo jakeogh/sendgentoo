@@ -23,20 +23,20 @@ from pathlib import Path
 
 import click
 import humanfriendly
-from compile_kernel.compile_kernel import kcompile
-from destroy_block_device import destroy_block_device_head_and_tail
-from destroy_block_device import destroy_block_devices_head_and_tail
-from icecream import ic
 from blocktool import add_partition_number_to_device
 from blocktool import create_filesystem
+from blocktool import destroy_block_device_head_and_tail
+from blocktool import destroy_block_devices_head_and_tail
 from blocktool import device_is_not_a_partition
 from blocktool import get_block_device_size
-from kcl.mountops import block_special_path_is_mounted
-from kcl.mountops import path_is_mounted
+from compile_kernel.compile_kernel import kcompile
+from icecream import ic
 from kcl.pathops import path_is_block_special
 from kcl.printops import eprint
 from kcl.userops import root_user
 from kcl.warnops import warn
+from mounttool import block_special_path_is_mounted
+from mounttool import path_is_mounted
 from psutil import virtual_memory
 from run_command import run_command
 

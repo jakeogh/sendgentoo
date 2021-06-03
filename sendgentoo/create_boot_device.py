@@ -23,13 +23,13 @@ from pathlib import Path
 
 import click
 from blocktool import create_filesystem
+from blocktool import destroy_block_device_head_and_tail
 from blocktool import device_is_not_a_partition
 from blocktool import path_is_block_special
 from blocktool import warn
 from blocktool import write_efi_partition
 from blocktool import write_gpt
 from blocktool import write_grub_bios_partition
-from destroy_block_device import destroy_block_device_head_and_tail
 from mounttool import block_special_path_is_mounted
 
 

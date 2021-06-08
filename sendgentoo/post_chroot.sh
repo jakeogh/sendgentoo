@@ -219,6 +219,7 @@ emaint sync -r java
 #add_accept_keyword "dev-python/kcl-9999"
 #add_accept_keyword "dev-python/icecream-9999"
 #emerge kcl -1
+add_accept_keyword "dev-python/asserttool-9999"
 add_accept_keyword "dev-python/replace-text-9999"
 add_accept_keyword "dev-python/icecream-9999"  # dep
 #add_accept_keyword "dev-python/retry_on_exception-9999"  # dep

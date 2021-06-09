@@ -230,7 +230,7 @@ emerge replace-text
 
 export LANG="en_US.UTF8"  # to make click happy
 grep noclear /etc/inittab || \
-    { replace-text "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1 ; }
+    { replace-text --match "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" --replacement "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1 ; }
 install_pkg sys-apps/moreutils # need sponge for the next command
 grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/inittab | /home/cfg/text/insert_line_after_match "c6:2345:respawn:/sbin/agetty 38400 tty6 linux" "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" | sponge /etc/inittab ; }
 

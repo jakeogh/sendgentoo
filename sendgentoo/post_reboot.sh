@@ -169,11 +169,11 @@ test -h /home/user/_repos || { ln -s /home/cfg/_repos /home/user/_repos || exit 
 if [[ "${stdlib}" == "musl" ]];
 then
     echo "setting CHOST to x86_64-gentoo-linux-musl"
-    /home/cfg/_myapps/replace-text/replace-text 'CHOST="x86_64-pc-linux-gnu"' 'CHOST="x86_64-gentoo-linux-musl"' /etc/portage/make.conf
+    /home/cfg/_myapps/replace-text/replace-text --match 'CHOST="x86_64-pc-linux-gnu"' --replacement 'CHOST="x86_64-gentoo-linux-musl"' /etc/portage/make.conf
 elif [[ "${stdlib}" == "uclibc" ]];
 then
     echo "setting CHOST to x86_64-gentoo-linux-uclibc"
-    /home/cfg/_myapps/replace-text/replace-text 'CHOST="x86_64-pc-linux-gnu"' 'CHOST="x86_64-gentoo-linux-uclibc"' /etc/portage/make.conf
+    /home/cfg/_myapps/replace-text/replace-text --match 'CHOST="x86_64-pc-linux-gnu"' --replacement 'CHOST="x86_64-gentoo-linux-uclibc"' /etc/portage/make.conf
 elif [[ "${stdlib}" == "glibc" ]];
 then
     echo -n "leaving CHOST as is: "

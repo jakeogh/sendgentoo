@@ -17,11 +17,25 @@
 # pylint: disable=W0201  # attribute defined outside __init__
 # pylint: disable=R0916  # Too many boolean expressions in if statement
 
+import sys
 
 import click
-from icecream import ic
 from run_command import run_command
-from kcl.printops import eprint
+
+
+def eprint(*args, **kwargs):
+    if 'file' in kwargs.keys():
+        kwargs.pop('file')
+    print(*args, file=sys.stderr, **kwargs)
+
+
+try:
+    from icecream import ic  # https://github.com/gruns/icecream
+    from icecream import icr  # https://github.com/jakeogh/icecream
+except ImportError:
+    ic = eprint
+    icr = eprint
+
 
 @click.command()
 @click.argument('pool', required=True, nargs=1)
@@ -61,7 +75,7 @@ def create_zfs_filesystem(pool,
         command += " -o keyformat=passphrase"
         command += " -o keylocation=prompt"
     if nfs:
-        command += " -o sharenfs=on"
+        command += " -o sharenfs=on,no_root_squash"
     if not exe:
         command += " -o exec=off"
     if reservation:

@@ -33,8 +33,8 @@ import click
 import sh
 from enumerate_input import enumerate_input
 #from kcl.userops import not_root
-#from kcl.pathops import path_is_block_special
-from kcl.fileops import write_line_to_file
+#from pathtool import path_is_block_special
+from pathtool import write_line_to_file
 #from getdents import files
 from kcl.mountops import path_is_mounted
 from retry_on_exception import retry_on_exception
@@ -198,5 +198,4 @@ def cli(ctx,
     ic('chroot_gentoo.py complete!')
 
 
-if __name__ == '__main__':
-    cli()
+if __name__ == 

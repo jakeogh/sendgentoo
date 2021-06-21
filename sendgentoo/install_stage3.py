@@ -4,7 +4,7 @@ import os
 import sys
 from subprocess import CalledProcessError
 
-from kcl.fileops import path_is_file
+from pathtool import path_is_file
 from kcl.netops import construct_proxy_dict
 from mounttool import path_is_mounted
 from run_command import run_command
@@ -71,5 +71,4 @@ def install_stage3(c_std_lib,
         ic('File is corrupt (most likely partially downloaded). Delete it and try again.')
         quit(1)
     command = 'tar --xz -xpf ' + stage3_file + ' -C ' + str(destination)
-    run_command(command, verbose=True)
-
+    run_command(command, verb

@@ -36,7 +36,7 @@ from enumerate_input import enumerate_input
 #from pathtool import path_is_block_special
 from pathtool import write_line_to_file
 #from getdents import files
-from kcl.mountops import path_is_mounted
+from mounttool import path_is_mounted
 from retry_on_exception import retry_on_exception
 #from collections import defaultdict
 from run_command import run_command

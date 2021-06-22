@@ -82,22 +82,21 @@ except ImportError:
 @click.option('--debug', is_flag=True)
 @click.option('--ipython', is_flag=True)
 @click.pass_context
-def cli(ctx,
-        mount_path: str,
-        stdlib: str,
-        boot_device: str,
-        hostname: str,
-        march: str,
-        root_filesystem: str,
-        newpasswd: str,
-        ip: str,
-        ip_gateway: str,
-        vm: str,
-        verbose: bool,
-        debug: bool,
-        ipython: bool,
-        ):
-
+def chroot_gentoo(ctx,
+                  mount_path: str,
+                  stdlib: str,
+                  boot_device: str,
+                  hostname: str,
+                  march: str,
+                  root_filesystem: str,
+                  newpasswd: str,
+                  ip: str,
+                  ip_gateway: str,
+                  vm: str,
+                  verbose: bool,
+                  debug: bool,
+                  ipython: bool,
+                  ):
 
     mount_path = Path(mount_path)
 
@@ -158,7 +157,10 @@ def cli(ctx,
                          '--progress',
                          '--times',
                          '/home/cfg "{mount_path}/home/"'.format(mount_path=mount_path),]
-        run_command(' '.join(rsync_command), system=True, ask=True, verbose=True)
+        run_command(' '.join(rsync_command),
+                    system=True,
+                    ask=True,
+                    verbose=True,)
 
     repos_conf = mount_path / Path('etc') / Path('portage') / Path('repos.conf')
     os.makedirs(repos_conf, exist_ok=True)
@@ -197,6 +199,6 @@ def cli(ctx,
     ic('chroot_gentoo.py complete!')
 
 
-if __name__ == '__main__':
-    cli()
+#if __name__ == '__main__':
+#    cli()
 

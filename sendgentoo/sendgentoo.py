@@ -43,6 +43,7 @@ from sendgentoo.create_zfs_filesystem import create_zfs_filesystem
 from sendgentoo.create_zfs_pool import create_zfs_pool
 from sendgentoo.install_stage3 import install_stage3
 from sendgentoo.write_boot_partition import write_boot_partition
+from sendgentoo.chroot_gentoo import chroot_gentoo
 
 
 def eprint(*args, **kwargs):
@@ -79,6 +80,8 @@ sendgentoo.add_command(create_filesystem)
 sendgentoo.add_command(create_zfs_pool)
 sendgentoo.add_command(create_zfs_filesystem)
 sendgentoo.add_command(create_root_device)
+sendgentoo.add_command(chroot_gentoo)
+
 
 @sendgentoo.command()
 @click.option('--boot-device',                 is_flag=False, required=True)

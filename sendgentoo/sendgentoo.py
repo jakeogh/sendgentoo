@@ -113,7 +113,7 @@ def compile_kernel(ctx, *,
 
     assert path_is_block_special(boot_device)
     assert not block_special_path_is_mounted(boot_device, verbose=verbose, debug=debug,)
-    warn((boot_device,), msg="about to update the kernel on device:")
+    warn((boot_device,), msg="about to update the kernel on device:", verbose=verbose, debug=debug,)
 
     os.makedirs(mount_path_boot, exist_ok=True)
     boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
@@ -183,7 +183,7 @@ def create_boot_device_for_existing_root(ctx,
     assert path_is_block_special(boot_device)
     assert not block_special_path_is_mounted(boot_device, verbose=verbose, debug=debug,)
     if not force:
-        warn((boot_device,))
+        warn((boot_device,), verbose=verbose, debug=debug,)
     create_boot_device(ctx,
                        device=boot_device,
                        partition_table=boot_device_partition_table,
@@ -385,8 +385,8 @@ def install(ctx, *,
 
     if boot_device or root_devices:
         if not force:
-            warn((boot_device,))
-            warn(root_devices)
+            warn((boot_device,), verbose=verbose, debug=debug,)
+            warn(root_devices, verbose=verbose, debug=debug,)
 
     os.makedirs(mount_path, exist_ok=True)
 
@@ -510,7 +510,9 @@ def install(ctx, *,
                    arch=arch,
                    destination=mount_path,
                    vm=vm,
-                   vm_ram=vm_ram,)
+                   vm_ram=vm_ram,
+                   verbose=verbose,
+                   debug=debug,)
 
     #if march == 'native':
     if not boot_device:

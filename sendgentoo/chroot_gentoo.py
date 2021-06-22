@@ -127,15 +127,15 @@ def cli(ctx,
                        verbose=verbose,
                        debug=debug,)
 
-    if not path_is_mounted(mount_path / Path('proc')):
+    if not path_is_mounted(mount_path / Path('proc'), verbose=verbose, debug=debug,):
         sh.mount('-t', 'proc', 'none', mount_path / Path('proc'))
-    if not path_is_mounted(mount_path / Path('sys')):
+    if not path_is_mounted(mount_path / Path('sys'), verbose=verbose, debug=debug,):
         sh.mount('--rbind', '/sys', mount_path / Path('sys'))
-    if not path_is_mounted(mount_path / Path('dev')):
+    if not path_is_mounted(mount_path / Path('dev'), verbose=verbose, debug=debug,):
         sh.mount('--rbind', '/dev', mount_path / Path('dev'))
 
     os.makedirs(mount_path / Path('usr') / Path('portage'), exist_ok=True)
-    if not path_is_mounted(mount_path / Path('usr') / Path('portage')):
+    if not path_is_mounted(mount_path / Path('usr') / Path('portage'), verbose=verbose, debug=debug,):
         sh.mount('--rbind', '/usr/portage', mount_path / Path('usr') / Path('portage'))
 
     os.makedirs(mount_path / Path('home') / Path('cfg'), exist_ok=True)
@@ -166,7 +166,7 @@ def cli(ctx,
 
     gentoo_repo = mount_path / Path('var') / Path('db') / Path('repos') / Path('gentoo')
     os.makedirs(gentoo_repo, exist_ok=True)
-    if not path_is_mounted(gentoo_repo):
+    if not path_is_mounted(gentoo_repo, verbose=verbose, debug=debug,):
         sh.mount('--rbind', '/var/db/repos/gentoo', gentoo_repo)
 
     sh.cp('/etc/portage/proxy.conf', mount_path / Path('etc') / Path('portage') / Path('proxy.conf'))

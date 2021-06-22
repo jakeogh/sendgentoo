@@ -32,11 +32,11 @@ from typing import Sequence
 import click
 import sh
 from enumerate_input import enumerate_input
+#from getdents import files
+from mounttool import path_is_mounted
 #from kcl.userops import not_root
 #from pathtool import path_is_block_special
 from pathtool import write_line_to_file
-#from getdents import files
-from mounttool import path_is_mounted
 from retry_on_exception import retry_on_exception
 #from collections import defaultdict
 from run_command import run_command
@@ -110,19 +110,19 @@ def cli(ctx,
     #fi
 
     write_line_to_file(file_to_write=mount_path / Path('etc') / Path('conf.d') / Path('net'),
-                       line='config_eth0="{ip}/24"'.format(ip=ip),
+                       line='config_eth0="{ip}/24"\n'.format(ip=ip),
                        unique=True,
                        verbose=verbose,
                        debug=debug,)
 
     write_line_to_file(file_to_write=mount_path / Path('etc') / Path('conf.d') / Path('net'),
-                       line='routes_eth0="default via {ip_gateway}"'.format(ip_gateway=ip_gateway),
+                       line='routes_eth0="default via {ip_gateway}"\n'.format(ip_gateway=ip_gateway),
                        unique=True,
                        verbose=verbose,
                        debug=debug,)
 
     write_line_to_file(file_to_write=mount_path / Path('etc') / Path('conf.d') / Path('hostname'),
-                       line='hostname="{hostname}"'.format(hostname=hostname),
+                       line='hostname="{hostname}"\n'.format(hostname=hostname),
                        unique=True,
                        verbose=verbose,
                        debug=debug,)
@@ -172,7 +172,7 @@ def cli(ctx,
     sh.cp('/etc/portage/proxy.conf', mount_path / Path('etc') / Path('portage') / Path('proxy.conf'))
 
     write_line_to_file(file_to_write=mount_path / Path('etc') / Path('portage') / Path('make.conf'),
-                       line='source /etc/portage/proxy.conf',
+                       line='source /etc/portage/proxy.conf\n',
                        unique=True,
                        verbose=verbose,
                        debug=debug,)

@@ -66,6 +66,37 @@ except ImportError:
 ##
 ##sys.excepthook = log_uncaught_exceptions
 
+@click.command()
+@click.argument("mount_path")
+@click.option('--verbose', is_flag=True)
+@click.option('--debug', is_flag=True)
+def rsync_cfg(*,
+              mount_path: str,
+              verbose: bool,
+              debug: bool,
+              ):
+
+    with chdir('/home/'):
+        rsync_command = ['rsync',
+                         '--exclude="_priv"',
+                         '--exclude="_myapps/gentoo"',
+                         '--exclude="virt/iso"',
+                         '--one-file-system',
+                         '--delete',
+                         '--perms',
+                         '--executability',
+                         '--human-readable',
+                         '--verbose',
+                         '--recursive',
+                         '--links',
+                         '--progress',
+                         '--times',
+                         '/home/cfg "{mount_path}/home/"'.format(mount_path=mount_path),]
+        run_command(' '.join(rsync_command),
+                    system=True,
+                    ask=True,
+                    verbose=True,)
+
 
 @click.command()
 @click.argument("mount_path")
@@ -93,6 +124,7 @@ def chroot_gentoo(ctx,
                   ip: str,
                   ip_gateway: str,
                   vm: str,
+                  skip_to_rsync: bool,
                   verbose: bool,
                   debug: bool,
                   ipython: bool,
@@ -141,26 +173,9 @@ def chroot_gentoo(ctx,
 
     os.makedirs(mount_path / Path('usr') / Path('local') / Path('portage'), exist_ok=True)
 
-    with chdir('/home/'):
-        rsync_command = ['rsync',
-                         '--exclude="_priv"',
-                         '--exclude="_myapps/gentoo"',
-                         '--exclude="virt/iso"',
-                         '--one-file-system',
-                         '--delete',
-                         '--perms',
-                         '--executability',
-                         '--human-readable',
-                         '--verbose',
-                         '--recursive',
-                         '--links',
-                         '--progress',
-                         '--times',
-                         '/home/cfg "{mount_path}/home/"'.format(mount_path=mount_path),]
-        run_command(' '.join(rsync_command),
-                    system=True,
-                    ask=True,
-                    verbose=True,)
+    rsync_cfg(mount_path=mount_path,
+              verbose=verbose,
+              debug=debug,)
 
     repos_conf = mount_path / Path('etc') / Path('portage') / Path('repos.conf')
     os.makedirs(repos_conf, exist_ok=True)

@@ -42,6 +42,7 @@ from psutil import virtual_memory
 from run_command import run_command
 
 from sendgentoo.chroot_gentoo import chroot_gentoo
+from sendgentoo.chroot_gentoo import rsync_cfg
 from sendgentoo.create_boot_device import create_boot_device
 from sendgentoo.create_root_device import create_root_device
 from sendgentoo.create_zfs_filesystem import create_zfs_filesystem
@@ -85,6 +86,7 @@ sendgentoo.add_command(create_zfs_pool)
 sendgentoo.add_command(create_zfs_filesystem)
 sendgentoo.add_command(create_root_device)
 sendgentoo.add_command(chroot_gentoo)
+sendgentoo.add_command(rsync_cfg)
 
 
 @sendgentoo.command()
@@ -528,18 +530,18 @@ def install(ctx, *,
     if not vm:
         vm = "novm"
         #vm + ' ' + \
-    chroot_gentoo_command = \
-        "/home/cfg/_myapps/sendgentoo/sendgentoo/chroot_gentoo.py " + \
-        '--stdlib ' + stdlib + " " + \
-        '--boot-device ' + boot_device + " " + \
-        '--hostname ' + hostname + ' ' + \
-        '--march ' + march + ' ' + \
-        '--root-filesystem ' + root_filesystem + ' ' + \
-        '--newpasswd ' + newpasswd + ' ' + \
-        '--ip ' + ip + ' ' + \
-        '--ip-gateway ' + ip_gateway + ' ' + \
-        str(mount_path)
-    eprint("\nnow run:", chroot_gentoo_command)
+    #chroot_gentoo_command = \
+    #    "/home/cfg/_myapps/sendgentoo/sendgentoo/chroot_gentoo.py " + \
+    #    '--stdlib ' + stdlib + " " + \
+    #    '--boot-device ' + boot_device + " " + \
+    #    '--hostname ' + hostname + ' ' + \
+    #    '--march ' + march + ' ' + \
+    #    '--root-filesystem ' + root_filesystem + ' ' + \
+    #    '--newpasswd ' + newpasswd + ' ' + \
+    #    '--ip ' + ip + ' ' + \
+    #    '--ip-gateway ' + ip_gateway + ' ' + \
+    #    str(mount_path)
+    #eprint("\nnow run:", chroot_gentoo_command)
 
     ctx.invoke(chroot_gentoo,
                mount_path=mount_path,

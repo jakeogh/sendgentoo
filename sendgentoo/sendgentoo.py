@@ -37,13 +37,13 @@ from mounttool import path_is_mounted
 from psutil import virtual_memory
 from run_command import run_command
 
+from sendgentoo.chroot_gentoo import chroot_gentoo
 from sendgentoo.create_boot_device import create_boot_device
 from sendgentoo.create_root_device import create_root_device
 from sendgentoo.create_zfs_filesystem import create_zfs_filesystem
 from sendgentoo.create_zfs_pool import create_zfs_pool
 from sendgentoo.install_stage3 import install_stage3
 from sendgentoo.write_boot_partition import write_boot_partition
-from sendgentoo.chroot_gentoo import chroot_gentoo
 
 
 def eprint(*args, **kwargs):

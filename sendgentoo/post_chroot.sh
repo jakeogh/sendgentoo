@@ -118,10 +118,29 @@ ln -s /home/cfg/sysskel/etc/skel/bin /root/bin
 
 install_pkg gradm #required for gentoo-hardened RBAC
 echo "sys-apps/util-linux static-libs" > /etc/portage/package.use/util-linux    # required for genkernel
+echo "sys-kernel/gentoo-sources symlink" > /etc/portage/package.use/gentoo-sources    # required so /usr/src/linux exists
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license
 install_pkg genkernel
+
+
+install_pkg app-eselect/eselect-repository
+mkdir /etc/portage/repos.conf
+for line in `cat /etc/portage/proxy.conf | tr -d '"'`;
+do
+    export "${line}"
+done
+eselect repository add jakeogh git https://github.com/jakeogh/jakeogh  #ignores http_proxy
+#git config --global http.proxy http://192.168.222.100:8888
+emaint sync -r jakeogh
+#install_pkg layman
+#layman -o "https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml" -f -a jakeogh
+#layman -S # update layman trees
+
+#eselect repository enable java
+#emaint sync -r java
+
 add_accept_keyword "dev-python/compile-kernel-9999"
-install_pkg compile-kernel
+install_pkg compile-kernel  # requires jakeogh overlay
 compile-kernel --no-check-boot || exit 1
 cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
 
@@ -131,11 +150,6 @@ install_pkg dhcpcd  # not in stage3
 #grep -E "^config_eth0=\"${ip}/24\"" /etc/conf.d/net || echo "config_eth0=\"${ip}/24\"" >> /etc/conf.d/net
 ln -rs /etc/init.d/net.lo /etc/init.d/net.eth0
 rc-update add net.eth0 default
-
-mkdir /mnt/t420s_256GB_samsung_ssd_S2R5NX0J707260P
-mkdir /poolz3_8x5TB_A
-mkdir /poolz3_8x2TB_A
-mkdir /poolz3_16x3TB_A
 
 install_pkg netdate
 /home/cfg/time/set_time_via_ntp
@@ -199,21 +213,6 @@ chmod 2775 /var/cache/ccache
 grep -E "^PermitRootLogin yes" /etc/ssh/sshd_config || echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 #rc-update add sshd default
 
-install_pkg app-eselect/eselect-repository
-mkdir /etc/portage/repos.conf
-for line in `cat /etc/portage/proxy.conf | tr -d '"'`;
-do
-    export "${line}"
-done
-eselect repository add jakeogh git https://github.com/jakeogh/jakeogh  #ignores http_proxy
-#git config --global http.proxy http://192.168.222.100:8888
-emaint sync -r jakeogh
-#install_pkg layman
-#layman -o "https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml" -f -a jakeogh
-#layman -S # update layman trees
-
-eselect repository enable java
-emaint sync -r java
 
 # must be done after overlay is installed
 #add_accept_keyword "dev-python/kcl-9999"

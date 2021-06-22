@@ -8,19 +8,19 @@ from kcl.printops import eprint
 HELP = "temp"
 
 
-def get_stage3_url(c_std_lib, multilib, arch, proxy_dict):
+def get_stage3_url(stdlib, multilib, arch, proxy_dict):
     #mirror = 'http://ftp.ucsb.edu/pub/mirrors/linux/gentoo/releases/amd64/autobuilds/'
     mirror = 'http://gentoo.osuosl.org/releases/' + arch + '/autobuilds/'
-    if c_std_lib == 'glibc':
+    if stdlib == 'glibc':
         if not multilib:
             latest = 'latest-stage3-' + arch + '-hardened+nomultilib.txt'
         else:
             latest = 'latest-stage3-' + arch + '-hardened.txt'
-    if c_std_lib == 'musl':
+    if stdlib == 'musl':
         latest = ''
         eprint("cant use musl yet")
         quit(1)
-    if c_std_lib == 'uclibc':
+    if stdlib == 'uclibc':
         latest = 'latest-stage3-' + arch + '-uclibc-hardened.txt'
         eprint("uclibc wont compile efivars")
         quit(1)
@@ -47,8 +47,8 @@ def get_stage3_url(c_std_lib, multilib, arch, proxy_dict):
 @click.option('--multilib', is_flag=True, required=False, help=HELP)
 @click.option('--arch', is_flag=False, required=True, help=HELP, type=click.Choice(['amd64']))
 @click.option('--proxy', is_flag=True)
-def main(c_std_lib, multilib, arch, proxy):
+def main(stdlib, multilib, arch, proxy):
     if proxy:
         proxy_dict = construct_proxy_dict()
-    url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib, arch=arch, proxy_dict=proxy_dict)
+    url = get_stage3_url(stdlib=stdlib, multilib=multilib, arch=arch, proxy_dict=proxy_dict)
     eprint(url)

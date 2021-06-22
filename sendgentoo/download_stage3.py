@@ -7,9 +7,9 @@ from kcl.netops import construct_proxy_dict
 from .get_stage3_url import get_stage3_url
 
 
-def download_stage3(c_std_lib, multilib, arch, proxy_dict, url=False):
+def download_stage3(stdlib, multilib, arch, proxy_dict, url=False):
     if not url:
-        url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib, arch=arch)
+        url = get_stage3_url(stdlib=stdlib, multilib=multilib, arch=arch)
     eprint("url:", url)
     destination_dir = '/usr/portage/distfiles/'
     stage3_file = download_file(url, destination_dir, proxy_dict=proxy_dict)
@@ -24,10 +24,10 @@ def download_stage3(c_std_lib, multilib, arch, proxy_dict, url=False):
 @click.option('--arch', is_flag=False, required=True, type=click.Choice(['alpha', 'amd64', 'arm', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86']))
 @click.option('--multilib', is_flag=True, required=False)
 @click.option('--proxy', is_flag=True)
-def main(c_std_lib, arch, multilib, proxy):
+def main(stdlib, arch, multilib, proxy):
     if proxy:
         proxy_dict = construct_proxy_dict()
-    download_stage3(c_std_lib=c_std_lib, multilib=multilib, arch=arch, proxy_dict=proxy_dict)
+    download_stage3(stdlib=stdlib, multilib=multilib, arch=arch, proxy_dict=proxy_dict)
 
 
 if __name__ == '__main__':

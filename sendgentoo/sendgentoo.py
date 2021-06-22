@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
 
-# pylint: disable=C0111     # docstrings are always outdated and wrong
-# pylint: disable=W0511     # todo is encouraged
-# pylint: disable=R0902     # too many instance attributes
-# pylint: disable=C0302     # too many lines in module
-# pylint: disable=C0103     # single letter var names
-# pylint: disable=R0911     # too many return statements
-# pylint: disable=R0912     # too many branches
-# pylint: disable=R0915     # too many statements
-# pylint: disable=R0913     # too many arguments
-# pylint: disable=R1702     # too many nested blocks
-# pylint: disable=R0914     # too many local variables
-# pylint: disable=R0903     # too few public methods
-# pylint: disable=E1101     # no member for base
-# pylint: disable=W0201     # attribute defined outside __init__
+# flake8: noqa
+# pylint: disable=C0111  # docstrings are always outdated and wrong
+# pylint: disable=W0511  # todo is encouraged
+# pylint: disable=C0301  # line too long
+# pylint: disable=R0902  # too many instance attributes
+# pylint: disable=C0302  # too many lines in module
+# pylint: disable=C0103  # single letter var names, func name too descriptive
+# pylint: disable=R0911  # too many return statements
+# pylint: disable=R0912  # too many branches
+# pylint: disable=R0915  # too many statements
+# pylint: disable=R0913  # too many arguments
+# pylint: disable=R1702  # too many nested blocks
+# pylint: disable=R0914  # too many local variables
+# pylint: disable=R0903  # too few public methods
+# pylint: disable=E1101  # no member for base
+# pylint: disable=W0201  # attribute defined outside __init__
+# pylint: disable=R0916  # Too many boolean expressions in if statement
+# pylint: disable=C0305  # Trailing newlines editor should fix automatically, pointless warning
 
 
 import os
@@ -270,7 +274,7 @@ def install(ctx, *,
             root_device_partition_table: str,
             boot_filesystem: str,
             root_filesystem: str,
-            c_std_lib: str,
+            stdlib: str,
             arch: str,
             raid: str,
             raid_group_size: int,
@@ -290,6 +294,7 @@ def install(ctx, *,
 
     assert isinstance(root_devices, tuple)
     assert hostname.lower() == hostname
+    assert '_' not in hostname
     os.makedirs('/usr/portage/distfiles', exist_ok=True)
 
     if not os.path.isdir('/var/db/repos/gentoo/sys-kernel'):
@@ -298,10 +303,10 @@ def install(ctx, *,
     if encrypt:
         eprint("encryption not yet supported")
         #sys.exit(1)
-    if c_std_lib == 'musl':
+    if stdlib == 'musl':
         eprint("musl not supported yet")
         sys.exit(1)
-    if c_std_lib == 'uclibc':
+    if stdlib == 'uclibc':
         eprint("uclibc fails with efi grub because efivar fails to compile. See Note.")
         sys.exit(1)
 
@@ -370,7 +375,7 @@ def install(ctx, *,
             assert path_is_block_special(device)
             assert not block_special_path_is_mounted(device, verbose=verbose, debug=debug,)
 
-    eprint("using C library:", c_std_lib)
+    eprint("using C library:", stdlib)
     eprint("hostname:", hostname)
 
     for device in root_devices:
@@ -508,7 +513,7 @@ def install(ctx, *,
             run_command(efi_mount_command)
             assert path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
 
-    install_stage3(c_std_lib=c_std_lib,
+    install_stage3(stdlib=stdlib,
                    multilib=multilib,
                    arch=arch,
                    destination=mount_path,
@@ -525,7 +530,7 @@ def install(ctx, *,
         #vm + ' ' + \
     chroot_gentoo_command = \
         "/home/cfg/_myapps/sendgentoo/sendgentoo/chroot_gentoo.py " + \
-        '--stdlib ' + c_std_lib + " " + \
+        '--stdlib ' + stdlib + " " + \
         '--boot-device ' + boot_device + " " + \
         '--hostname ' + hostname + ' ' + \
         '--march ' + march + ' ' + \
@@ -535,4 +540,19 @@ def install(ctx, *,
         '--ip-gateway ' + ip_gateway + ' ' + \
         str(mount_path)
     eprint("\nnow run:", chroot_gentoo_command)
-    return
+
+    ctx.invoke(chroot_gentoo,
+               mount_path=mount_path,
+               stdlib=stdlib,
+               boot_device=boot_device,
+               hostname=hostname,
+               march=march,
+               root_filesystem=root_filesystem,
+               newpasswd=newpasswd,
+               ip=ip,
+               ip_gateway=ip_gateway,
+               vm=vm,
+               ipython=False,
+               verbose=verbose,
+               debug=debug,)
+

@@ -25,7 +25,7 @@ except ImportError:
     ic = eprint
 
 
-def install_stage3(c_std_lib,
+def install_stage3(stdlib,
                    multilib: bool,
                    arch: str,
                    destination: str,
@@ -34,7 +34,7 @@ def install_stage3(c_std_lib,
                    verbose: bool,
                    debug: bool,
                    ):
-    ic(c_std_lib, multilib, arch, destination, vm)
+    ic(stdlib, multilib, arch, destination, vm)
     os.chdir(destination)
     ic(destination)
     ic(os.getcwd())
@@ -44,8 +44,8 @@ def install_stage3(c_std_lib,
     proxy_dict = construct_proxy_dict()
     #ic(proxy)
     #assert proxy
-    url = get_stage3_url(c_std_lib=c_std_lib, multilib=multilib, arch=arch, proxy_dict=proxy_dict)
-    stage3_file = download_stage3(c_std_lib=c_std_lib, multilib=multilib, url=url, arch=arch, proxy_dict=proxy_dict)
+    url = get_stage3_url(stdlib=stdlib, multilib=multilib, arch=arch, proxy_dict=proxy_dict)
+    stage3_file = download_stage3(stdlib=stdlib, multilib=multilib, url=url, arch=arch, proxy_dict=proxy_dict)
     assert path_is_file(stage3_file)
 
     # this never worked

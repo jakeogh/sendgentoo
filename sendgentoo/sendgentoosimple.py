@@ -45,7 +45,7 @@ def sendgentoosimple(ctx, device, hostname, ip):
                root_device_partition_table='gpt',
                boot_filesystem='ext4',
                root_filesystem='ext4',
-               c_std_lib='glibc',
+               stdlib='glibc',
                raid='disk',
                raid_group_size='1',
                march='native',

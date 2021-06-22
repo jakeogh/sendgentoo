@@ -519,17 +519,17 @@ def install(ctx, *,
         boot_device = "False"  # fixme
     if not vm:
         vm = "novm"
+        #vm + ' ' + \
     chroot_gentoo_command = \
         "/home/cfg/_myapps/sendgentoo/sendgentoo/chroot_gentoo.py " + \
-        c_std_lib + " " + \
-        boot_device + " " + \
-        hostname + ' ' + \
-        march + ' ' + \
-        root_filesystem + ' ' + \
-        newpasswd + ' ' + \
-        ip + ' ' + \
-        ip_gateway + ' ' + \
-        vm + ' ' + \
+        '--stdlib ' + c_std_lib + " " + \
+        '--boot-device ' + boot_device + " " + \
+        '--hostname ' + hostname + ' ' + \
+        '--march ' + march + ' ' + \
+        '--root-filesystem ' + root_filesystem + ' ' + \
+        '--newpasswd ' + newpasswd + ' ' + \
+        '--ip ' + ip + ' ' + \
+        '--ip-gateway ' + ip_gateway + ' ' + \
         str(mount_path)
     eprint("\nnow run:", chroot_gentoo_command)
     return

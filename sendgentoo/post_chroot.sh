@@ -131,7 +131,8 @@ do
 done
 eselect repository add jakeogh git https://github.com/jakeogh/jakeogh  #ignores http_proxy
 #git config --global http.proxy http://192.168.222.100:8888
-emaint sync -r jakeogh
+install_pkg dev-vcs/git
+emaint sync -r jakeogh  # this needs git
 #install_pkg layman
 #layman -o "https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml" -f -a jakeogh
 #layman -S # update layman trees

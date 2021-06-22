@@ -8,8 +8,8 @@ import click
 from blocktool import add_partition_number_to_device
 from blocktool import device_is_not_a_partition
 from blocktool import warn
-from pathtool import path_is_block_special
 from mounttool import block_special_path_is_mounted
+from pathtool import path_is_block_special
 from run_command import run_command
 
 
@@ -52,4 +52,5 @@ def write_boot_partition(*,
 
     run_command("parted -a optimal " + device + " --script -- mkpart primary " + start + ' ' + end, verbose=True)
     run_command("parted  " + device + " --script -- name " + partition_number + " bootfs", verbose=True)
-    run_command("mkfs.ext4 " + partition, verb
+    run_command("mkfs.ext4 " + partition, verbose=True)
+

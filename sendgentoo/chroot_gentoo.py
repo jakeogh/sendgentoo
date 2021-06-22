@@ -198,4 +198,6 @@ def cli(ctx,
     ic('chroot_gentoo.py complete!')
 
 
-if __name__ == 
+if __name__ == '__main__':
+    cli()
+

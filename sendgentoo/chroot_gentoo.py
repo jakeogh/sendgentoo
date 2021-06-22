@@ -157,7 +157,7 @@ def cli(ctx,
                          '--links',
                          '--progress',
                          '--times',
-                         '/home/cfg "${mount_path}/home/"'.format(mount_path=mount_path),]
+                         '/home/cfg "{mount_path}/home/"'.format(mount_path=mount_path),]
         run_command(' '.join(rsync_command), system=True, ask=True, verbose=True)
 
     repos_conf = mount_path / Path('etc') / Path('portage') / Path('repos.conf')

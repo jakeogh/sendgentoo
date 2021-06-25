@@ -105,7 +105,7 @@ def rsync_cfg(*,
 @click.option('--march', required=True, type=click.Choice(['native', 'nocona']))
 @click.option('--root-filesystem', required=False, type=click.Choice(['ext4', 'zfs', '9p']), default="ext4")
 @click.option('--newpasswd', type=str, required=True)
-@click.option('--skip-to-rsync', type=str, required=True)
+@click.option('--skip-to-rsync', is_flag=True)
 @click.option('--ip', type=str, required=True)
 @click.option('--ip-gateway', type=str, required=True)
 @click.option('--vm', required=False, type=click.Choice(['qemu']))

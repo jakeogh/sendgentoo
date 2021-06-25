@@ -55,11 +55,11 @@ install_pkg_force()
 }
 
 
-add_accept_keyword "dev-python/kcl-9999"
-add_accept_keyword "dev-python/sendgentoo-9999"
-add_accept_keyword "dev-python/sqlalchemy-utils-9999"
-add_accept_keyword "dev-python/python-getdents-9999"
-add_accept_keyword "dev-python/fastentrypoints-9999"
-add_accept_keyword "dev-python/untokenize-9999"
-add_accept_keyword "dev-python/ic-9999"
+#add_accept_keyword "dev-python/kcl-9999"
+#add_accept_keyword "dev-python/sendgentoo-9999"
+#add_accept_keyword "dev-python/sqlalchemy-utils-9999"
+#add_accept_keyword "dev-python/python-getdents-9999"
+#add_accept_keyword "dev-python/fastentrypoints-9999"
+#add_accept_keyword "dev-python/untokenize-9999"
+#add_accept_keyword "dev-python/ic-9999"
 

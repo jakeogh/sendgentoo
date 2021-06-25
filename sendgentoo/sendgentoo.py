@@ -548,6 +548,7 @@ def install(ctx, *,
 
     install_stage3(stdlib=stdlib,
                    multilib=multilib,
+                   distfiles_dir=distfiles_dir,
                    arch=arch,
                    destination=mount_path,
                    vm=vm,

@@ -60,7 +60,7 @@ def download_stage3(*,
     download_file(url=url + '.CONTENTS', destination_dir=destination_dir, proxy_dict=proxy_dict)
     download_file(url=url + '.DIGESTS', destination_dir=destination_dir, proxy_dict=proxy_dict)
     download_file(url=url + '.DIGESTS.asc', destination_dir=destination_dir, proxy_dict=proxy_dict)
-    return stage3_file
+    return Path(stage3_file)
 
 
 @click.command()

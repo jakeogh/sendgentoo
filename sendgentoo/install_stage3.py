@@ -12,7 +12,8 @@ from run_command import run_command
 from with_chdir import chdir
 
 from .download_stage3 import download_stage3
-from .get_stage3_url import get_stage3_url
+
+#from .get_stage3_url import get_stage3_url
 
 
 def eprint(*args, **kwargs):
@@ -31,6 +32,7 @@ def install_stage3(stdlib,
                    multilib: bool,
                    arch: str,
                    destination: Path,
+                   distfiles_dir: Path,
                    vm: str,
                    vm_ram: int,
                    verbose: bool,
@@ -38,6 +40,7 @@ def install_stage3(stdlib,
                    ):
 
     destination = Path(destination)
+    distfiles_dir = Path(distfiles_dir)
     ic(stdlib, multilib, arch, destination, vm)
     #os.chdir(destination)
     ic(destination)
@@ -47,8 +50,9 @@ def install_stage3(stdlib,
         ic(os.getcwd())
         assert os.getcwd() == str(destination)
         proxy_dict = construct_proxy_dict(verbose=verbose, debug=debug,)
-        url = get_stage3_url(stdlib=stdlib, multilib=multilib, arch=arch, proxy_dict=proxy_dict)
-        stage3_file = download_stage3(stdlib=stdlib, multilib=multilib, url=url, arch=arch, proxy_dict=proxy_dict)
+        #url = get_stage3_url(stdlib=stdlib, multilib=multilib, arch=arch, proxy_dict=proxy_dict)
+        #stage3_file = download_stage3(stdlib=stdlib, multilib=multilib, url=url, arch=arch, proxy_dict=proxy_dict)
+        stage3_file = download_stage3(destination_dir=distfiles_dir, stdlib=stdlib, multilib=multilib, arch=arch, proxy_dict=proxy_dict)
         assert path_is_file(stage3_file)
 
         # this never worked
@@ -65,14 +69,15 @@ def install_stage3(stdlib,
 
         ic(stage3_file)
         run_command('gpg --verify ' + stage3_file + '.DIGESTS.asc', verbose=True)
-        whirlpool = run_command("openssl dgst -r -whirlpool " + stage3_file + "| cut -d ' ' -f 1", verbose=True).decode('utf8').strip()
+        whirlpool = run_command("openssl dgst -r -whirlpool " + stage3_file.as_posix() + "| cut -d ' ' -f 1",
+                                verbose=True).decode('utf8').strip()
         try:
-            run_command("/bin/grep " + whirlpool + ' ' + stage3_file + '.DIGESTS', verbose=True)
+            run_command("/bin/grep " + whirlpool + ' ' + stage3_file.as_posix() + '.DIGESTS', verbose=True)
         except CalledProcessError:
             ic('BAD WHIRPOOL HASH:', whirlpool)
             ic('For file:', stage3_file)
             ic('File is corrupt (most likely partially downloaded). Delete it and try again.')
             quit(1)
-        command = 'tar --xz -xpf ' + stage3_file + ' -C ' + str(destination)
+        command = 'tar --xz -xpf ' + stage3_file.as_posix() + ' -C ' + destination.as_posix()
         run_command(command, verbose=True)
 

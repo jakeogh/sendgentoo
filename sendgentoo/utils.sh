@@ -42,6 +42,19 @@ install_pkg()
     emerge --with-bdeps=y --quiet --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
 }
 
+install_pkg_force()
+{
+    set +u
+    . /etc/profile
+    set -u
+    echo -e "\ninstall_pkg_force() got args: $@" > /dev/stderr
+    CONFIG_PROTECT="-*" emerge --with-bdeps=y -pv     --tree --usepkg=n -u --ask n --autounmask --autounmask-write -n $@ > /dev/stderr
+    echo -e "\ninstall_pkg_force() got args: $@" > /dev/stderr
+    CONFIG_PROTECT="-*" emerge --with-bdeps=y --quiet --tree --usepkg=n -u --ask n --autounmask --autounmask-write -n $@ > /dev/stderr
+    CONFIG_PROTECT="-*" emerge --with-bdeps=y --quiet --tree --usepkg=n -u --ask n --autounmask --autounmask-write -n $@ > /dev/stderr
+}
+
+
 add_accept_keyword "dev-python/kcl-9999"
 add_accept_keyword "dev-python/sendgentoo-9999"
 add_accept_keyword "dev-python/sqlalchemy-utils-9999"

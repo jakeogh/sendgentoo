@@ -484,7 +484,7 @@ def install(ctx, *,
                            raid_group_size=raid_group_size,
                            pool_name=hostname,)
                 root_partition_path = add_partition_number_to_device(device=root_devices[0], partition_number="3")
-                root_mount_command = "mount " + root_partition_path + " " + str(mount_path)
+                root_mount_command = "mount " + root_partition_path.as_posix() + " " + str(mount_path)
                 boot_mount_command = False
             else:  # unknown case
                 assert False
@@ -514,10 +514,10 @@ def install(ctx, *,
                 root_mount_command = False
             elif root_filesystem == 'ext4':
                 root_partition_path = add_partition_number_to_device(device=root_devices[0], partition_number="1")
-                root_mount_command = "mount " + root_partition_path + " " + str(mount_path)
+                root_mount_command = "mount " + root_partition_path.as_posix() + " " + mount_path.as_posix()
 
             boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
-            boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
+            boot_mount_command = "mount " + boot_partition_path.as_posix() + " " + mount_path_boot.as_posix()
 
         if root_mount_command:
             run_command(root_mount_command)
@@ -537,10 +537,10 @@ def install(ctx, *,
 
         if boot_filesystem == 'zfs':
             efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="9")
-            efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)
+            efi_mount_command = "mount " + efi_partition_path.as_posix() + " " + mount_path_boot_efi.as_posix()
         else:
             efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2")
-            efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)
+            efi_mount_command = "mount " + efi_partition_path.as_posix() + " " + mount_path_boot_efi.as_posix()
 
         if boot_device:
             run_command(efi_mount_command)

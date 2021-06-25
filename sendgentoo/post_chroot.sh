@@ -141,6 +141,7 @@ emaint sync -r jakeogh  # this needs git
 #emaint sync -r java
 
 add_accept_keyword "dev-python/icecream-9999"
+add_accept_keyword "dev-python/run-command-9999"
 add_accept_keyword "dev-python/compile-kernel-9999"
 install_pkg compile-kernel  # requires jakeogh overlay
 compile-kernel --no-check-boot || exit 1

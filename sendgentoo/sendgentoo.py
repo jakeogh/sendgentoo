@@ -23,6 +23,8 @@
 import os
 import sys
 from pathlib import Path
+from typing import Iterator
+from typing import Tuple
 
 import click
 import humanfriendly
@@ -49,8 +51,7 @@ from sendgentoo.create_zfs_filesystem import create_zfs_filesystem
 from sendgentoo.create_zfs_pool import create_zfs_pool
 from sendgentoo.install_stage3 import install_stage3
 from sendgentoo.write_boot_partition import write_boot_partition
-from typing import Iterator
-from typing import Tuple
+
 
 def eprint(*args, **kwargs):
     if 'file' in kwargs.keys():
@@ -242,7 +243,7 @@ def create_boot_device_for_existing_root(ctx,
 
 
 def safety_check_devices(boot_device: Path,
-                         root_devices: Tuple[Path],
+                         root_devices: Tuple[Path, ...],
                          verbose: bool,
                          debug: bool,
                          boot_device_partition_table: str,
@@ -294,7 +295,7 @@ def safety_check_devices(boot_device: Path,
 @sendgentoo.command()
 @click.argument('root_devices',                required=False, nargs=-1)  # --vm does not need a specified root device
 @click.option('--vm',                          is_flag=False, required=False, type=click.Choice(['qemu']))
-@click.option('--vm-ram',                      is_flag=False, required=False, type=str, callback=validate_ram_size, default=str(1024**3))
+@click.option('--vm-ram',                      is_flag=False, required=False, type=int, callback=validate_ram_size, default=1024**3)
 @click.option('--boot-device',                 is_flag=False, required=True)
 @click.option('--boot-device-partition-table', is_flag=False, required=False, type=click.Choice(['gpt']), default="gpt")
 @click.option('--root-device-partition-table', is_flag=False, required=False, type=click.Choice(['gpt']), default="gpt")
@@ -319,9 +320,9 @@ def safety_check_devices(boot_device: Path,
 @click.option('--debug',                       is_flag=True,  required=False)
 @click.pass_context
 def install(ctx, *,
-            root_devices: tuple,
+            root_devices: Tuple[Path, ...],
             vm: str,
-            vm_ram: str,
+            vm_ram: int,
             boot_device: Path,
             boot_device_partition_table: str,
             root_device_partition_table: str,
@@ -347,9 +348,13 @@ def install(ctx, *,
 
     assert isinstance(root_devices, tuple)
     boot_device = Path(boot_device)
+    root_devices = tuple([Path(_device) for _device in root_devices])
+    assert isinstance(root_devices, tuple)
     assert hostname.lower() == hostname
     assert '_' not in hostname
-    os.makedirs('/usr/portage/distfiles', exist_ok=True)
+
+    distfiles_dir = Path('/var/db/repos/gentoo/distfiles')
+    os.makedirs(distfiles_dir, exist_ok=True)
 
     if not os.path.isdir('/var/db/repos/gentoo/sys-kernel'):
         eprint("run emerge --sync first")
@@ -457,7 +462,7 @@ def install(ctx, *,
 
             elif boot_filesystem == 'ext4':
                 ctx.invoke(destroy_block_device_head_and_tail,
-                           device=device,
+                           device=boot_device,
                            force=True,)
                 create_boot_device(ctx,
                                    device=boot_device,
@@ -475,7 +480,7 @@ def install(ctx, *,
                            raid=raid,
                            raid_group_size=raid_group_size,
                            pool_name=hostname,)
-                root_partition_path = add_partition_number_to_device(device=device, partition_number="3")
+                root_partition_path = add_partition_number_to_device(device=root_devices[0], partition_number="3")
                 root_mount_command = "mount " + root_partition_path + " " + str(mount_path)
                 boot_mount_command = False
             else:  # unknown case
@@ -504,7 +509,7 @@ def install(ctx, *,
             if root_filesystem == 'zfs':
                 root_mount_command = False
             elif root_filesystem == 'ext4':
-                root_partition_path = add_partition_number_to_device(device=device, partition_number="1")
+                root_partition_path = add_partition_number_to_device(device=root_devices[0], partition_number="1")
                 root_mount_command = "mount " + root_partition_path + " " + str(mount_path)
 
             boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
@@ -546,24 +551,11 @@ def install(ctx, *,
                    verbose=verbose,
                    debug=debug,)
 
-    #if march == 'native':
     if not boot_device:
-        boot_device = "False"  # fixme
+        assert False
+        #boot_device = "False"  # fixme
     if not vm:
         vm = "novm"
-        #vm + ' ' + \
-    #chroot_gentoo_command = \
-    #    "/home/cfg/_myapps/sendgentoo/sendgentoo/chroot_gentoo.py " + \
-    #    '--stdlib ' + stdlib + " " + \
-    #    '--boot-device ' + boot_device + " " + \
-    #    '--hostname ' + hostname + ' ' + \
-    #    '--march ' + march + ' ' + \
-    #    '--root-filesystem ' + root_filesystem + ' ' + \
-    #    '--newpasswd ' + newpasswd + ' ' + \
-    #    '--ip ' + ip + ' ' + \
-    #    '--ip-gateway ' + ip_gateway + ' ' + \
-    #    str(mount_path)
-    #eprint("\nnow run:", chroot_gentoo_command)
 
     ctx.invoke(chroot_gentoo,
                mount_path=mount_path,

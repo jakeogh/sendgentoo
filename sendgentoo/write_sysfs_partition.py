@@ -4,6 +4,7 @@
 import sys
 import time
 from pathlib import Path
+from typing import Tuple
 
 import click
 from blocktool import add_partition_number_to_device
@@ -39,7 +40,7 @@ except ImportError:
 @click.option('--pool-name', is_flag=False, type=str)
 @click.option('--verbose',)
 @click.option('--debug',)
-def write_sysfs_partition(devices,
+def write_sysfs_partition(devices: Tuple[Path, ...],
                           filesystem: str,
                           force: bool,
                           exclusive: bool,
@@ -49,14 +50,16 @@ def write_sysfs_partition(devices,
                           verbose: bool,
                           debug: bool,
                           ):
-    eprint("creating sysfs partition on:", devices)
+
+    devices = tuple([Path(_device) for _device in devices])
+    ic('creating sysfs partition on:', devices)
 
     if filesystem == 'zfs':
         assert pool_name
 
     for device in devices:
-        if not Path(device).name.startswith('nvme'):
-            assert not device[-1].isdigit()
+        if not device.name.startswith('nvme'):
+            assert not device.name[-1].isdigit()
         assert path_is_block_special(device)
         assert not block_special_path_is_mounted(device, verbose=verbose, debug=debug,)
 
@@ -76,10 +79,10 @@ def write_sysfs_partition(devices,
             start = "100MiB"
             end = "100%"
 
-        run_command("parted -a optimal " + devices[0] + " --script -- mkpart primary " + filesystem + ' ' + start + ' ' + end)
-        run_command("parted  " + devices[0] + " --script -- name " + partition_number + " rootfs")
+        run_command("parted -a optimal " + devices[0].as_posix() + " --script -- mkpart primary " + filesystem + ' ' + start + ' ' + end)
+        run_command("parted  " + devices[0].as_posix() + " --script -- name " + partition_number + " rootfs")
         time.sleep(1)
-        sysfs_partition_path = add_partition_number_to_device(device=devices[0], partition_number=partition_number)
+        sysfs_partition_path = add_partition_number_to_device(device=devices[0].as_posix(), partition_number=partition_number)
         if filesystem == 'ext4':
             run_command("mkfs.ext4 " + sysfs_partition_path, verbose=True)
         elif filesystem == 'fat32':

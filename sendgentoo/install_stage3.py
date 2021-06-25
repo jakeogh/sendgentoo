@@ -68,7 +68,7 @@ def install_stage3(stdlib,
         #run_command(gpg_cmd, verbose=True)
 
         ic(stage3_file)
-        run_command('gpg --verify ' + stage3_file + '.DIGESTS.asc', verbose=True)
+        run_command('gpg --verify ' + stage3_file.as_posix() + '.DIGESTS.asc', verbose=True)
         whirlpool = run_command("openssl dgst -r -whirlpool " + stage3_file.as_posix() + "| cut -d ' ' -f 1",
                                 verbose=True).decode('utf8').strip()
         try:
@@ -77,7 +77,7 @@ def install_stage3(stdlib,
             ic('BAD WHIRPOOL HASH:', whirlpool)
             ic('For file:', stage3_file)
             ic('File is corrupt (most likely partially downloaded). Delete it and try again.')
-            quit(1)
+            sys.exit(1)
         command = 'tar --xz -xpf ' + stage3_file.as_posix() + ' -C ' + destination.as_posix()
         run_command(command, verbose=True)
 

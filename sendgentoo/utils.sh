@@ -48,10 +48,10 @@ install_pkg_force()
     . /etc/profile
     set -u
     echo -e "\ninstall_pkg_force() got args: $@" > /dev/stderr
-    CONFIG_PROTECT="-*" emerge --with-bdeps=y -pv     --tree --usepkg=n -u --ask n --autounmask --autounmask-write --with-bdeps=y -n $@ > /dev/stderr
+    CONFIG_PROTECT="-*" emerge --with-bdeps=y -pv     --tree --usepkg=n -u --ask n --autounmask --autounmask-write  -n $@ > /dev/stderr
     echo -e "\ninstall_pkg_force() got args: $@" > /dev/stderr
-    CONFIG_PROTECT="-*" emerge --with-bdeps=y --quiet --tree --usepkg=n -u --ask n --autounmask --autounmask-write --with-bdeps=y -n $@ > /dev/stderr
-    CONFIG_PROTECT="-*" emerge --with-bdeps=y --quiet --tree --usepkg=n -u --ask n --autounmask --autounmask-write --with-bdeps=y -n $@ > /dev/stderr
+    CONFIG_PROTECT="-*" emerge --with-bdeps=y --quiet --tree --usepkg=n -u --ask n --autounmask --autounmask-write  -n $@ > /dev/stderr
+    CONFIG_PROTECT="-*" emerge --with-bdeps=y --quiet --tree --usepkg=n -u --ask n --autounmask --autounmask-write  -n $@ > /dev/stderr
 }
 
 

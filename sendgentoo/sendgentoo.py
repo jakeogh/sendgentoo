@@ -279,15 +279,15 @@ def safety_check_devices(boot_device: Path,
     for device in root_devices:
         eprint("boot_device:", boot_device)
         eprint("device:", device)
-        eprint("get_block_device_size(boot_device):", get_block_device_size(boot_device))
-        eprint("get_block_device_size(device):     ", get_block_device_size(device))
-        assert get_block_device_size(boot_device) <= get_block_device_size(device)
+        eprint("get_block_device_size(boot_device):", get_block_device_size(boot_device, verbose=verbose, debug=debug,))
+        eprint("get_block_device_size(device):     ", get_block_device_size(device, verbose=verbose, debug=debug,))
+        assert get_block_device_size(boot_device, verbose=verbose, debug=debug,) <= get_block_device_size(device, verbose=verbose, debug=debug,)
 
     if root_devices:
-        first_root_device_size = get_block_device_size(root_devices[0])
+        first_root_device_size = get_block_device_size(root_devices[0], verbose=verbose, debug=debug,)
 
         for device in root_devices:
-            assert get_block_device_size(device) == first_root_device_size
+            assert get_block_device_size(device, verbose=verbose, debug=debug,) == first_root_device_size
 
     if boot_device or root_devices:
         if not force:

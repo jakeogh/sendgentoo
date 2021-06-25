@@ -82,7 +82,7 @@ def write_sysfs_partition(devices: Tuple[Path, ...],
         run_command("parted -a optimal " + devices[0].as_posix() + " --script -- mkpart primary " + filesystem + ' ' + start + ' ' + end)
         run_command("parted  " + devices[0].as_posix() + " --script -- name " + partition_number + " rootfs")
         time.sleep(1)
-        sysfs_partition_path = add_partition_number_to_device(device=devices[0].as_posix(), partition_number=partition_number)
+        sysfs_partition_path = add_partition_number_to_device(device=devices[0], partition_number=partition_number)
         if filesystem == 'ext4':
             run_command("mkfs.ext4 " + sysfs_partition_path.as_posix(), verbose=True)
         elif filesystem == 'fat32':
@@ -93,7 +93,9 @@ def write_sysfs_partition(devices: Tuple[Path, ...],
 
     elif filesystem == 'zfs':
         assert exclusive
+        assert False
         write_zfs_root_filesystem_on_devices(devices=devices,
+                                             mount_point=None,
                                              force=True,
                                              raid=raid,
                                              raid_group_size=raid_group_size,

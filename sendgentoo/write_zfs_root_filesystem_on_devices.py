@@ -19,6 +19,7 @@
 
 import sys
 from pathlib import Path
+from typing import Tuple
 
 import click
 from blocktool import path_is_block_special
@@ -51,7 +52,7 @@ except ImportError:
 @click.option('--mount-point', is_flag=False, required=True, type=str)
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
-def write_zfs_root_filesystem_on_devices(devices,
+def write_zfs_root_filesystem_on_devices(devices: Tuple[Path, ...],
                                          force,
                                          raid,
                                          raid_group_size,
@@ -60,18 +61,16 @@ def write_zfs_root_filesystem_on_devices(devices,
                                          verbose,
                                          debug,
                                          ):
-
-    if verbose:
-        ic()
+    devices = tuple([Path(_device) for _device in devices])
 
     # https://raw.githubusercontent.com/ryao/zfs-overlay/master/zfs-install
-    run_command("modprobe zfs || exit 1")
+    run_command("modprobe zfs || exit 1", verbose=True)
 
     for device in devices:
         assert path_is_block_special(device)
         assert not block_special_path_is_mounted(device, verbose=verbose, debug=debug,)
         if not Path(device).name.startswith('nvme'):
-            assert not device[-1].isdigit()
+            assert not device.name[-1].isdigit()
 
     #assert raid_group_size >= 2
     assert len(devices) >= raid_group_size
@@ -79,7 +78,7 @@ def write_zfs_root_filesystem_on_devices(devices,
     device_string = ''
     if len(devices) == 1:
         assert raid == 'disk'
-        device_string = devices[0]
+        device_string = devices[0].as_posix()
 
     if len(devices) > 1:
         assert raid == 'mirror'
@@ -87,7 +86,7 @@ def write_zfs_root_filesystem_on_devices(devices,
 
     if len(devices) == 2:
         assert raid == 'mirror'
-        device_string = "mirror " + devices[0] + ' ' + devices[1]
+        device_string = "mirror " + devices[0].as_posix() + ' ' + devices[1]
 
     # striped mirror raid10
     if len(devices) > 2:
@@ -120,7 +119,7 @@ def write_zfs_root_filesystem_on_devices(devices,
     -O dedup=off \
     -O utf8only=off \
     -m none \
-    -R """ + mount_point + ' ' + pool_name + ' ' + device_string
+    -R """ + mount_point.as_posix() + ' ' + pool_name + ' ' + device_string
 
 #    zpool_command = """
 #    zpool create \

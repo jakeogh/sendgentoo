@@ -92,8 +92,6 @@ echo "sys-kernel/gentoo-sources symlink" > /etc/portage/package.use/gentoo-sourc
 install_pkg gentoo-sources || exit 1
 install_pkg grub:2 || exit 1
 
-/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh "${boot_device}" || exit 1
-
 install_pkg dev-util/strace
 install_pkg memtest86+ # do before generating grub.conf
 mkdir /usr/src/linux_configs
@@ -146,6 +144,9 @@ emaint sync -r jakeogh  # this needs git
 install_pkg_force compile-kernel  # requires jakeogh overlay
 compile-kernel --no-check-boot || exit 1
 cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
+
+# this can be done until memtest86+ and the kernel are ready
+/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh "${boot_device}" || exit 1
 
 rc-update add zfs-mount boot # dont exit if this fails
 install_pkg dhcpcd  # not in stage3

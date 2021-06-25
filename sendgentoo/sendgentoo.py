@@ -66,10 +66,13 @@ except ImportError:
 
 
 def validate_ram_size(ctx, param, vm_ram):
-    eprint("vm_ram:", vm_ram)
+    ic(vm_ram)
 
     sysram_bytes = virtual_memory().total
-    vm_ram_bytes = humanfriendly.parse_size(vm_ram)
+    if not isinstance(vm_ram, int):
+        vm_ram_bytes = humanfriendly.parse_size(vm_ram)
+    else:
+        vm_ram_bytes = vm_ram
     if vm_ram_bytes >= sysram_bytes:
         sysram_human = humanfriendly.format_size(sysram_bytes)
         vm_ram_human = humanfriendly.format_size(vm_ram_bytes)

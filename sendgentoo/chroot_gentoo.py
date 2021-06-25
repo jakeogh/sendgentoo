@@ -152,8 +152,10 @@ def chroot_gentoo(ctx,
                   ipython: bool,
                   ):
 
+    mount_path = Path(mount_path)
+    assert path_is_mounted(mount_path, verbose=verbose, debug=debug,)
+
     if not skip_to_rsync:
-        mount_path = Path(mount_path)
 
         ctx.invoke(make_hybrid_mbr,
                    boot_device=boot_device,
@@ -183,20 +185,20 @@ def chroot_gentoo(ctx,
                            verbose=verbose,
                            debug=debug,)
 
-        if not path_is_mounted(mount_path / Path('proc'), verbose=verbose, debug=debug,):
-            sh.mount('-t', 'proc', 'none', mount_path / Path('proc'))
-        if not path_is_mounted(mount_path / Path('sys'), verbose=verbose, debug=debug,):
-            sh.mount('--rbind', '/sys', mount_path / Path('sys'))
-        if not path_is_mounted(mount_path / Path('dev'), verbose=verbose, debug=debug,):
-            sh.mount('--rbind', '/dev', mount_path / Path('dev'))
+    if not path_is_mounted(mount_path / Path('proc'), verbose=verbose, debug=debug,):
+        sh.mount('-t', 'proc', 'none', mount_path / Path('proc'))
+    if not path_is_mounted(mount_path / Path('sys'), verbose=verbose, debug=debug,):
+        sh.mount('--rbind', '/sys', mount_path / Path('sys'))
+    if not path_is_mounted(mount_path / Path('dev'), verbose=verbose, debug=debug,):
+        sh.mount('--rbind', '/dev', mount_path / Path('dev'))
 
-        os.makedirs(mount_path / Path('usr') / Path('portage'), exist_ok=True)
-        if not path_is_mounted(mount_path / Path('usr') / Path('portage'), verbose=verbose, debug=debug,):
-            sh.mount('--rbind', '/usr/portage', mount_path / Path('usr') / Path('portage'))
+    os.makedirs(mount_path / Path('usr') / Path('portage'), exist_ok=True)
+    if not path_is_mounted(mount_path / Path('usr') / Path('portage'), verbose=verbose, debug=debug,):
+        sh.mount('--rbind', '/usr/portage', mount_path / Path('usr') / Path('portage'))
 
-        os.makedirs(mount_path / Path('home') / Path('cfg'), exist_ok=True)
+    os.makedirs(mount_path / Path('home') / Path('cfg'), exist_ok=True)
 
-        os.makedirs(mount_path / Path('usr') / Path('local') / Path('portage'), exist_ok=True)
+    os.makedirs(mount_path / Path('usr') / Path('local') / Path('portage'), exist_ok=True)
 
     ctx.invoke(rsync_cfg,
                mount_path=mount_path,

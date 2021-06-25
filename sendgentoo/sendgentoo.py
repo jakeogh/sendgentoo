@@ -26,6 +26,7 @@ from pathlib import Path
 
 import click
 import humanfriendly
+from asserttool import am_root
 from blocktool import add_partition_number_to_device
 from blocktool import create_filesystem
 from blocktool import destroy_block_device_head_and_tail
@@ -35,7 +36,6 @@ from blocktool import get_block_device_size
 from blocktool import path_is_block_special
 from blocktool import warn
 from compile_kernel.compile_kernel import kcompile
-from kcl.userops import root_user
 from mounttool import block_special_path_is_mounted
 from mounttool import path_is_mounted
 from psutil import virtual_memory
@@ -104,7 +104,7 @@ def compile_kernel(ctx, *,
                    debug: bool
                    ,):
 
-    if not root_user():
+    if not am_root():
         ic('You must be root.')
         sys.exit(1)
 
@@ -171,7 +171,7 @@ def create_boot_device_for_existing_root(ctx,
     if configure_kernel:
         _compile_kernel = True
 
-    if not root_user():
+    if not am_root():
         ic('You must be root.')
         sys.exit(1)
 

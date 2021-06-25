@@ -177,7 +177,7 @@ install_pkg unison
 #ln -s /usr/bin/unison-2.48 /usr/bin/unison
 eselect unison list #todo
 
-
+perl-cleaner --reallyall
 #echo "=dev-libs/openssl-1.1.1a" > /etc/portage/package.unmask
 install_pkg tmux
 install_pkg app-portage/repoman

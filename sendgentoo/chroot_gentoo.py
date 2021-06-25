@@ -32,8 +32,8 @@ from typing import Sequence
 import click
 import sh
 from asserttool import root_user
-#from enumerate_input import enumerate_input
 from mounttool import path_is_mounted
+from pathtool import path_is_block_special
 from pathtool import write_line_to_file
 from run_command import run_command
 from with_chdir import chdir
@@ -60,6 +60,28 @@ except ImportError:
 ##   eprint('{0}: {1}'.format(ex_cls, ex))
 ##
 ##sys.excepthook = log_uncaught_exceptions
+
+
+
+@click.command()
+@click.argument("boot_device")
+@click.option('--verbose', is_flag=True)
+@click.option('--debug', is_flag=True)
+def make_hybrid_mbr(*,
+                    boot_device: str,
+                    verbose: bool,
+                    debug: bool,
+                    ):
+
+    if not root_user():
+        ic('You must be root.')
+        sys.exit(1)
+
+    assert path_is_block_special(boot_device)
+
+    command = "/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh {boot_device}".format(boot_device=boot_device)
+    run_command(command, verbose=verbose, debug=debug, system=True)
+
 
 @click.command()
 @click.argument("mount_path")
@@ -130,48 +152,51 @@ def chroot_gentoo(ctx,
                   ipython: bool,
                   ):
 
-    mount_path = Path(mount_path)
+    if not skip_to_rsync:
+        mount_path = Path(mount_path)
 
-    command = "/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh {boot_device}".format(boot_device=boot_device)
-    run_command(command, verbose=verbose, debug=debug, system=True)
+        ctx.invoke(make_hybrid_mbr,
+                   boot_device=boot_device,
+                   verbose=verbose,
+                   debug=debug,)
 
-    #if [[ "${vm}" == "qemu" ]];
-    #then
-    #    mount --bind "${destination}"{,-chroot} || { echo "${destination} ${destination}-chroot" ; exit 1 ; }
-    #fi
+        #if [[ "${vm}" == "qemu" ]];
+        #then
+        #    mount --bind "${destination}"{,-chroot} || { echo "${destination} ${destination}-chroot" ; exit 1 ; }
+        #fi
 
-    write_line_to_file(file_to_write=mount_path / Path('etc') / Path('conf.d') / Path('net'),
-                       line='config_eth0="{ip}/24"\n'.format(ip=ip),
-                       unique=True,
-                       verbose=verbose,
-                       debug=debug,)
+        write_line_to_file(file_to_write=mount_path / Path('etc') / Path('conf.d') / Path('net'),
+                           line='config_eth0="{ip}/24"\n'.format(ip=ip),
+                           unique=True,
+                           verbose=verbose,
+                           debug=debug,)
 
-    write_line_to_file(file_to_write=mount_path / Path('etc') / Path('conf.d') / Path('net'),
-                       line='routes_eth0="default via {ip_gateway}"\n'.format(ip_gateway=ip_gateway),
-                       unique=True,
-                       verbose=verbose,
-                       debug=debug,)
+        write_line_to_file(file_to_write=mount_path / Path('etc') / Path('conf.d') / Path('net'),
+                           line='routes_eth0="default via {ip_gateway}"\n'.format(ip_gateway=ip_gateway),
+                           unique=True,
+                           verbose=verbose,
+                           debug=debug,)
 
-    write_line_to_file(file_to_write=mount_path / Path('etc') / Path('conf.d') / Path('hostname'),
-                       line='hostname="{hostname}"\n'.format(hostname=hostname),
-                       unique=True,
-                       verbose=verbose,
-                       debug=debug,)
+        write_line_to_file(file_to_write=mount_path / Path('etc') / Path('conf.d') / Path('hostname'),
+                           line='hostname="{hostname}"\n'.format(hostname=hostname),
+                           unique=True,
+                           verbose=verbose,
+                           debug=debug,)
 
-    if not path_is_mounted(mount_path / Path('proc'), verbose=verbose, debug=debug,):
-        sh.mount('-t', 'proc', 'none', mount_path / Path('proc'))
-    if not path_is_mounted(mount_path / Path('sys'), verbose=verbose, debug=debug,):
-        sh.mount('--rbind', '/sys', mount_path / Path('sys'))
-    if not path_is_mounted(mount_path / Path('dev'), verbose=verbose, debug=debug,):
-        sh.mount('--rbind', '/dev', mount_path / Path('dev'))
+        if not path_is_mounted(mount_path / Path('proc'), verbose=verbose, debug=debug,):
+            sh.mount('-t', 'proc', 'none', mount_path / Path('proc'))
+        if not path_is_mounted(mount_path / Path('sys'), verbose=verbose, debug=debug,):
+            sh.mount('--rbind', '/sys', mount_path / Path('sys'))
+        if not path_is_mounted(mount_path / Path('dev'), verbose=verbose, debug=debug,):
+            sh.mount('--rbind', '/dev', mount_path / Path('dev'))
 
-    os.makedirs(mount_path / Path('usr') / Path('portage'), exist_ok=True)
-    if not path_is_mounted(mount_path / Path('usr') / Path('portage'), verbose=verbose, debug=debug,):
-        sh.mount('--rbind', '/usr/portage', mount_path / Path('usr') / Path('portage'))
+        os.makedirs(mount_path / Path('usr') / Path('portage'), exist_ok=True)
+        if not path_is_mounted(mount_path / Path('usr') / Path('portage'), verbose=verbose, debug=debug,):
+            sh.mount('--rbind', '/usr/portage', mount_path / Path('usr') / Path('portage'))
 
-    os.makedirs(mount_path / Path('home') / Path('cfg'), exist_ok=True)
+        os.makedirs(mount_path / Path('home') / Path('cfg'), exist_ok=True)
 
-    os.makedirs(mount_path / Path('usr') / Path('local') / Path('portage'), exist_ok=True)
+        os.makedirs(mount_path / Path('usr') / Path('local') / Path('portage'), exist_ok=True)
 
     ctx.invoke(rsync_cfg,
                mount_path=mount_path,

@@ -1,17 +1,32 @@
 #!/usr/bin/env python3
 
+import sys
 from pathlib import Path
+from typing import Sequence
 
 import click
 from blocktool import destroy_block_device_head_and_tail
 from blocktool import path_is_block_special
 from blocktool import warn
 from blocktool import write_gpt
-from kcl.printops import eprint
 from mounttool import block_special_path_is_mounted
 
 from .setup_globals import RAID_LIST
 from .write_sysfs_partition import write_sysfs_partition
+
+
+def eprint(*args, **kwargs):
+    if 'file' in kwargs.keys():
+        kwargs.pop('file')
+    print(*args, file=sys.stderr, **kwargs)
+
+
+try:
+    from icecream import ic  # https://github.com/gruns/icecream
+    from icecream import icr  # https://github.com/jakeogh/icecream
+except ImportError:
+    ic = eprint
+    icr = eprint
 
 
 @click.command()
@@ -27,7 +42,7 @@ from .write_sysfs_partition import write_sysfs_partition
 @click.option('--debug', is_flag=True,  required=False)
 @click.pass_context
 def create_root_device(ctx,
-                       devices,
+                       devices: Sequence[Path, ...],
                        partition_table: str,
                        filesystem: str,
                        force: bool,
@@ -38,11 +53,12 @@ def create_root_device(ctx,
                        debug: bool,
                        pool_name: str,
                        ):
+    devices = tuple([Path(_device) for _device in devices])
 
-    eprint("installing gentoo on root devices:", ' '.join(devices), '(' + partition_table + ')', '(' + filesystem + ')', '(', pool_name, ')')
+    eprint("installing gentoo on root devices:", ' '.join([_device.as_posix() for _device in devices]), '(' + partition_table + ')', '(' + filesystem + ')', '(', pool_name, ')')
     for device in devices:
-        if not Path(device).name.startswith('nvme'):
-            assert not device[-1].isdigit()
+        if not device.name.startswith('nvme'):
+            assert not device.name[-1].isdigit()
         assert path_is_block_special(device)
         assert not block_special_path_is_mounted(device, verbose=verbose, debug=debug,)
 
@@ -63,7 +79,7 @@ def create_root_device(ctx,
                        force=force,
                        no_backup=False,
                        verbose=verbose,
-                       debug=debug,) #zfs does this on it's own, feed it a blank disk
+                       debug=debug,)  # zfs does this on it's own, feed it a blank disk
     else:
         pass
 

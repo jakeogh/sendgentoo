@@ -88,6 +88,7 @@ source /etc/profile
 
 #install kernel and update symlink (via use flag)
 export KCONFIG_OVERWRITECONFIG=1 # https://www.mail-archive.com/lede-dev@lists.infradead.org/msg07290.html
+echo "sys-kernel/gentoo-sources symlink" > /etc/portage/package.use/gentoo-sources    # required so /usr/src/linux exists
 install_pkg gentoo-sources || exit 1
 install_pkg grub:2 || exit 1
 
@@ -118,7 +119,6 @@ ln -s /home/cfg/sysskel/etc/skel/bin /root/bin
 
 install_pkg gradm #required for gentoo-hardened RBAC
 echo "sys-apps/util-linux static-libs" > /etc/portage/package.use/util-linux    # required for genkernel
-echo "sys-kernel/gentoo-sources symlink" > /etc/portage/package.use/gentoo-sources    # required so /usr/src/linux exists
 echo "sys-kernel/linux-firmware linux-fw-redistributable no-source-code" >> /etc/portage/package.license
 install_pkg genkernel
 

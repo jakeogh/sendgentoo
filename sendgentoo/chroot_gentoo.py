@@ -94,7 +94,7 @@ def rsync_cfg(*,
                          '/home/cfg "{mount_path}/home/"'.format(mount_path=mount_path),]
         run_command(' '.join(rsync_command),
                     system=True,
-                    ask=True,
+                    ask=False,
                     verbose=True,)
 
 

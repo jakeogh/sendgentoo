@@ -26,7 +26,7 @@ from pathlib import Path
 
 import click
 import humanfriendly
-from asserttool import am_root
+from asserttool import root_user
 from blocktool import add_partition_number_to_device
 from blocktool import create_filesystem
 from blocktool import destroy_block_device_head_and_tail
@@ -104,7 +104,7 @@ def compile_kernel(ctx, *,
                    debug: bool
                    ,):
 
-    if not am_root():
+    if not root_user():
         ic('You must be root.')
         sys.exit(1)
 
@@ -171,7 +171,7 @@ def create_boot_device_for_existing_root(ctx,
     if configure_kernel:
         _compile_kernel = True
 
-    if not am_root():
+    if not root_user():
         ic('You must be root.')
         sys.exit(1)
 

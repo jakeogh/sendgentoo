@@ -31,7 +31,7 @@ from typing import Sequence
 
 import click
 import sh
-from asserttool import am_root
+from asserttool import root_user
 #from enumerate_input import enumerate_input
 from mounttool import path_is_mounted
 from pathtool import write_line_to_file
@@ -71,7 +71,7 @@ def rsync_cfg(*,
               debug: bool,
               ):
 
-    if not am_root():
+    if not root_user():
         ic('You must be root.')
         sys.exit(1)
 

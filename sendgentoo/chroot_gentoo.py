@@ -173,9 +173,10 @@ def chroot_gentoo(ctx,
 
     os.makedirs(mount_path / Path('usr') / Path('local') / Path('portage'), exist_ok=True)
 
-    rsync_cfg(mount_path=mount_path,
-              verbose=verbose,
-              debug=debug,)
+    ctx.invoke(rsync_cfg,
+               mount_path=mount_path,
+               verbose=verbose,
+               debug=debug,)
 
     repos_conf = mount_path / Path('etc') / Path('portage') / Path('repos.conf')
     os.makedirs(repos_conf, exist_ok=True)

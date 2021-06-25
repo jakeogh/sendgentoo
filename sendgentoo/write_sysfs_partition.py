@@ -84,9 +84,9 @@ def write_sysfs_partition(devices: Tuple[Path, ...],
         time.sleep(1)
         sysfs_partition_path = add_partition_number_to_device(device=devices[0].as_posix(), partition_number=partition_number)
         if filesystem == 'ext4':
-            run_command("mkfs.ext4 " + sysfs_partition_path, verbose=True)
+            run_command("mkfs.ext4 " + sysfs_partition_path.as_posix(), verbose=True)
         elif filesystem == 'fat32':
-            run_command("mkfs.vfat " + sysfs_partition_path, verbose=True)
+            run_command("mkfs.vfat " + sysfs_partition_path.as_posix(), verbose=True)
         else:
             eprint("unknown filesystem:", filesystem)
             sys.exit(1)

@@ -31,16 +31,11 @@ from typing import Sequence
 
 import click
 import sh
-from enumerate_input import enumerate_input
-#from getdents import files
+from asserttool import am_root
+#from enumerate_input import enumerate_input
 from mounttool import path_is_mounted
-#from kcl.userops import not_root
-#from pathtool import path_is_block_special
 from pathtool import write_line_to_file
-from retry_on_exception import retry_on_exception
-#from collections import defaultdict
 from run_command import run_command
-#from with_sshfs import sshfs
 from with_chdir import chdir
 
 
@@ -75,6 +70,10 @@ def rsync_cfg(*,
               verbose: bool,
               debug: bool,
               ):
+
+    if not am_root():
+        ic('You must be root.')
+        sys.exit(1)
 
     with chdir('/home/'):
         rsync_command = ['rsync',
@@ -213,8 +212,3 @@ def chroot_gentoo(ctx,
     run_command(' '.join(chroot_command), verbose=True, ask=True, system=True)
 
     ic('chroot_gentoo.py complete!')
-
-
-#if __name__ == '__main__':
-#    cli()
-

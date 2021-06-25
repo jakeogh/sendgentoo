@@ -555,6 +555,7 @@ def install(ctx, *,
                ip_gateway=ip_gateway,
                vm=vm,
                ipython=False,
+               skip_to_rsync=False,
                verbose=verbose,
                debug=debug,)
 

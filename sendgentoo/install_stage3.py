@@ -2,6 +2,7 @@
 
 import os
 import sys
+from pathlib import Path
 from subprocess import CalledProcessError
 
 from kcl.netops import construct_proxy_dict
@@ -28,12 +29,14 @@ except ImportError:
 def install_stage3(stdlib,
                    multilib: bool,
                    arch: str,
-                   destination: str,
-                   vm: bool,
+                   destination: Path,
+                   vm: str,
                    vm_ram: int,
                    verbose: bool,
                    debug: bool,
                    ):
+
+    destination = Path(destination)
     ic(stdlib, multilib, arch, destination, vm)
     os.chdir(destination)
     ic(destination)

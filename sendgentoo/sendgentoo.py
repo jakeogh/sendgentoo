@@ -49,7 +49,8 @@ from sendgentoo.create_zfs_filesystem import create_zfs_filesystem
 from sendgentoo.create_zfs_pool import create_zfs_pool
 from sendgentoo.install_stage3 import install_stage3
 from sendgentoo.write_boot_partition import write_boot_partition
-
+from typing import Iterator
+from typing import Tuple
 
 def eprint(*args, **kwargs):
     if 'file' in kwargs.keys():
@@ -240,6 +241,56 @@ def create_boot_device_for_existing_root(ctx,
     run_command(grub_config_command, verbose=True, popen=True)
 
 
+def safety_check_devices(boot_device: Path,
+                         root_devices: Tuple[Path],
+                         verbose: bool,
+                         debug: bool,
+                         boot_device_partition_table: str,
+                         boot_filesystem: str,
+                         root_device_partition_table: str,
+                         root_filesystem: str,
+                         force: bool,
+                         ):
+    if boot_device:
+        assert device_is_not_a_partition(device=boot_device,
+                                         verbose=verbose,
+                                         debug=debug,)
+
+    for device in root_devices:
+        assert device_is_not_a_partition(device=device,
+                                         verbose=verbose,
+                                         debug=debug,)
+
+    if boot_device:
+        eprint("installing gentoo on boot device: {boot_device} {boot_device_partition_table} {boot_filesystem}".format(boot_device=boot_device, boot_device_partition_table=boot_device_partition_table, boot_filesystem=boot_filesystem))
+        assert path_is_block_special(boot_device)
+        assert not block_special_path_is_mounted(boot_device, verbose=verbose, debug=debug,)
+
+    if root_devices:
+        eprint("installing gentoo on root device(s):", root_devices, '(' + root_device_partition_table + ')', '(' + root_filesystem + ')')
+        for device in root_devices:
+            assert path_is_block_special(device)
+            assert not block_special_path_is_mounted(device, verbose=verbose, debug=debug,)
+
+    for device in root_devices:
+        eprint("boot_device:", boot_device)
+        eprint("device:", device)
+        eprint("get_block_device_size(boot_device):", get_block_device_size(boot_device))
+        eprint("get_block_device_size(device):     ", get_block_device_size(device))
+        assert get_block_device_size(boot_device) <= get_block_device_size(device)
+
+    if root_devices:
+        first_root_device_size = get_block_device_size(root_devices[0])
+
+        for device in root_devices:
+            assert get_block_device_size(device) == first_root_device_size
+
+    if boot_device or root_devices:
+        if not force:
+            warn((boot_device,), verbose=verbose, debug=debug,)
+            warn(root_devices, verbose=verbose, debug=debug,)
+
+
 @sendgentoo.command()
 @click.argument('root_devices',                required=False, nargs=-1)  # --vm does not need a specified root device
 @click.option('--vm',                          is_flag=False, required=False, type=click.Choice(['qemu']))
@@ -271,7 +322,7 @@ def install(ctx, *,
             root_devices: tuple,
             vm: str,
             vm_ram: str,
-            boot_device: str,
+            boot_device: Path,
             boot_device_partition_table: str,
             root_device_partition_table: str,
             boot_filesystem: str,
@@ -295,6 +346,7 @@ def install(ctx, *,
             ):
 
     assert isinstance(root_devices, tuple)
+    boot_device = Path(boot_device)
     assert hostname.lower() == hostname
     assert '_' not in hostname
     os.makedirs('/usr/portage/distfiles', exist_ok=True)
@@ -306,7 +358,7 @@ def install(ctx, *,
         eprint("encryption not yet supported")
         #sys.exit(1)
     if stdlib == 'musl':
-        eprint("musl not supported yet")
+        eprint("musl not yet supported")
         sys.exit(1)
     if stdlib == 'uclibc':
         eprint("uclibc fails with efi grub because efivar fails to compile. See Note.")
@@ -316,7 +368,11 @@ def install(ctx, *,
     mount_path_boot = mount_path / Path('boot')
     mount_path_boot_efi = mount_path_boot / Path('efi')
 
+    os.makedirs(mount_path, exist_ok=True)
+
     assert Path('/usr/bin/ischroot').exists()
+    eprint("using C library:", stdlib)
+    eprint("hostname:", hostname)
 
     if root_filesystem == '9p':
         assert vm
@@ -356,49 +412,15 @@ def install(ctx, *,
     if root_filesystem == 'zfs' or boot_filesystem == 'zfs':
         input("note zfs boot/root is not working, many fixes will be needed, press enter to break things")
 
-    if boot_device:
-        assert device_is_not_a_partition(device=boot_device,
-                                         verbose=verbose,
-                                         debug=debug,)
-
-    for device in root_devices:
-        assert device_is_not_a_partition(device=device,
-                                         verbose=verbose,
-                                         debug=debug,)
-
-    if boot_device:
-        eprint("installing gentoo on boot device:", boot_device, '(' + boot_device_partition_table + ')', '(' + boot_filesystem + ')')
-        assert path_is_block_special(boot_device)
-        assert not block_special_path_is_mounted(boot_device, verbose=verbose, debug=debug,)
-
-    if root_devices:
-        eprint("installing gentoo on root device(s):", root_devices, '(' + root_device_partition_table + ')', '(' + root_filesystem + ')')
-        for device in root_devices:
-            assert path_is_block_special(device)
-            assert not block_special_path_is_mounted(device, verbose=verbose, debug=debug,)
-
-    eprint("using C library:", stdlib)
-    eprint("hostname:", hostname)
-
-    for device in root_devices:
-        eprint("boot_device:", boot_device)
-        eprint("device:", device)
-        eprint("get_block_device_size(boot_device):", get_block_device_size(boot_device))
-        eprint("get_block_device_size(device):     ", get_block_device_size(device))
-        assert get_block_device_size(boot_device) <= get_block_device_size(device)
-
-    if root_devices:
-        first_root_device_size = get_block_device_size(root_devices[0])
-
-        for device in root_devices:
-            assert get_block_device_size(device) == first_root_device_size
-
-    if boot_device or root_devices:
-        if not force:
-            warn((boot_device,), verbose=verbose, debug=debug,)
-            warn(root_devices, verbose=verbose, debug=debug,)
-
-    os.makedirs(mount_path, exist_ok=True)
+    safety_check_devices(boot_device=boot_device,
+                         root_devices=root_devices,
+                         verbose=verbose,
+                         debug=debug,
+                         boot_device_partition_table=boot_device_partition_table,
+                         boot_filesystem=boot_filesystem,
+                         root_device_partition_table=root_device_partition_table,
+                         root_filesystem=root_filesystem,
+                         force=force,)
 
     if boot_device and root_devices and not vm:
         if boot_device == root_devices[0]:

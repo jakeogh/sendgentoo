@@ -507,6 +507,7 @@ def install(ctx, *,
                        force=True,
                        raid=raid,)
             if root_filesystem == 'zfs':
+                assert False
                 root_mount_command = False
             elif root_filesystem == 'ext4':
                 root_partition_path = add_partition_number_to_device(device=root_devices[0], partition_number="1")
@@ -554,8 +555,6 @@ def install(ctx, *,
     if not boot_device:
         assert False
         #boot_device = "False"  # fixme
-    if not vm:
-        vm = "novm"
 
     ctx.invoke(chroot_gentoo,
                mount_path=mount_path,

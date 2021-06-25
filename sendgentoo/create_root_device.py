@@ -2,7 +2,7 @@
 
 import sys
 from pathlib import Path
-from typing import Sequence
+from typing import Tuple
 
 import click
 from blocktool import destroy_block_device_head_and_tail
@@ -42,7 +42,7 @@ except ImportError:
 @click.option('--debug', is_flag=True,  required=False)
 @click.pass_context
 def create_root_device(ctx,
-                       devices: Sequence[Path, ...],
+                       devices: Tuple[Path, ...],
                        partition_table: str,
                        filesystem: str,
                        force: bool,

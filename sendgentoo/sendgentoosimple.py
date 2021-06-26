@@ -45,7 +45,7 @@ def sendgentoosimple(ctx,
     assert len(password) > 0
 
     ctx.invoke(sendgentoo,
-               root_devices=(device,),
+               (device,),
                boot_device=device,
                boot_device_partition_table='gpt',
                root_device_partition_table='gpt',
@@ -60,5 +60,5 @@ def sendgentoosimple(ctx,
                ip=ip,
                force=False,
                encrypt=False,
-               multilib=False)
+               multilib=False,)
 

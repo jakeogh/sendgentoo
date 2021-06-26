@@ -17,26 +17,6 @@ chown portage:portage /var/db/repos/gentoo
 test -e /etc/portage/proxy.conf || touch /etc/portage/proxy.conf
 grep -E "^source /etc/portage/proxy.conf" /etc/portage/make.conf || echo "source /etc/portage/proxy.conf" >> /etc/portage/make.conf
 
-#eselect python set python3.7 || exit 1
-
-#install_pkg_force_compile()
-#{
-#    . /etc/profile
-#    echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
-#    emerge -pv     --tree --usepkg=n -u --ask n -n $@ > /dev/stderr
-#    echo -e "\ninstall_pkg_force_compile() got args: $@" > /dev/stderr
-#    emerge --quiet --tree --usepkg=n -u --ask n -n $@ > /dev/stderr || exit 1
-#}
-#
-#install_pkg()
-#{
-#    . /etc/profile
-#    echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
-#    emerge -pv     --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr
-#    echo -e "\ninstall_pkg() got args: $@" > /dev/stderr
-#    emerge --quiet --tree --usepkg=n    -u --ask n -n $@ > /dev/stderr || exit 1
-#}
-
 
 stdlib="${1}"
 shift
@@ -87,13 +67,7 @@ grep -E "^media-libs/gd fontconfig jpeg png truetype" /etc/portage/package.use/g
 #echo "sys-apps/file python" > /etc/portage/package.use/file
 #install_pkg kcl || exit 1 # should not be explicitely installed...
 
-add_accept_keyword "dev-python/symlinktree-9999"
-add_accept_keyword "dev-python/icecream-9999"
-add_accept_keyword "dev-python/retry_on_exception-9999"
-add_accept_keyword "dev-python/delay_timer-9999"
-#add_accept_keyword "dev-python/executing-9999"
-add_accept_keyword "dev-python/asttokens-9999"
-install_pkg symlinktree || exit 1
+install_pkg_force symlinktree || exit 1
 export LANG="en_US.UTF8"  # to make click happy
 symlinktree /home/cfg/sysskel --verbose || exit 1
 symlinktree /home/cfg/sysskel --verbose --re-apply-skel /root || exit 1
@@ -107,10 +81,10 @@ touch /etc/portage/proxy.conf  # or emerge is really unhappy
 /etc/init.d/dnscrypt-proxy start
 /home/cfg/linux/gentoo/layman/update_all_overlays
 install_pkg debugedit
-add_accept_keyword "dev-python/compile-kernel-9999"
-install_pkg compile-kernel
-export "KCONFIG_OVERWRITECONFIG=1"      # havent rebooted yet so the /etc/conf.d/99kconfig-symlink hasnt run
-compile-kernel || exit 1  # make sure zfs can be built for @world
+#add_accept_keyword "dev-python/compile-kernel-9999"
+#install_pkg compile-kernel
+#export "KCONFIG_OVERWRITECONFIG=1"      # havent rebooted yet so the /etc/conf.d/99kconfig-symlink hasnt run
+#compile-kernel || exit 1  # make sure zfs can be built for @world
 emerge @world --newuse
 
 touch /etc/portage/proxy.conf

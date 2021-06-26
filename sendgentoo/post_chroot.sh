@@ -152,8 +152,7 @@ cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
 rc-update add zfs-mount boot # dont exit if this fails
 install_pkg dhcpcd  # not in stage3
 
-#grep -E "^config_eth0=\"${ip}/24\"" /etc/conf.d/net || echo "config_eth0=\"${ip}/24\"" >> /etc/conf.d/net
-ln -rs /etc/init.d/net.lo /etc/init.d/net.eth0
+ln -rs /etc/init.d/net.lo /etc/init.d/net.eth0 || exit 1
 rc-update add net.eth0 default
 
 install_pkg netdate
@@ -172,11 +171,9 @@ rc-update add gpm default   #console mouse support
 install_pkg app-admin/sysklogd
 rc-update add sysklogd default  # syslog-ng hangs on boot... bloated
 
-rm -f /etc/portage/package.mask
+#rm -f /etc/portage/package.mask
 mkdir /etc/portage/package.mask
-#echo ">net-misc/unison-2.48.4" > /etc/portage/package.mask/unison
 install_pkg unison
-#ln -s /usr/bin/unison-2.48 /usr/bin/unison
 eselect unison list #todo
 
 perl-cleaner --reallyall
@@ -218,32 +215,13 @@ chmod 2775 /var/cache/ccache
 grep -E "^PermitRootLogin yes" /etc/ssh/sshd_config || echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 #rc-update add sshd default
 
-
-# must be done after overlay is installed
-#add_accept_keyword "dev-python/kcl-9999"
-#add_accept_keyword "dev-python/icecream-9999"
-#emerge kcl -1
-add_accept_keyword "dev-python/asserttool-9999"
-add_accept_keyword "dev-python/enumerate_input-9999"
-add_accept_keyword "dev-python/replace-text-9999"
-add_accept_keyword "dev-python/icecream-9999"  # dep
-#add_accept_keyword "dev-python/retry_on_exception-9999"  # dep
-#add_accept_keyword "dev-python/executing-9999"  # dep
-add_accept_keyword "dev-python/asttokens-9999"  # dep
-#install_pkg replace-text
-emerge replace-text
+install_pkg_force replace-text
 
 export LANG="en_US.UTF8"  # to make click happy
 grep noclear /etc/inittab || \
     { replace-text --match "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" --replacement "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1 ; }
 install_pkg sys-apps/moreutils # need sponge for the next command
 grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/inittab | /home/cfg/text/insert_line_after_match "c6:2345:respawn:/sbin/agetty 38400 tty6 linux" "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" | sponge /etc/inittab ; }
-
-# nope, need stuff unmasked....
-# make sendgentoo deps happy
-#echo "dev-lang/python sqlite" >> /etc/portage/package.use/python || exit 1
-#echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/python || exit 1
-#install_pkg sendgentoo --autounmask=y # must be done after jakeogh overlay
 
 # this wont work until symlink tree happens
 #install_pkg @sound

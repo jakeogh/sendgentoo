@@ -90,7 +90,7 @@ source /etc/profile
 export KCONFIG_OVERWRITECONFIG=1 # https://www.mail-archive.com/lede-dev@lists.infradead.org/msg07290.html
 echo "sys-kernel/gentoo-sources symlink" > /etc/portage/package.use/gentoo-sources    # required so /usr/src/linux exists
 install_pkg gentoo-sources || exit 1
-install_pkg grub:2 || exit 1
+install_pkg grub || exit 1
 
 install_pkg dev-util/strace
 install_pkg memtest86+ # do before generating grub.conf
@@ -123,11 +123,12 @@ install_pkg genkernel
 
 install_pkg app-eselect/eselect-repository
 mkdir /etc/portage/repos.conf
-for line in `cat /etc/portage/proxy.conf | tr -d '"'`;
+for line in $(cat /etc/portage/proxy.conf | tr -d '"' | tr -d '#');
 do
+    echo "proxy.conf line: ${line}"
     export "${line}"
 done
-eselect repository add jakeogh git https://github.com/jakeogh/jakeogh  #ignores http_proxy
+eselect repository list -i | grep jakeogh || eselect repository add jakeogh git https://github.com/jakeogh/jakeogh  #ignores http_proxy
 #git config --global http.proxy http://192.168.222.100:8888
 install_pkg dev-vcs/git
 emaint sync -r jakeogh  # this needs git

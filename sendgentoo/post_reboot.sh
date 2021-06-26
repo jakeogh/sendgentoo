@@ -13,6 +13,7 @@ source /home/cfg/_myapps/sendgentoo/sendgentoo/utils.sh
 #cat /etc/portage/proxy.conf | tr '\n' '\0' | xargs -0 -I '{}' export '{}'
 #eval `cat /etc/portage/proxy.conf`
 #echo "${http_proxy}"
+chown portage:portage /var/db/repos/gentoo
 test -e /etc/portage/proxy.conf || touch /etc/portage/proxy.conf
 grep -E "^source /etc/portage/proxy.conf" /etc/portage/make.conf || echo "source /etc/portage/proxy.conf" >> /etc/portage/make.conf
 
@@ -41,6 +42,9 @@ stdlib="${1}"
 shift
 newpasswd="${1}"
 shift
+
+emerge --sync
+emerge tmux -u
 
 test -z $TMUX && { echo "start tmux!" ; exit 1 ; }
 

@@ -212,7 +212,8 @@ mkdir -p /var/cache/ccache
 chown root:portage /var/cache/ccache
 chmod 2775 /var/cache/ccache
 
-grep -E "^PermitRootLogin yes" /etc/ssh/sshd_config || echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+ls /etc/ssh/sshd_config -al || exit 1
+grep -E "^PermitRootLogin yes" /etc/ssh/sshd_config || echo "PermitRootLogin yes" >> /etc/ssh/sshd_config || exit 1
 #rc-update add sshd default
 
 install_pkg_force replace-text

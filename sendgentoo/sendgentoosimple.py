@@ -12,10 +12,15 @@ from .sendgentoo import sendgentoo
 
 @click.command()
 @click.argument("device")
-@click.argument("hostname")
-@click.argument("ip")
+@click.option("--hostname", type=str, required=True)
+@click.option("--ip", type=str, required=True)
 @click.pass_context
-def sendgentoosimple(ctx, device, hostname, ip):
+def sendgentoosimple(ctx,
+                     device: str,
+                     hostname: str,
+                     ip: str,
+                     ):
+
     device = device.strip()
     if not os.getenv('TMUX'):
         print("Start a Tmux session first. Exiting.", file=sys.stderr)

@@ -200,6 +200,12 @@ def chroot_gentoo(ctx,
 
     os.makedirs(mount_path / Path('usr') / Path('local') / Path('portage'), exist_ok=True)
 
+    _var_tmp_portage = mount_path / Path('var') / Path('tmp') / Path('portage')
+    os.makedirs(_var_tmp_portage, exist_ok=True)
+    sh.chown('portage:portage', _var_tmp_portage)
+    if not path_is_mounted(_var_tmp_portage, verbose=verbose, debug=debug,):
+        sh.mount('--rbind', '/var/tmp/portage', _var_tmp_portage)
+
     ctx.invoke(rsync_cfg,
                mount_path=mount_path,
                verbose=verbose,

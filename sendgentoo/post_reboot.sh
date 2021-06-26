@@ -99,7 +99,9 @@ test -h /root/_repos      || { ln -s /home/cfg/_repos /root/_repos || exit 1 ; }
 #/etc/init.d/dnsproxy start
 
 install_pkg cpuid2cpuflags
-echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpuflags
+#echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpuflags
+echo CPU_FLAGS_X86=$(echo \"$(echo "$(cpuid2cpuflags)" | cut -d ':' -f 2 | sed 's/^[ \t]*//')\") > /etc/portage/00cpuflags
+
 
 emerge dodo  # why not install_pkg?
 emerge echocommand

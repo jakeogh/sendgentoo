@@ -15,6 +15,7 @@ source /home/cfg/_myapps/sendgentoo/sendgentoo/utils.sh
 #echo "${http_proxy}"
 chown portage:portage /var/db/repos/gentoo
 test -e /etc/portage/proxy.conf || touch /etc/portage/proxy.conf
+test -e /etc/portage/cpuflags.conf || touch /etc/portage/cpuflags.conf
 grep -E "^source /etc/portage/proxy.conf" /etc/portage/make.conf || echo "source /etc/portage/proxy.conf" >> /etc/portage/make.conf
 
 
@@ -85,7 +86,6 @@ install_pkg debugedit
 #install_pkg compile-kernel
 #export "KCONFIG_OVERWRITECONFIG=1"      # havent rebooted yet so the /etc/conf.d/99kconfig-symlink hasnt run
 #compile-kernel || exit 1  # make sure zfs can be built for @world
-test ! -e /etc/portage/cpuflags.conf && touch /etc/portage/cpuflags.conf
 emerge @world --newuse
 
 touch /etc/portage/proxy.conf

@@ -85,6 +85,7 @@ install_pkg debugedit
 #install_pkg compile-kernel
 #export "KCONFIG_OVERWRITECONFIG=1"      # havent rebooted yet so the /etc/conf.d/99kconfig-symlink hasnt run
 #compile-kernel || exit 1  # make sure zfs can be built for @world
+test ! -e /etc/portage/cpuflags.conf && touch /etc/portage/cpuflags.conf
 emerge @world --newuse
 
 touch /etc/portage/proxy.conf
@@ -100,7 +101,7 @@ test -h /root/_repos      || { ln -s /home/cfg/_repos /root/_repos || exit 1 ; }
 
 install_pkg cpuid2cpuflags
 #echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpuflags
-echo CPU_FLAGS_X86=$(echo \"$(echo "$(cpuid2cpuflags)" | cut -d ':' -f 2 | sed 's/^[ \t]*//')\") > /etc/portage/00cpuflags
+echo CPU_FLAGS_X86=$(echo \"$(echo "$(cpuid2cpuflags)" | cut -d ':' -f 2 | sed 's/^[ \t]*//')\") > /etc/portage/cpuflags.conf
 
 
 emerge dodo  # why not install_pkg?

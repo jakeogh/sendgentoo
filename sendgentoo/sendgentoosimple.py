@@ -7,7 +7,7 @@ import sys
 import click
 import psutil
 
-from .sendgentoo import sendgentoo
+from .sendgentoo import install
 
 
 @click.command()
@@ -44,8 +44,8 @@ def sendgentoosimple(ctx,
     password = input("Enter new password:")
     assert len(password) > 0
 
-    ctx.invoke(sendgentoo,
-               (device,),
+    ctx.invoke(install,
+               root_devices=(device,),
                boot_device=device,
                boot_device_partition_table='gpt',
                root_device_partition_table='gpt',

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-import click
 import os
-import psutil
-import sys
 import pathlib
+import sys
+
+import click
+import psutil
 
 from .sendgentoo import sendgentoo
 
@@ -20,6 +21,10 @@ def sendgentoosimple(ctx, device, hostname, ip):
         print("Start a Tmux session first. Exiting.", file=sys.stderr)
         quit(1)
 
+    if not os.geteuid() == 0:
+        print("you ned to be root. Exiting.", file=sys.stderr)
+        quit(1)
+
     partitions = psutil.disk_partitions()
     for partition in partitions:
         if device in partition.device:
@@ -30,10 +35,6 @@ def sendgentoosimple(ctx, device, hostname, ip):
     if not pathlib.Path(device).is_block_device():
             print("device:", device, "is not a block device. Exiting.", file=sys.stderr)
             quit(1)
-
-    if not os.geteuid() == 0:
-        print("you ned to be root. Exiting.", file=sys.stderr)
-        quit(1)
 
     password = input("Enter new password:")
     assert len(password) > 0
@@ -48,7 +49,7 @@ def sendgentoosimple(ctx, device, hostname, ip):
                stdlib='glibc',
                raid='disk',
                raid_group_size='1',
-               march='native',
+               march='nocona',
                hostname=hostname,
                newpasswd=password,
                ip=ip,
@@ -56,6 +57,3 @@ def sendgentoosimple(ctx, device, hostname, ip):
                encrypt=False,
                multilib=False)
 
-
-if __name__ == '__main__':
-    sendgentoo()

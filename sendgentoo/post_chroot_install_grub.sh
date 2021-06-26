@@ -10,11 +10,12 @@ argcount=1
 usage="boot_device"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 
-set -o nounset
 source /home/cfg/_myapps/sendgentoo/sendgentoo/utils.sh
 
 boot_device="${1}"
 shift
+
+ls "${boot_device}" || exit 1
 
 mount | grep "/boot/efi" || { echo "/boot/efi not mounted. Exiting." ; exit 1 ;}
 
@@ -24,7 +25,7 @@ set +u # disable nounset        # line 22 has an unbound variable: user_id /etc/
 source /etc/profile || exit 1
 set -o nounset
 
-install_pkg grub:2 || exit 1
+install_pkg grub || exit 1
 
 #if [[ "${root_filesystem}" == "zfs" ]];
 #then

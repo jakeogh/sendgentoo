@@ -13,7 +13,10 @@ source /home/cfg/_myapps/sendgentoo/sendgentoo/utils.sh
 #cat /etc/portage/proxy.conf | tr '\n' '\0' | xargs -0 -I '{}' export '{}'
 #eval `cat /etc/portage/proxy.conf`
 #echo "${http_proxy}"
-chown portage:portage /var/db/repos/gentoo
+
+test -d /delme || { mkdir /delme || exit 1 ; }
+chown -R portage:portage /var/db/repos
+#chown portage:portage /var/db/repos/gentoo
 test -e /etc/portage/proxy.conf || touch /etc/portage/proxy.conf
 test -e /etc/portage/cpuflags.conf || touch /etc/portage/cpuflags.conf
 grep -E "^source /etc/portage/proxy.conf" /etc/portage/make.conf || echo "source /etc/portage/proxy.conf" >> /etc/portage/make.conf
@@ -24,24 +27,17 @@ shift
 newpasswd="${1}"
 shift
 
-emerge --sync
-emerge tmux -u
-
-test -z $TMUX && { echo "start tmux!" ; exit 1 ; }
-
 env-update || exit 1
 source /etc/profile || exit 1
 #export PS1="(chroot) $PS1"
 
-mkdir /delme
-#chown -R portage:portage /var/db/repos
-chown -R portage:portage /var/db/repos
-
 emerge --sync || exit 1
+install_pkg tmux || exit 1
+
+test -z $TMUX && { echo "start tmux!" ; exit 1 ; }
+
 emerge portage -u -1 || exit 1
 
-#grep -E "^>=dev-lang/ocaml-4.09.0" /etc/portage/package.mask/ocaml || { echo ">=dev-lang/ocaml-4.09.0" >> /etc/portage/package.mask/ocaml ; }
-#emerge dev-lang/ocaml -u -1         # https://bugs.gentoo.org/show_bug.cgi?id=704910
 emerge unison -u
 
 /usr/bin/emerge -u --oneshot sys-devel/libtool
@@ -50,8 +46,6 @@ emerge unison -u
 
 #emerge @preserved-rebuild
 #perl-cleaner --all
-
-#emerge -u -1 portage
 
 #mkdir /etc/dnsmasq.d
 #install_pkg dnsmasq || exit 1
@@ -64,28 +58,16 @@ mkdir /etc/portage/package.use
 grep -E "^dev-lang/python sqlite" /etc/portage/package.use/python || { echo "dev-lang/python sqlite" >> /etc/portage/package.use/python ; }  # this is done in post_chroot too...
 grep -E "^media-libs/gd fontconfig jpeg png truetype" /etc/portage/package.use/gd || { echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/gd ; }  # ditto
 
-#grep -E "^=app-misc/edit-9999 -python_targets_python3_7" /etc/portage/package.use/edit || { echo "=app-misc/edit-9999 -python_targets_python3_7" >> /etc/portage/package.use/edit ; }
-#echo "sys-apps/file python" > /etc/portage/package.use/file
-#install_pkg kcl || exit 1 # should not be explicitely installed...
-
 install_pkg_force symlinktree || exit 1
 export LANG="en_US.UTF8"  # to make click happy
 symlinktree /home/cfg/sysskel --verbose || exit 1
 symlinktree /home/cfg/sysskel --verbose --re-apply-skel /root || exit 1
-
-#chmod +x /home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py #this depends on kcl
-#/home/cfg/_myapps/symlinktree/symlinktree/symlinktree.py /home/cfg/sysskel/ || exit 1
-
 
 touch /etc/portage/proxy.conf  # or emerge is really unhappy
 
 /etc/init.d/dnscrypt-proxy start
 /home/cfg/linux/gentoo/layman/update_all_overlays
 install_pkg debugedit
-#add_accept_keyword "dev-python/compile-kernel-9999"
-#install_pkg compile-kernel
-#export "KCONFIG_OVERWRITECONFIG=1"      # havent rebooted yet so the /etc/conf.d/99kconfig-symlink hasnt run
-#compile-kernel || exit 1  # make sure zfs can be built for @world
 emerge @world --newuse
 
 touch /etc/portage/proxy.conf
@@ -104,11 +86,11 @@ install_pkg cpuid2cpuflags
 echo CPU_FLAGS_X86=$(echo \"$(echo "$(cpuid2cpuflags)" | cut -d ':' -f 2 | sed 's/^[ \t]*//')\") > /etc/portage/cpuflags.conf
 
 
-emerge dodo  # why not install_pkg?
-emerge echocommand
+install_pkg dodo
+install_pkg echocommand
 #install_pkg dnsgate
-emerge app-misc/edit  # pulls in commandlock # fails but that's ok for now
-#install_pkg net-fs/nfs-utils  # nice to have, dont want to wait for the set to install it, needs overlay
+install_pkg_force app-misc/edit
+install_pkg net-fs/nfs-utils
 
 echo "MACHINE_SIG=\"`/home/cfg/hardware/make_machine_signature_string`\"" > /etc/env.d/99machine_sig
 
@@ -122,7 +104,6 @@ for x in cdrom cdrw usb audio plugdev video wheel; do gpasswd -a user $x ; done
 
 /home/cfg/setup/fix_cfg_perms #must happen when user exists
 
-#test -h /home/user/__email_folders || { ln -s /mnt/t420s_160GB_kingston_ssd_SNM225/__email_folders /home/user/__email_folders || exit 1 ; }
 
 immute() {
     rm -f "${1}"

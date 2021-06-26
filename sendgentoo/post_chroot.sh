@@ -178,7 +178,6 @@ eselect unison list #todo
 
 perl-cleaner --reallyall
 #echo "=dev-libs/openssl-1.1.1a" > /etc/portage/package.unmask
-install_pkg tmux
 install_pkg app-portage/repoman
 install_pkg vim
 install_pkg www-client/links
@@ -191,7 +190,7 @@ install_pkg lshw
 install_pkg pydf
 install_pkg app-portage/gentoolkit #equery
 install_pkg sys-process/htop
-install_pkg ddrescue
+install_pkg sys-fs/ddrescue
 #install_pkg sys-process/cronie  # done in postreboot set
 install_pkg net-dns/bind-tools
 install_pkg app-admin/sysstat   #mpstat
@@ -205,6 +204,7 @@ install_pkg net-fs/nfs-utils
 install_pkg sys-power/powertop
 install_pkg sys-power/upower
 install_pkg sys-apps/dmidecode
+install_pkg app-misc/tmux || exit 1
 rc-update add dbus default
 
 install_pkg dev-util/ccache

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
 
+# flake8: noqa
 # pylint: disable=C0111  # docstrings are always outdated and wrong
 # pylint: disable=W0511  # todo is encouraged
 # pylint: disable=C0301  # line too long
@@ -32,6 +33,7 @@ from typing import Sequence
 import click
 import sh
 from asserttool import root_user
+from mounttool import mount_something
 from mounttool import path_is_mounted
 from pathtool import path_is_block_special
 from pathtool import write_line_to_file
@@ -49,18 +51,6 @@ try:
     from icecream import ic  # https://github.com/gruns/icecream
 except ImportError:
     ic = eprint
-
-
-# import pdb; pdb.set_trace()
-# #set_trace(term_size=(80, 24))
-# from pudb import set_trace; set_trace(paused=False)
-
-##def log_uncaught_exceptions(ex_cls, ex, tb):
-##   eprint(''.join(traceback.format_tb(tb)))
-##   eprint('{0}: {1}'.format(ex_cls, ex))
-##
-##sys.excepthook = log_uncaught_exceptions
-
 
 
 @click.command()
@@ -117,34 +107,6 @@ def rsync_cfg(*,
                     system=True,
                     ask=False,
                     verbose=True,)
-
-
-def mount_something(path: Path,
-                    mount_type: str,
-                    source: Path,
-                    verbose: bool,
-                    debug: bool,
-                    ):
-
-    assert mount_type in ['proc', 'rbind']
-    if mount_type == 'rbind':
-        assert source
-        assert source.is_absolute()
-    assert isinstance(path, Path)
-    if source:
-        assert isinstance(source, Path)
-
-    if path_is_mounted(path, verbose=verbose, debug=debug,):
-        return
-
-    if mount_type == 'proc':
-        mount_command = sh.mount.bake('-t', 'proc', 'none', path)
-    elif mount_type == 'rbind':
-        mount_command = sh.mount.bake('-rbind', source.as_posix(), path)
-    else:
-        raise ValueError('unknown mount type: {}'.format(mount_type))
-
-    mount_command()
 
 
 @click.command()
@@ -217,18 +179,6 @@ def chroot_gentoo(ctx,
     mount_something(path=mount_path / Path('sys'), mount_type='rbind', source=Path('/sys'), verbose=verbose, debug=debug)
     mount_something(path=mount_path / Path('dev'), mount_type='rbind', source=Path('/dev'), verbose=verbose, debug=debug)
 
-    #if not path_is_mounted(mount_path / Path('proc'), verbose=verbose, debug=debug,):
-    #    sh.mount('-t', 'proc', 'none', mount_path / Path('proc'))
-    #if not path_is_mounted(mount_path / Path('sys'), verbose=verbose, debug=debug,):
-    #    sh.mount('--rbind', '/sys', mount_path / Path('sys'))
-    #if not path_is_mounted(mount_path / Path('dev'), verbose=verbose, debug=debug,):
-    #    sh.mount('--rbind', '/dev', mount_path / Path('dev'))
-
-    # obsolete
-    #os.makedirs(mount_path / Path('usr') / Path('portage'), exist_ok=True)
-    #if not path_is_mounted(mount_path / Path('usr') / Path('portage'), verbose=verbose, debug=debug,):
-    #    sh.mount('--rbind', '/usr/portage', mount_path / Path('usr') / Path('portage'))
-
     os.makedirs(mount_path / Path('home') / Path('cfg'), exist_ok=True)
 
     os.makedirs(mount_path / Path('usr') / Path('local') / Path('portage'), exist_ok=True)
@@ -236,11 +186,8 @@ def chroot_gentoo(ctx,
     _var_tmp_portage = mount_path / Path('var') / Path('tmp') / Path('portage')
     os.makedirs(_var_tmp_portage, exist_ok=True)
     sh.chown('portage:portage', _var_tmp_portage)
-
     mount_something(path=_var_tmp_portage, mount_type='rbind', source=Path('/var/tmp/portage'), verbose=verbose, debug=debug)
     del _var_tmp_portage
-    #if not path_is_mounted(_var_tmp_portage, verbose=verbose, debug=debug,):
-    #    sh.mount('--rbind', '/var/tmp/portage', _var_tmp_portage)
 
     ctx.invoke(rsync_cfg,
                mount_path=mount_path,
@@ -256,8 +203,6 @@ def chroot_gentoo(ctx,
     os.makedirs(_gentoo_repo, exist_ok=True)
     mount_something(path=_gentoo_repo, mount_type='rbind', source=Path('/var/db/repos/gentoo'), verbose=verbose, debug=debug)
     del _gentoo_repo
-    #if not path_is_mounted(gentoo_repo, verbose=verbose, debug=debug,):
-    #    sh.mount('--rbind', '/var/db/repos/gentoo', gentoo_repo)
 
     sh.cp('/etc/portage/proxy.conf', mount_path / Path('etc') / Path('portage') / Path('proxy.conf'))
 

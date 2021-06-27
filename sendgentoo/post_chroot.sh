@@ -104,7 +104,6 @@ cores=`grep processor /proc/cpuinfo | wc -l`
 grep "CONFIG_TRIM_UNUSED_KSYMS is not set" /usr/src/linux/.config || { echo "Rebuild the kernel with CONFIG_TRIM_UNUSED_KSYMS must be =n" ; exit 1 ; }
 grep "CONFIG_FB_EFI is not set" /usr/src/linux/.config && { echo "Rebuild the kernel with CONFIG_FB_EFI=y" ; exit 1 ; }
 
-# zfs-2.0.4 does not work with gentoo-sources > 5.11...
 add_accept_keyword "sys-fs/zfs-9999"
 add_accept_keyword "sys-fs/zfs-kmod-9999"
 echo -e "#<fs>\t<mountpoint>\t<type>\t<opts>\t<dump/pass>" > /etc/fstab # create empty fstab

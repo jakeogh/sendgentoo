@@ -238,6 +238,7 @@ def chroot_gentoo(ctx,
     sh.chown('portage:portage', _var_tmp_portage)
 
     mount_something(path=_var_tmp_portage, mount_type='rbind', source=Path('/var/tmp/portage'), verbose=verbose, debug=debug)
+    del _var_tmp_portage
     #if not path_is_mounted(_var_tmp_portage, verbose=verbose, debug=debug,):
     #    sh.mount('--rbind', '/var/tmp/portage', _var_tmp_portage)
 
@@ -246,13 +247,15 @@ def chroot_gentoo(ctx,
                verbose=verbose,
                debug=debug,)
 
-    repos_conf = mount_path / Path('etc') / Path('portage') / Path('repos.conf')
-    os.makedirs(repos_conf, exist_ok=True)
-    sh.cp('/home/cfg/sysskel/etc/portage/repos.conf/gentoo.conf', repos_conf)
+    _repos_conf = mount_path / Path('etc') / Path('portage') / Path('repos.conf')
+    os.makedirs(_repos_conf, exist_ok=True)
+    sh.cp('/home/cfg/sysskel/etc/portage/repos.conf/gentoo.conf', _repos_conf)
+    del _repos_conf
 
-    gentoo_repo = mount_path / Path('var') / Path('db') / Path('repos') / Path('gentoo')
-    os.makedirs(gentoo_repo, exist_ok=True)
-    mount_something(path=gentoo_repo, mount_type='rbind', source=Path('/var/db/repos/gentoo'), verbose=verbose, debug=debug)
+    _gentoo_repo = mount_path / Path('var') / Path('db') / Path('repos') / Path('gentoo')
+    os.makedirs(_gentoo_repo, exist_ok=True)
+    mount_something(path=_gentoo_repo, mount_type='rbind', source=Path('/var/db/repos/gentoo'), verbose=verbose, debug=debug)
+    del _gentoo_repo
     #if not path_is_mounted(gentoo_repo, verbose=verbose, debug=debug,):
     #    sh.mount('--rbind', '/var/db/repos/gentoo', gentoo_repo)
 
@@ -264,7 +267,7 @@ def chroot_gentoo(ctx,
                        verbose=verbose,
                        debug=debug,)
 
-    sh.cp('/usr/bin/ischroot', mount_path / Path('usr') / Path('bin') / Path('ischroot'))
+    sh.cp('/usr/bin/ischroot', mount_path / Path('usr') / Path('bin') / Path('ischroot'))  # bug for cross compile
 
     ic('Entering chroot')
     chroot_command = ['env',

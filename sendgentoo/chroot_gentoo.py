@@ -157,19 +157,19 @@ def chroot_gentoo(ctx,
         #    mount --bind "${destination}"{,-chroot} || { echo "${destination} ${destination}-chroot" ; exit 1 ; }
         #fi
 
-        write_line_to_file(file_to_write=mount_path / Path('etc') / Path('conf.d') / Path('net'),
+        write_line_to_file(path=mount_path / Path('etc') / Path('conf.d') / Path('net'),
                            line='config_eth0="{ip}/24"\n'.format(ip=ip),
                            unique=True,
                            verbose=verbose,
                            debug=debug,)
 
-        write_line_to_file(file_to_write=mount_path / Path('etc') / Path('conf.d') / Path('net'),
+        write_line_to_file(path=mount_path / Path('etc') / Path('conf.d') / Path('net'),
                            line='routes_eth0="default via {ip_gateway}"\n'.format(ip_gateway=ip_gateway),
                            unique=True,
                            verbose=verbose,
                            debug=debug,)
 
-        write_line_to_file(file_to_write=mount_path / Path('etc') / Path('conf.d') / Path('hostname'),
+        write_line_to_file(path=mount_path / Path('etc') / Path('conf.d') / Path('hostname'),
                            line='hostname="{hostname}"\n'.format(hostname=hostname),
                            unique=True,
                            verbose=verbose,
@@ -206,7 +206,7 @@ def chroot_gentoo(ctx,
 
     sh.cp('/etc/portage/proxy.conf', mount_path / Path('etc') / Path('portage') / Path('proxy.conf'))
 
-    write_line_to_file(file_to_write=mount_path / Path('etc') / Path('portage') / Path('make.conf'),
+    write_line_to_file(path=mount_path / Path('etc') / Path('portage') / Path('make.conf'),
                        line='source /etc/portage/proxy.conf\n',
                        unique=True,
                        verbose=verbose,

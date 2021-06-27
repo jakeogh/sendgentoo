@@ -35,7 +35,9 @@ emerge --sync || exit 1
 install_pkg tmux || exit 1
 install_pkg app-admin/sudo || exit 1
 
+set +u # disable nounset
 test -z $TMUX && { echo "start tmux!" ; exit 1 ; }
+set -o nounset
 
 emerge portage -u -1 || exit 1
 

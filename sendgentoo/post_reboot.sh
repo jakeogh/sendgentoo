@@ -39,7 +39,7 @@ set +u # disable nounset
 test -z $TMUX && { echo "start tmux!" ; exit 1 ; }
 set -o nounset
 
-emerge portage -u -1 || exit 1
+install_pkg portage -1 || exit 1
 
 emerge unison -u
 

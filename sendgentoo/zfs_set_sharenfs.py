@@ -40,15 +40,13 @@ except ImportError:
 
 
 @click.command()
-@click.argument('pool', required=True, nargs=1)
-@click.argument('name', required=True, nargs=1)
+@click.argument('filesystem', required=True, nargs=1)
 @click.argument('subnet', required=True, nargs=1)
 @click.option('--no-root-write', is_flag=True,)
 @click.option('--off', is_flag=True,)
 @click.option('--verbose', is_flag=True,)
 @click.option('--debug', is_flag=True,)
-def zfs_set_sharenfs(pool: str,
-                     name: str,
+def zfs_set_sharenfs(filesystem: str,
                      subnet: str,
                      off: bool,
                      no_root_write: bool,
@@ -59,14 +57,13 @@ def zfs_set_sharenfs(pool: str,
 
     maxone([off, no_root_write])
 
-    assert not pool.startswith('/')
-    assert not name.startswith('/')
-    assert len(pool.split()) == 1
-    assert len(name.split()) == 1
-    assert len(name) > 2
+    assert not filesystem.startswith('/')
+    assert len(filesystem.split()) == 1
+    assert len(filesystem.split()) == 1
+    assert len(filesystem) > 2
 
     if verbose:
-        eprint(sh.zfs.get('sharenfs', pool + '/' + name))
+        eprint(sh.zfs.get('sharenfs', filesystem))
 
     if off:
         sh.zfs.set('sharenfs=off')
@@ -93,4 +90,4 @@ def zfs_set_sharenfs(pool: str,
         ic(sharenfs_line)
 
     zfs_command = sh.zfs.set.bake(sharenfs_line)
-    print(zfs_command(pool + '/' + name))
+    print(zfs_command(filesystem))

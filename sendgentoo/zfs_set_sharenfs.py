@@ -88,7 +88,7 @@ def zfs_set_sharenfs(pool: str,
         ic(sharenfs_line)
 
     #sharenfs_line = 'sharenfs=*(' + sharenfs_line + ')'
-    sharenfs_line = "sharenfs='" + sharenfs_line + "'"
+    sharenfs_line = 'sharenfs=' + sharenfs_line
     if verbose:
         ic(sharenfs_line)
 

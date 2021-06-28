@@ -186,7 +186,8 @@ install_pkg app-text/tree
 install_pkg sys-fs/safecopy
 install_pkg lsof
 install_pkg lshw
-install_pkg pydf
+install_pkg app-admin/pydf
+install_pkg sys-fs/ncdu
 install_pkg app-portage/gentoolkit #equery
 install_pkg sys-process/htop
 install_pkg sys-fs/ddrescue

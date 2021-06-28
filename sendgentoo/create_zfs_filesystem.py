@@ -22,6 +22,8 @@ import sys
 import click
 from run_command import run_command
 
+from .zfs_set_sharenfs import zfs_set_sharenfs
+
 
 def eprint(*args, **kwargs):
     if 'file' in kwargs.keys():
@@ -40,22 +42,27 @@ except ImportError:
 @click.command()
 @click.argument('pool', required=True, nargs=1)
 @click.argument('name', required=True, nargs=1)
-@click.option('--simulate', is_flag=True, required=False)
-@click.option('--encrypt', is_flag=True, required=False)
-@click.option('--nfs', is_flag=True, required=False)
-@click.option('--exec', 'exe', is_flag=True, required=False)
-@click.option('--nomount', is_flag=True, required=False)
-@click.option('--reservation', type=str, required=False)
-@click.option('--verbose', type=str, required=False)
-def create_zfs_filesystem(pool,
-                          name,
-                          simulate,
-                          encrypt,
-                          nfs,
-                          exe,
-                          nomount,
-                          verbose,
-                          reservation):
+@click.option('--simulate', is_flag=True,)
+@click.option('--encrypt', is_flag=True,)
+@click.option('--nfs-subnet', type=str,)
+@click.option('--exec', 'exe', is_flag=True,)
+@click.option('--nomount', is_flag=True,)
+@click.option('--reservation', type=str,)
+@click.option('--verbose', type=str,)
+@click.option('--debug', type=str,)
+@click.pass_context
+def create_zfs_filesystem(ctx,
+                          pool: str,
+                          name: str,
+                          simulate: bool,
+                          encrypt: bool,
+                          nfs_subnet: str,
+                          exe: bool,
+                          nomount: bool,
+                          verbose: bool,
+                          debug: bool,
+                          reservation: bool,
+                          ) -> None:
 
     if verbose:
         ic()
@@ -74,8 +81,6 @@ def create_zfs_filesystem(pool,
         command += " -o encryption=aes-256-gcm"
         command += " -o keyformat=passphrase"
         command += " -o keylocation=prompt"
-    if nfs:
-        command += " -o sharenfs=on,no_root_squash"
     if not exe:
         command += " -o exec=off"
     if reservation:
@@ -92,3 +97,5 @@ def create_zfs_filesystem(pool,
     if not simulate:
         run_command(command, verbose=True, expected_exit_status=0)
 
+        if nfs_subnet:
+            ctx.invoke(zfs_set_sharenfs, pool=pool, name=name, subnet=nfs_subnet, verbose=verbose, debug=debug,)

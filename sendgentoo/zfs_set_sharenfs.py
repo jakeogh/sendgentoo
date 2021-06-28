@@ -21,7 +21,8 @@ import sys
 
 import click
 import sh
-from run_command import run_command
+#from run_command import run_command
+from asserttool import maxone
 
 
 def eprint(*args, **kwargs):
@@ -41,17 +42,22 @@ except ImportError:
 @click.command()
 @click.argument('pool', required=True, nargs=1)
 @click.argument('name', required=True, nargs=1)
+@click.argument('subnet', required=True, nargs=1)
 @click.option('--no-root-write', is_flag=True,)
 @click.option('--off', is_flag=True,)
 @click.option('--verbose', is_flag=True,)
 @click.option('--debug', is_flag=True,)
-def zfs_set_sharenfs(pool,
-                     name,
+def zfs_set_sharenfs(pool: str,
+                     name: str,
+                     subnet: str,
                      off: bool,
                      no_root_write: bool,
                      verbose: bool,
                      debug: bool,
                      ):
+
+
+    maxone([off, no_root_write])
 
     assert not pool.startswith('/')
     assert not name.startswith('/')
@@ -59,9 +65,19 @@ def zfs_set_sharenfs(pool,
     assert len(name.split()) == 1
     assert len(name) > 2
 
-    print(sh.zfs.get('sharenfs', pool + '/' + name))
+    if verbose:
+        eprint(sh.zfs.get('sharenfs', pool + '/' + name))
 
-    sharenfs_list =  ['rw', 'sync', 'wdelay', 'hide', 'crossmnt', 'secure', 'no_all_squash', 'no_subtree_check', 'secure_locks', 'acl', 'no_pnfs', 'mountpoint', 'anonuid=65534', 'anongid=65534', 'sec=sys']
+    if off:
+        sh.zfs.set('sharenfs=off')
+        return
+
+    sharenfs_list =  ['sync', 'wdelay', 'hide', 'crossmnt', 'secure', 'no_all_squash', 'no_subtree_check', 'secure_locks', 'mountpoint', 'anonuid=65534', 'anongid=65534', 'sec=sys']
+    # these cause zfs set sharenfs= command to fail:
+    # ['acl', 'no_pnfs']
+
+    sharenfs_list.append('rw=' + subnet)
+
     if no_root_write:
         sharenfs_list.append('root_squash')
     else:
@@ -71,5 +87,10 @@ def zfs_set_sharenfs(pool,
     if verbose:
         ic(sharenfs_line)
 
-    zfs_command = sh.zfs.set.bake('*(' + sharenfs_line + ')')
+    #sharenfs_line = 'sharenfs=*(' + sharenfs_line + ')'
+    sharenfs_line = "sharenfs='" + sharenfs_line + "'"
+    if verbose:
+        ic(sharenfs_line)
+
+    zfs_command = sh.zfs.set.bake(sharenfs_line)
     print(zfs_command(pool + '/' + name))

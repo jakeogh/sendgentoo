@@ -51,6 +51,7 @@ from sendgentoo.create_zfs_filesystem import create_zfs_filesystem
 from sendgentoo.create_zfs_pool import create_zfs_pool
 from sendgentoo.install_stage3 import install_stage3
 from sendgentoo.write_boot_partition import write_boot_partition
+from sendgentoo.zfs_set_sharenfs import zfs_set_sharenfs
 
 
 def eprint(*args, **kwargs):
@@ -92,6 +93,7 @@ sendgentoo.add_command(create_zfs_filesystem)
 sendgentoo.add_command(create_root_device)
 sendgentoo.add_command(chroot_gentoo)
 sendgentoo.add_command(rsync_cfg)
+sendgentoo.add_command(zfs_set_sharenfs)
 
 
 @sendgentoo.command()

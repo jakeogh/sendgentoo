@@ -18,8 +18,9 @@
 # pylint: disable=R0916  # Too many boolean expressions in if statement
 
 import sys
-import sh
+
 import click
+import sh
 from run_command import run_command
 
 
@@ -60,26 +61,13 @@ def zfs_set_sharenfs(pool,
 
     print(sh.zfs.get('sharenfs', pool + '/' + name))
 
-    #command = "zfs create -o setuid=off -o devices=off"
-    #if encrypt:
-    #    command += " -o encryption=aes-256-gcm"
-    #    command += " -o keyformat=passphrase"
-    #    command += " -o keylocation=prompt"
-    #if nfs:
-    #    command += " -o sharenfs=on,no_root_squash"
-    #if not exe:
-    #    command += " -o exec=off"
-    #if reservation:
-    #    command += " -o reservation=" + reservation
+    sharenfs_list =  ['rw', 'sync', 'wdelay', 'hide', 'crossmnt', 'secure', 'no_all_squash', 'no_subtree_check', 'secure_locks', 'acl', 'no_pnfs', 'mountpoint', 'anonuid=65534', 'anongid=65534', 'sec=sys']
+    if no_root_write:
+        sharenfs_list.append('root_squash')
+    else:
+        sharenfs_list.append('no_root_squash')
 
-    #if not nomount:
-    #    command += " -o mountpoint=/" + pool + '/' + name
+    sharenfs_line = ','.join(sharenfs_list)
 
-    #command += ' ' + pool + '/' + name
-
-    #if verbose or simulate:
-    #    ic(command)
-
-    #if not simulate:
-    #    run_command(command, verbose=True, expected_exit_status=0)
-
+    zfs_command = sh.zfs.set.bake(sharenfs_line)
+    print(zfs_command(pool + '/' + name))

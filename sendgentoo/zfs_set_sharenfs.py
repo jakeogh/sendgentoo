@@ -68,6 +68,8 @@ def zfs_set_sharenfs(pool,
         sharenfs_list.append('no_root_squash')
 
     sharenfs_line = ','.join(sharenfs_list)
+    if verbose:
+        ic(sharenfs_line)
 
     zfs_command = sh.zfs.set.bake('*(' + sharenfs_line + ')')
     print(zfs_command(pool + '/' + name))

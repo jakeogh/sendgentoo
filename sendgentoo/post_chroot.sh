@@ -122,11 +122,18 @@ install_pkg genkernel
 
 install_pkg app-eselect/eselect-repository
 mkdir /etc/portage/repos.conf
+
 for line in $(cat /etc/portage/proxy.conf | tr -d '"' | tr -d '#');
 do
     echo "proxy.conf line: ${line}"
     export "${line}"
+    grep -E ^"${line}" /etc/wgetrc || { echo "${line}" >> /etc/wgetrc ; }
 done
+
+grep -E "^use_proxy = on" /etc/wgetrc || { echo "use_proxy = on" >> /etc/wgetrc ; }
+
+
+
 eselect repository list -i | grep jakeogh || eselect repository add jakeogh git https://github.com/jakeogh/jakeogh  #ignores http_proxy
 #git config --global http.proxy http://192.168.222.100:8888
 install_pkg dev-vcs/git

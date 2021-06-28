@@ -31,7 +31,7 @@ env-update || exit 1
 source /etc/profile || exit 1
 #export PS1="(chroot) $PS1"
 
-emerge --sync || exit 1
+emerge --sync #|| exit 1  # if post_croot.sh was interrupted, some overlays might not exit
 install_pkg tmux || exit 1
 install_pkg app-admin/sudo || exit 1
 

@@ -69,5 +69,5 @@ def zfs_set_sharenfs(pool,
 
     sharenfs_line = ','.join(sharenfs_list)
 
-    zfs_command = sh.zfs.set.bake(sharenfs_line)
+    zfs_command = sh.zfs.set.bake('*(' + sharenfs_line + ')')
     print(zfs_command(pool + '/' + name))

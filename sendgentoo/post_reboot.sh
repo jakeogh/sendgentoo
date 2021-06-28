@@ -40,10 +40,9 @@ test -z $TMUX && { echo "start tmux!" ; exit 1 ; }
 set -o nounset
 
 install_pkg portage -1 || exit 1
+install_pkg unison
 
-emerge unison -u
-
-/usr/bin/emerge -u --oneshot sys-devel/libtool
+install_pkg --oneshot sys-devel/libtool
 #emerge world --newuse  # this could upgrade gcc and take a long time
 #gcc-config 2
 

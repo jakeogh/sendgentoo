@@ -44,12 +44,14 @@ except ImportError:
 @click.argument('subnet', required=True, nargs=1)
 @click.option('--no-root-write', is_flag=True,)
 @click.option('--off', is_flag=True,)
+@click.option('--simulate', is_flag=True,)
 @click.option('--verbose', is_flag=True,)
 @click.option('--debug', is_flag=True,)
 def zfs_set_sharenfs(filesystem: str,
                      subnet: str,
                      off: bool,
                      no_root_write: bool,
+                     simulate: bool,
                      verbose: bool,
                      debug: bool,
                      ):
@@ -66,10 +68,25 @@ def zfs_set_sharenfs(filesystem: str,
         eprint(sh.zfs.get('sharenfs', filesystem))
 
     if off:
-        sh.zfs.set('sharenfs=off')
+        disable_nfs_command = sh.zfs.set.bake('sharenfs=off', filesystem)
+        if simulate:
+            print(disable_nfs_command)
+        else:
+            disable_nfs_command()
         return
 
-    sharenfs_list =  ['sync', 'wdelay', 'hide', 'crossmnt', 'secure', 'no_all_squash', 'no_subtree_check', 'secure_locks', 'mountpoint', 'anonuid=65534', 'anongid=65534', 'sec=sys']
+    sharenfs_list = ['sync',
+                     'wdelay',
+                     'hide',
+                     'crossmnt',
+                     'secure',
+                     'no_all_squash',
+                     'no_subtree_check',
+                     'secure_locks',
+                     'mountpoint',
+                     'anonuid=65534',
+                     'anongid=65534',
+                     'sec=sys']
     # these cause zfs set sharenfs= command to fail:
     # ['acl', 'no_pnfs']
 
@@ -89,5 +106,8 @@ def zfs_set_sharenfs(filesystem: str,
     if verbose:
         ic(sharenfs_line)
 
-    zfs_command = sh.zfs.set.bake(sharenfs_line)
-    print(zfs_command(filesystem))
+    zfs_command = sh.zfs.set.bake(sharenfs_line, filesystem)
+    if simulate:
+        print(zfs_command)
+    else:
+        print(zfs_command())

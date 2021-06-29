@@ -65,18 +65,19 @@ export LANG="en_US.UTF8"  # to make click happy
 symlinktree /home/cfg/sysskel --verbose || exit 1
 symlinktree /home/cfg/sysskel --verbose --re-apply-skel /root || exit 1
 
-touch /etc/portage/proxy.conf  # or emerge is really unhappy
+# done in post_chroot.py
+#touch /etc/portage/proxy.conf  # or emerge is really unhappy
 
 /etc/init.d/dnscrypt-proxy start
 /home/cfg/linux/gentoo/layman/update_all_overlays
 install_pkg debugedit
 emerge @world --newuse
 
-touch /etc/portage/proxy.conf
+#touch /etc/portage/proxy.conf
 
-test -h /root/cfg      || { ln -s /home/cfg /root/cfg      || exit 1 ; }
-test -h /root/_myapps      || { ln -s /home/cfg/_myapps /root/_myapps      || exit 1 ; }
-test -h /root/_repos      || { ln -s /home/cfg/_repos /root/_repos || exit 1 ; }
+test -h /root/cfg     || { ln -s /home/cfg /root/cfg             || exit 1 ; }
+test -h /root/_myapps || { ln -s /home/cfg/_myapps /root/_myapps || exit 1 ; }
+test -h /root/_repos  || { ln -s /home/cfg/_repos /root/_repos   || exit 1 ; }
 
 #rc-update add dnsmasq default
 #rc-update add dnsproxy default

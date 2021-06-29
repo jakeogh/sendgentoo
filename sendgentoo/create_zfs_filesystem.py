@@ -97,5 +97,10 @@ def create_zfs_filesystem(ctx,
     if not simulate:
         run_command(command, verbose=True, expected_exit_status=0)
 
-        if nfs_subnet:
-            ctx.invoke(zfs_set_sharenfs, filesystem=pool + '/' + name, subnet=nfs_subnet, verbose=verbose, debug=debug,)
+    if nfs_subnet:
+        ctx.invoke(zfs_set_sharenfs,
+                   filesystem=pool + '/' + name,
+                   subnet=nfs_subnet,
+                   verbose=verbose,
+                   debug=debug,
+                   simulate=simulate,)

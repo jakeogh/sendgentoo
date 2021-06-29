@@ -41,7 +41,7 @@ def sendgentoosimple(ctx,
             print("device:", device, "is not a block device. Exiting.", file=sys.stderr)
             quit(1)
 
-    password = input("Enter new password:")
+    password = input("Enter new password: ")
     assert len(password) > 0
 
     ctx.invoke(install,

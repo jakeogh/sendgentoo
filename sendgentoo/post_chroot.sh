@@ -185,14 +185,15 @@ eselect unison list #todo
 perl-cleaner --reallyall
 #echo "=dev-libs/openssl-1.1.1a" > /etc/portage/package.unmask
 install_pkg app-portage/repoman
-install_pkg vim
+install_pkg app-editors/vim
 install_pkg www-client/links
 install_pkg dev-db/redis  # later on, fix_cfg_perms will try to use the redis:redis user
-install_pkg sudo
+install_pkg app-admin/sudo
 install_pkg app-text/tree
 install_pkg sys-fs/safecopy
-install_pkg lsof
-install_pkg lshw
+install_pkg sys-process/lsof
+install_pkg sys-apps/lshw
+install_pkg sys-process/glances
 install_pkg app-admin/pydf
 install_pkg sys-fs/ncdu
 install_pkg app-portage/gentoolkit #equery
@@ -208,10 +209,8 @@ install_pkg sys-apps/smartmontools
 rc-update add smartd default
 install_pkg sys-fs/multipath-tools
 
-
 install_pkg net-fs/nfs-utils
 install_pkg net-libs/libnfsidmap  # rpc.idmapd
-
 
 install_pkg sys-power/powertop
 install_pkg sys-power/upower

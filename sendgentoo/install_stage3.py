@@ -13,8 +13,6 @@ from with_chdir import chdir
 
 from .download_stage3 import download_stage3
 
-#from .get_stage3_url import get_stage3_url
-
 
 def eprint(*args, **kwargs):
     if 'file' in kwargs.keys():

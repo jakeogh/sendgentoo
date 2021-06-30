@@ -82,9 +82,11 @@ grep "EMERGE_DEFAULT_OPTS=\"--quiet-build=y --tree --nospinner\"" /etc/portage/m
 grep "FEATURES=\"parallel-fetch splitdebug buildpkg\"" /etc/portage/make.conf || \
     echo "FEATURES=\"parallel-fetch splitdebug buildpkg\"" >> /etc/portage/make.conf
 
-echo "sys-devel/gcc fortran" > /etc/portage/package.use/gcc #otherwise gcc compiles twice
-
 source /etc/profile
+
+echo "sys-devel/gcc fortran" > /etc/portage/package.use/gcc #otherwise gcc compiles twice
+install_pkg gcc
+gcc-config latest
 
 #install kernel and update symlink (via use flag)
 export KCONFIG_OVERWRITECONFIG=1 # https://www.mail-archive.com/lede-dev@lists.infradead.org/msg07290.html

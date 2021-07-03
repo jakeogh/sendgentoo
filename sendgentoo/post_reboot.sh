@@ -222,6 +222,7 @@ gpasswd -a user lpadmin
 
 #lspci | grep -i nvidia | grep -i vga && install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
 install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
+USE="-opengl -utils" emerge -v1 mesa x11-libs/libva  # temp fix the mesa circular dep
 
 install_pkg alsa-utils #alsamixer
 rc-update add alsasound boot

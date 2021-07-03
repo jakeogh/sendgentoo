@@ -212,6 +212,8 @@ rc-update add smartd default
 install_pkg sys-fs/multipath-tools
 
 install_pkg net-fs/nfs-utils
+rc-update add nfs default
+
 install_pkg net-libs/libnfsidmap  # rpc.idmapd
 
 install_pkg sys-power/powertop

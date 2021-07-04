@@ -212,6 +212,12 @@ def chroot_gentoo(ctx,
                        verbose=verbose,
                        debug=debug,)
 
+    write_line_to_file(path=mount_path / Path('etc') / Path('hosts'),
+                       line='127.0.0.1\tlocalhost\t{hostname}\n'.format(hostname=hostname),
+                       unique=True,
+                       verbose=verbose,
+                       debug=debug,)
+
     sh.cp('/usr/bin/ischroot', mount_path / Path('usr') / Path('bin') / Path('ischroot'))  # bug for cross compile
 
     ic('Entering chroot')

@@ -210,6 +210,7 @@ install_pkg dev-util/fatrace
 install_pkg sys-apps/smartmontools
 rc-update add smartd default
 install_pkg sys-fs/multipath-tools
+install_pkg sys-apps/usbutils  # lsusb for /etc/local.d/ scripts
 
 install_pkg net-fs/nfs-utils
 rc-update add nfs default

@@ -46,3 +46,5 @@ Options:
 TODO:
 
 https://github.com/fearedbliss/bliss-initramfs
+
+https://github.com/Benni3D/microcoreutils/wiki/User-Mode-Linux

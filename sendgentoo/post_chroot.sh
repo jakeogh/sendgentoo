@@ -214,6 +214,7 @@ install_pkg sys-apps/usbutils  # lsusb for /etc/local.d/ scripts
 
 install_pkg net-fs/nfs-utils
 rc-update add nfs default
+install_pkg dev-python/distro  # distro detection in boot scripts
 
 install_pkg net-libs/libnfsidmap  # rpc.idmapd
 
@@ -227,6 +228,8 @@ install_pkg dev-util/ccache
 mkdir -p /var/cache/ccache
 chown root:portage /var/cache/ccache
 chmod 2775 /var/cache/ccache
+
+install_pkg dev-util/ctags  # so vim/nvim dont complain
 
 ls /etc/ssh/sshd_config -al || exit 1
 grep -E "^PermitRootLogin yes" /etc/ssh/sshd_config || echo "PermitRootLogin yes" >> /etc/ssh/sshd_config || exit 1

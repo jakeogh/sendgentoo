@@ -46,7 +46,7 @@ def create_zfs_filesystem_snapshot(ctx,
     assert len(path) > 3
 
     command = "zfs snapshot {path}".format(path=path)
-    timestamp = str(int(get_timestamp()))
+    timestamp = get_timestamp()
     command += "@__{timestamp}__".format(timestamp=timestamp)
 
     if verbose or simulate:

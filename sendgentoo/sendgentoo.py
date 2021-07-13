@@ -50,9 +50,10 @@ from sendgentoo.chroot_gentoo import rsync_cfg
 from sendgentoo.create_boot_device import create_boot_device
 from sendgentoo.create_root_device import create_root_device
 from sendgentoo.create_zfs_filesystem import create_zfs_filesystem
+from sendgentoo.create_zfs_filesystem_snapshot import \
+    create_zfs_filesystem_snapshot
 from sendgentoo.create_zfs_pool import create_zfs_pool
 from sendgentoo.install_stage3 import install_stage3
-from sendgentoo.snapshot_zfs_filesystem import snapshot_zfs_filesystem
 from sendgentoo.write_boot_partition import write_boot_partition
 from sendgentoo.zfs_set_sharenfs import zfs_set_sharenfs
 
@@ -81,6 +82,7 @@ def sendgentoo(ctx):
 sendgentoo.add_command(create_filesystem)
 sendgentoo.add_command(create_zfs_pool)
 sendgentoo.add_command(create_zfs_filesystem)
+sendgentoo.add_command(create_zfs_filesystem_snapshot)
 sendgentoo.add_command(create_root_device)
 sendgentoo.add_command(chroot_gentoo)
 sendgentoo.add_command(rsync_cfg)

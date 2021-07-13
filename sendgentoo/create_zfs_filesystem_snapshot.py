@@ -31,7 +31,7 @@ from timetool import get_timestamp
 @click.option('--verbose', type=str,)
 @click.option('--debug', type=str,)
 @click.pass_context
-def create_sfs_filesystem_snapshot(ctx,
+def create_zfs_filesystem_snapshot(ctx,
                                    path: str,
                                    simulate: bool,
                                    verbose: bool,

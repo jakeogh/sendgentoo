@@ -47,7 +47,7 @@ def create_zfs_filesystem_snapshot(ctx,
     assert len(path) > 3
 
     timestamp = str(int(float(get_timestamp())))
-    snapshot_path = path + "@__{timestamp}__".format(timestamp=timestamp)
+    snapshot_path = path + "@__{timestamp}".format(timestamp=timestamp)
     command = sh.zfs.snapshot.bake(snapshot_path)
 
     if verbose or simulate:

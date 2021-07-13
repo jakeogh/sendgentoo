@@ -19,6 +19,7 @@
 
 
 import click
+import sh
 from asserttool import eprint
 from asserttool import ic
 from run_command import run_command
@@ -45,12 +46,13 @@ def create_zfs_filesystem_snapshot(ctx,
     assert len(path.split()) == 1
     assert len(path) > 3
 
-    command = "zfs snapshot {path}".format(path=path)
     timestamp = str(int(float(get_timestamp())))
-    command += "@__{timestamp}__".format(timestamp=timestamp)
+    snapshot_path = path + "@__{timestamp}__".format(timestamp=timestamp)
+    command = sh.zfs.snapshot.bake(snapshot_path)
 
     if verbose or simulate:
         ic(command)
 
     if not simulate:
-        run_command(command, verbose=True, expected_exit_status=0)
+        #run_command(command, verbose=True, expected_exit_status=0)
+        command()

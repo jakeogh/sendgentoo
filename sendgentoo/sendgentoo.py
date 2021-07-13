@@ -28,6 +28,8 @@ from typing import Tuple
 
 import click
 import humanfriendly
+from asserttool import eprint
+from asserttool import ic
 from asserttool import root_user
 from blocktool import add_partition_number_to_device
 from blocktool import create_filesystem
@@ -50,20 +52,9 @@ from sendgentoo.create_root_device import create_root_device
 from sendgentoo.create_zfs_filesystem import create_zfs_filesystem
 from sendgentoo.create_zfs_pool import create_zfs_pool
 from sendgentoo.install_stage3 import install_stage3
+from sendgentoo.snapshot_zfs_filesystem import snapshot_zfs_filesystem
 from sendgentoo.write_boot_partition import write_boot_partition
 from sendgentoo.zfs_set_sharenfs import zfs_set_sharenfs
-
-
-def eprint(*args, **kwargs):
-    if 'file' in kwargs.keys():
-        kwargs.pop('file')
-    print(*args, file=sys.stderr, **kwargs)
-
-
-try:
-    from icecream import ic  # https://github.com/gruns/icecream
-except ImportError:
-    ic = eprint
 
 
 def validate_ram_size(ctx, param, vm_ram):

@@ -9,7 +9,7 @@ if not sys.version_info[0] == 3:
 import re
 from setuptools import find_packages, setup
 dependencies = []
-version = 0.01
+version = 0.1
 
 setup(
     name = "sendgentoo",

@@ -17,7 +17,6 @@
 # pylint: disable=W0201  # attribute defined outside __init__
 # pylint: disable=R0916  # Too many boolean expressions in if statement
 
-import sys
 
 import click
 from asserttool import eprint
@@ -32,12 +31,12 @@ from timetool import get_timestamp
 @click.option('--verbose', type=str,)
 @click.option('--debug', type=str,)
 @click.pass_context
-def snapshot_zfs_filesystem(ctx,
-                            path: str,
-                            simulate: bool,
-                            verbose: bool,
-                            debug: bool,
-                            ) -> None:
+def create_sfs_filesystem_snapshot(ctx,
+                                   path: str,
+                                   simulate: bool,
+                                   verbose: bool,
+                                   debug: bool,
+                                   ) -> None:
 
     if verbose:
         ic()

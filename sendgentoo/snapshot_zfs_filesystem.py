@@ -20,9 +20,10 @@
 import sys
 
 import click
+from asserttool import eprint
+from asserttool import ic
 from run_command import run_command
-from asserttool import get_timestamp, ic, eprint
-from .zfs_set_sharenfs import zfs_set_sharenfs
+from timetool import get_timestamp
 
 
 @click.command()

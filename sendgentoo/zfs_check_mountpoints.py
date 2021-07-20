@@ -17,14 +17,11 @@
 # pylint: disable=W0201  # attribute defined outside __init__
 # pylint: disable=R0916  # Too many boolean expressions in if statement
 
-import sys
 
 import click
 import sh
-#from run_command import run_command
 from asserttool import eprint
 from asserttool import ic
-from asserttool import maxone
 
 
 @click.command()
@@ -38,11 +35,13 @@ def zfs_check_mountpoints(ctx,
                           ):
 
     mountpoints = sh.zfs.get('mountpoint')
-    ic(mountpoints)
+    if verbose:
+        ic(mountpoints)
 
     for line in mountpoints.splitlines()[1:]:
         line = ' '.join(line.split())
-        ic(line)
+        if verbose:
+            ic(line)
         zfs_path = line.split(' mountpoint ')[0]
         mountpoint = line.split(' mountpoint ')[1]
         if mountpoint.startswith('none'):
@@ -54,4 +53,3 @@ def zfs_check_mountpoints(ctx,
         mountpoint = mountpoint.split(' ')[0]
         ic(zfs_path, mountpoint)
         assert zfs_path == mountpoint[1:]
-        #mountpoint =

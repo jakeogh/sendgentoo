@@ -45,6 +45,12 @@ def zfs_check_mountpoints(ctx,
         ic(line)
         zfs_path = line.split(' mountpoint ')[0]
         mountpoint = line.split(' mountpoint ')[1]
-        ic(zfs_path)
-        ic(mountpoint)
+        if mountpoint.startswith('none'):
+            continue
+        assert mountpoint.startswith('/')
+        mountpoint = mountpoint.split(' ')[0]
+
+
+
+        ic(zfs_path, mountpoint)
         #mountpoint =

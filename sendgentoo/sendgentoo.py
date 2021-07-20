@@ -55,6 +55,7 @@ from sendgentoo.create_zfs_filesystem_snapshot import \
 from sendgentoo.create_zfs_pool import create_zfs_pool
 from sendgentoo.install_stage3 import install_stage3
 from sendgentoo.write_boot_partition import write_boot_partition
+from sendgentoo.zfs_check_mountpoints import zfs_check_mountpoints
 from sendgentoo.zfs_set_sharenfs import zfs_set_sharenfs
 
 
@@ -87,6 +88,7 @@ sendgentoo.add_command(create_root_device)
 sendgentoo.add_command(chroot_gentoo)
 sendgentoo.add_command(rsync_cfg)
 sendgentoo.add_command(zfs_set_sharenfs)
+sendgentoo.add_command(zfs_check_mountpoints)
 
 
 @sendgentoo.command()

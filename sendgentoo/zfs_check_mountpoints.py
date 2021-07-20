@@ -47,6 +47,9 @@ def zfs_check_mountpoints(ctx,
         mountpoint = line.split(' mountpoint ')[1]
         if mountpoint.startswith('none'):
             continue
+        elif mountpoint.startswith('-'):  # snapshot
+            assert '@' in zfs_path
+            continue
         assert mountpoint.startswith('/')
         mountpoint = mountpoint.split(' ')[0]
 

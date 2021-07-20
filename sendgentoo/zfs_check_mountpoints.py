@@ -22,7 +22,9 @@ import sys
 import click
 import sh
 #from run_command import run_command
-from asserttool import maxone, eprint, ic
+from asserttool import eprint
+from asserttool import ic
+from asserttool import maxone
 
 
 @click.command()
@@ -38,3 +40,5 @@ def zfs_check_mountpoints(ctx,
     mountpoints = sh.zfs.get('mountpoint')
     ic(mountpoints)
 
+    for line in mountpoints.splitlines():
+        ic(line)

@@ -41,4 +41,6 @@ def zfs_check_mountpoints(ctx,
     ic(mountpoints)
 
     for line in mountpoints.splitlines():
+        line = ' '.join(line.split())
         ic(line)
+        #mountpoint =

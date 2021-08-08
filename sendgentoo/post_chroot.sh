@@ -195,6 +195,7 @@ install_pkg app-text/tree
 install_pkg sys-fs/safecopy
 install_pkg sys-process/lsof
 install_pkg sys-apps/lshw
+install_pkg app-editors/hexedit
 install_pkg sys-process/glances
 install_pkg app-admin/pydf
 install_pkg sys-fs/ncdu

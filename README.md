@@ -14,10 +14,13 @@ Commands:
   create-filesystem
   create-root-device
   create-zfs-filesystem
+  create-zfs-filesystem-snapshot
   create-zfs-pool
   install
   rsync-cfg
+  zfs-check-mountpoints
   zfs-set-sharenfs
+
 
 
 $ sendgentoo install --help

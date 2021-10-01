@@ -22,25 +22,14 @@ from pathlib import Path
 from typing import Tuple
 
 import click
+from asserttool import eprint
+from asserttool import ic
 from blocktool import path_is_block_special
-from icecream import ic
-from kcl.iterops import grouper
+from itertool import grouper
 from mounttool import block_special_path_is_mounted
 from run_command import run_command
 
 from .setup_globals import RAID_LIST
-
-
-def eprint(*args, **kwargs):
-    if 'file' in kwargs.keys():
-        kwargs.pop('file')
-    print(*args, file=sys.stderr, **kwargs)
-
-
-try:
-    from icecream import ic  # https://github.com/gruns/icecream
-except ImportError:
-    ic = eprint
 
 
 @click.command()

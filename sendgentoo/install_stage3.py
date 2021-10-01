@@ -5,6 +5,8 @@ import sys
 from pathlib import Path
 from subprocess import CalledProcessError
 
+from asserttool import eprint
+from asserttool import ic
 from mounttool import path_is_mounted
 from nettool import construct_proxy_dict
 from pathtool import path_is_file
@@ -12,18 +14,6 @@ from run_command import run_command
 from with_chdir import chdir
 
 from .download_stage3 import download_stage3
-
-
-def eprint(*args, **kwargs):
-    if 'file' in kwargs.keys():
-        kwargs.pop('file')
-    print(*args, file=sys.stderr, **kwargs)
-
-
-try:
-    from icecream import ic  # https://github.com/gruns/icecream
-except ImportError:
-    ic = eprint
 
 
 def install_stage3(stdlib,

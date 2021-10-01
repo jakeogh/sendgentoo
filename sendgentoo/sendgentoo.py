@@ -302,7 +302,7 @@ def safety_check_devices(boot_device: Path,
 @click.option('--boot-filesystem',             is_flag=False, required=False, type=click.Choice(['ext4', 'zfs']), default="ext4")
 @click.option('--root-filesystem',             is_flag=False, required=True,  type=click.Choice(['ext4', 'zfs', '9p']), default="ext4")
 @click.option('--stdlib',                      is_flag=False, required=False, type=click.Choice(['glibc', 'musl', 'uclibc']), default="glibc")
-@click.option('--arch',                        is_flag=False, required=False, type=click.Choice(['alpha', 'amd64', 'arm', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86']), default="amd64")
+@click.option('--arch',                        is_flag=False, required=False, type=click.Choice(['alpha', 'amd64', 'arm', 'arm64', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86']), default="amd64")
 @click.option('--raid',                        is_flag=False, required=False, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']), default="disk")
 @click.option('--raid-group-size',             is_flag=False, required=False, type=click.IntRange(1, 2), default=1)
 @click.option('--march',                       is_flag=False, required=True, type=click.Choice(['native', 'nocona']))

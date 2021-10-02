@@ -366,6 +366,10 @@ def install(ctx, *,
     assert hostname.lower() == hostname
     assert '_' not in hostname
 
+    mount_path = Path("/mnt/gentoo")
+    mount_path_boot = mount_path / Path('boot')
+    mount_path_boot_efi = mount_path_boot / Path('efi')
+
     if not skip_to_chroot:
         distfiles_dir = Path('/var/db/repos/gentoo/distfiles')
         os.makedirs(distfiles_dir, exist_ok=True)
@@ -382,10 +386,6 @@ def install(ctx, *,
         if stdlib == 'uclibc':
             eprint("uclibc fails with efi grub because efivar fails to compile. See Note.")
             sys.exit(1)
-
-        mount_path = Path("/mnt/gentoo")
-        mount_path_boot = mount_path / Path('boot')
-        mount_path_boot_efi = mount_path_boot / Path('efi')
 
         os.makedirs(mount_path, exist_ok=True)
 

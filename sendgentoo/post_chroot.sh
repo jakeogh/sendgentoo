@@ -3,8 +3,8 @@ set -o nounset
 
 echo -n "$0 args: "
 echo -e "$@\n"
-argcount=5
-usage="stdlib boot_device cflags root_filesystem newpasswd"
+argcount=6
+usage="stdlib boot_device cflags root_filesystem newpasswd pinebook_overlay"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 
 set -o nounset
@@ -28,6 +28,10 @@ root_filesystem="${1}"
 shift
 newpasswd="${1}"
 shift
+pinebook_overlay="${1}"
+shift
+
+echo "pinebook_overlay: ${pinebook_overlay}"
 
 mount | grep "/boot/efi" || exit 1
 
@@ -140,6 +144,15 @@ eselect repository list -i | grep jakeogh || eselect repository add jakeogh git 
 #git config --global http.proxy http://192.168.222.100:8888
 install_pkg dev-vcs/git
 emaint sync -r jakeogh  # this needs git
+
+if [ ${pinebook_overlay} = '1' ];
+then
+    eselect repository list -i | grep pinebookpro-overlay || eselect repository add pinebookpro-overlay git https://github.com/Jannik2099/pinebookpro-overlay.git  #ignores http_proxy
+    emerge --sync pinebookpro-overlay
+    emerge -u pinebookpro-profile-overrides
+fi
+
+
 #install_pkg layman
 #layman -o "https://raw.githubusercontent.com/jakeogh/jakeogh/master/jakeogh.xml" -f -a jakeogh
 #layman -S # update layman trees

@@ -113,6 +113,7 @@ def rsync_cfg(*,
 @click.option('--skip-to-rsync', is_flag=True)
 @click.option('--ip', type=str, required=True)
 @click.option('--ip-gateway', type=str, required=True)
+@click.option('--pinebook-overlay', type=str, required=False)
 @click.option('--vm', required=False, type=click.Choice(['qemu']))
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
@@ -133,6 +134,7 @@ def chroot_gentoo(ctx,
                   skip_to_rsync: bool,
                   mesa_use_enable: list[str],
                   mesa_use_disable: list[str],
+                  pinebook_overlay: bool,
                   verbose: bool,
                   debug: bool,
                   ipython: bool,
@@ -242,11 +244,12 @@ def chroot_gentoo(ctx,
                       '-c',
                       'su',
                       '-',
-                      '-c "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh {stdlib} {boot_device} {march} {root_filesystem} {newpasswd}"'.format(stdlib=stdlib,
-                                                                                                                                                        boot_device=boot_device,
-                                                                                                                                                        march=march,
-                                                                                                                                                        root_filesystem=root_filesystem,
-                                                                                                                                                        newpasswd=newpasswd),]
+                      '-c "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh {stdlib} {boot_device} {march} {root_filesystem} {newpasswd} {pinebook_overlay}"'.format(stdlib=stdlib,
+                                                                                                                                                                           boot_device=boot_device,
+                                                                                                                                                                           march=march,
+                                                                                                                                                                           root_filesystem=root_filesystem,
+                                                                                                                                                                           newpasswd=newpasswd,
+                                                                                                                                                                           pinebook_overlay=str(pinebook_overlay))]
 
     run_command(' '.join(chroot_command), verbose=True, ask=True, system=True)
 

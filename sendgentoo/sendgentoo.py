@@ -58,6 +58,9 @@ from sendgentoo.write_boot_partition import write_boot_partition
 from sendgentoo.zfs_check_mountpoints import zfs_check_mountpoints
 from sendgentoo.zfs_set_sharenfs import zfs_set_sharenfs
 
+from .click_mesa_options import add_options
+from .click_mesa_options import click_mesa_options
+
 
 def validate_ram_size(ctx, param, vm_ram):
     ic(vm_ram)
@@ -291,13 +294,6 @@ def safety_check_devices(boot_device: Path,
             warn((boot_device,), verbose=verbose, debug=debug,)
             warn(root_devices, verbose=verbose, debug=debug,)
 
-#from portagetool import get_use_flags_for_package
-
-#MESA_FLAGS = [get_use_flags_for_package(package='media-libs/mesa', verbose=False, debug=False,)]
-#MESA_FLAGS.append('video_cards_panfrost')  # https://github.com/Jannik2099/gentoo-pinebookpro/blob/master/mesa
-
-from .click_mesa_options import add_options
-from .click_mesa_options import click_mesa_options
 
 
 @sendgentoo.command()
@@ -312,10 +308,9 @@ from .click_mesa_options import click_mesa_options
 @click.option('--stdlib',                      is_flag=False, required=False, type=click.Choice(['glibc', 'musl', 'uclibc']), default="glibc")
 @click.option('--arch',                        is_flag=False, required=False, type=click.Choice(['alpha', 'amd64', 'arm', 'arm64', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86']), default="amd64")
 @click.option('--raid',                        is_flag=False, required=False, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']), default="disk")
-#@click.option('--mesa-use-enable',             is_flag=False, required=False, type=click.Choice(MESA_FLAGS), default=["gallium"], multiple=True)
-#@click.option('--mesa-use-disable',            is_flag=False, required=False, type=click.Choice(MESA_FLAGS), default=["osmesa", 'llvm'], multiple=True)
 @click.option('--raid-group-size',             is_flag=False, required=False, type=click.IntRange(1, 2), default=1)
 @click.option('--march',                       is_flag=False, required=True, type=click.Choice(['native', 'nocona']))
+@click.option('--kernel',                      is_flag=False, required=True, type=click.Choice(['gentoo-sources', 'pinebookpro-manjaro-sources']),default='gentoo-sources')
 #@click.option('--pool-name',                   is_flag=False, required=True, type=str)
 @click.option('--hostname',                    is_flag=False, required=True)
 @click.option('--newpasswd',                   is_flag=False, required=True)
@@ -323,6 +318,7 @@ from .click_mesa_options import click_mesa_options
 @click.option('--ip-gateway',                  is_flag=False, required=True)
 @click.option('--proxy',                       is_flag=False, required=True)
 @click.option('--force',                       is_flag=True,  required=False)
+@click.option('--pinebook-overlay',            is_flag=True,  required=False)
 @click.option('--encrypt',                     is_flag=True,  required=False)
 @click.option('--multilib',                    is_flag=True,  required=False)
 @click.option('--minimal',                     is_flag=True,  required=False)
@@ -353,6 +349,8 @@ def install(ctx, *,
             proxy: str,
             force: bool,
             encrypt: bool,
+            pinebook_overlay: bool,
+            kernel: str,
             multilib: bool,
             minimal: bool,
             verbose: bool,
@@ -578,11 +576,13 @@ def install(ctx, *,
                march=march,
                root_filesystem=root_filesystem,
                newpasswd=newpasswd,
+               kernel=kernel,
                ip=ip,
                ip_gateway=ip_gateway,
                vm=vm,
                mesa_use_enable=mesa_use_enable,
                mesa_use_disable=mesa_use_disable,
+               pinebook_overlay=pinebook_overlay,
                ipython=False,
                skip_to_rsync=False,
                verbose=verbose,

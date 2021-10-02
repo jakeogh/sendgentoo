@@ -244,12 +244,13 @@ def chroot_gentoo(ctx,
                       '-c',
                       'su',
                       '-',
-                      '-c "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh {stdlib} {boot_device} {march} {root_filesystem} {newpasswd} {pinebook_overlay}"'.format(stdlib=stdlib,
-                                                                                                                                                                           boot_device=boot_device,
-                                                                                                                                                                           march=march,
-                                                                                                                                                                           root_filesystem=root_filesystem,
-                                                                                                                                                                           newpasswd=newpasswd,
-                                                                                                                                                                           pinebook_overlay=str(int(pinebook_overlay)))]
+                      '-c "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh {stdlib} {boot_device} {march} {root_filesystem} {newpasswd} {pinebook_overlay} {kernel}"'.format(stdlib=stdlib,
+                                                                                                                                                                                    boot_device=boot_device,
+                                                                                                                                                                                    march=march,
+                                                                                                                                                                                    root_filesystem=root_filesystem,
+                                                                                                                                                                                    newpasswd=newpasswd,
+                                                                                                                                                                                    pinebook_overlay=str(int(pinebook_overlay)),
+                                                                                                                                                                                    kernel=kernel)]
 
     run_command(' '.join(chroot_command), verbose=True, ask=True, system=True)
 

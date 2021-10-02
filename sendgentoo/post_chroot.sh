@@ -3,8 +3,8 @@ set -o nounset
 
 echo -n "$0 args: "
 echo -e "$@\n"
-argcount=6
-usage="stdlib boot_device cflags root_filesystem newpasswd pinebook_overlay"
+argcount=7
+usage="stdlib boot_device cflags root_filesystem newpasswd pinebook_overlay kernel"
 test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 
 set -o nounset
@@ -94,8 +94,8 @@ gcc-config latest
 
 #install kernel and update symlink (via use flag)
 export KCONFIG_OVERWRITECONFIG=1 # https://www.mail-archive.com/lede-dev@lists.infradead.org/msg07290.html
-echo "sys-kernel/gentoo-sources symlink" > /etc/portage/package.use/gentoo-sources    # required so /usr/src/linux exists
-install_pkg gentoo-sources || exit 1
+echo "sys-kernel/${kernel} symlink" > /etc/portage/package.use/"${kernel}"    # required so /usr/src/linux exists
+install_pkg sys-kernel/"${kernel}" || exit 1
 install_pkg grub || exit 1
 
 install_pkg dev-util/strace

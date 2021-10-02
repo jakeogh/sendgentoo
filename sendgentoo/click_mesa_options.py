@@ -4,9 +4,9 @@
 import click
 from portagetool import get_use_flags_for_package
 
-MESA_FLAGS = [get_use_flags_for_package(package='media-libs/mesa',
-                                        verbose=False,
-                                        debug=False,)]
+MESA_FLAGS = get_use_flags_for_package(package='media-libs/mesa',
+                                       verbose=False,
+                                       debug=False,)
 MESA_FLAGS.append('video_cards_panfrost')  # https://github.com/Jannik2099/gentoo-pinebookpro/blob/master/mesa
 
 

@@ -32,6 +32,8 @@ from typing import Sequence
 
 import click
 import sh
+from asserttool import eprint
+from asserttool import ic
 from asserttool import root_user
 from mounttool import mount_something
 from mounttool import path_is_mounted
@@ -40,17 +42,8 @@ from pathtool import write_line_to_file
 from run_command import run_command
 from with_chdir import chdir
 
-
-def eprint(*args, **kwargs):
-    if 'file' in kwargs.keys():
-        kwargs.pop('file')
-    print(*args, file=sys.stderr, **kwargs)
-
-
-try:
-    from icecream import ic  # https://github.com/gruns/icecream
-except ImportError:
-    ic = eprint
+from .click_mesa_options import add_options
+from .click_mesa_options import click_mesa_options
 
 
 @click.command()
@@ -124,6 +117,7 @@ def rsync_cfg(*,
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
 @click.option('--ipython', is_flag=True)
+@add_options(click_mesa_options)
 @click.pass_context
 def chroot_gentoo(ctx,
                   mount_path: str,
@@ -137,6 +131,8 @@ def chroot_gentoo(ctx,
                   ip_gateway: str,
                   vm: str,
                   skip_to_rsync: bool,
+                  mesa_use_enable: list[str],
+                  mesa_use_disable: list[str],
                   verbose: bool,
                   debug: bool,
                   ipython: bool,
@@ -175,9 +171,9 @@ def chroot_gentoo(ctx,
                            verbose=verbose,
                            debug=debug,)
 
-    mount_something(path=mount_path / Path('proc'), mount_type='proc', source=None, verbose=verbose, debug=debug)
-    mount_something(path=mount_path / Path('sys'), mount_type='rbind', source=Path('/sys'), verbose=verbose, debug=debug)
-    mount_something(path=mount_path / Path('dev'), mount_type='rbind', source=Path('/dev'), verbose=verbose, debug=debug)
+    mount_something(mountpoint=mount_path / Path('proc'), mount_type='proc', source=None, verbose=verbose, debug=debug)
+    mount_something(mountpoint=mount_path / Path('sys'), mount_type='rbind', source=Path('/sys'), verbose=verbose, debug=debug)
+    mount_something(mountpoint=mount_path / Path('dev'), mount_type='rbind', source=Path('/dev'), verbose=verbose, debug=debug)
 
     os.makedirs(mount_path / Path('home') / Path('cfg'), exist_ok=True)
 
@@ -186,7 +182,7 @@ def chroot_gentoo(ctx,
     _var_tmp_portage = mount_path / Path('var') / Path('tmp') / Path('portage')
     os.makedirs(_var_tmp_portage, exist_ok=True)
     sh.chown('portage:portage', _var_tmp_portage)
-    mount_something(path=_var_tmp_portage, mount_type='rbind', source=Path('/var/tmp/portage'), verbose=verbose, debug=debug)
+    mount_something(mountpoint=_var_tmp_portage, mount_type='rbind', source=Path('/var/tmp/portage'), verbose=verbose, debug=debug)
     del _var_tmp_portage
 
     ctx.invoke(rsync_cfg,
@@ -201,7 +197,7 @@ def chroot_gentoo(ctx,
 
     _gentoo_repo = mount_path / Path('var') / Path('db') / Path('repos') / Path('gentoo')
     os.makedirs(_gentoo_repo, exist_ok=True)
-    mount_something(path=_gentoo_repo, mount_type='rbind', source=Path('/var/db/repos/gentoo'), verbose=verbose, debug=debug)
+    mount_something(mountpoint=_gentoo_repo, mount_type='rbind', source=Path('/var/db/repos/gentoo'), verbose=verbose, debug=debug)
     del _gentoo_repo
 
     sh.cp('/etc/portage/proxy.conf', mount_path / Path('etc') / Path('portage') / Path('proxy.conf'))
@@ -214,6 +210,20 @@ def chroot_gentoo(ctx,
 
     write_line_to_file(path=mount_path / Path('etc') / Path('hosts'),
                        line='127.0.0.1\tlocalhost\t{hostname}\n'.format(hostname=hostname),
+                       unique=True,
+                       verbose=verbose,
+                       debug=debug,)
+
+    mesa_use = []
+    for flag in mesa_use_enable:
+        mesa_use.append(flag)
+    for flag in mesa_use_disable:
+        mesa_use.append('-' + flag)
+    mesa_use = ' '.join(mesa_use)
+    mesa_use = 'media-libs/mesa' + ' ' + mesa_use
+
+    write_line_to_file(path=mount_path / Path('etc') / Path('portage') / Path('package.use') / Path('mesa'),
+                       line=mesa_use + '\n',
                        unique=True,
                        verbose=verbose,
                        debug=debug,)
@@ -232,7 +242,12 @@ def chroot_gentoo(ctx,
                       '-c',
                       'su',
                       '-',
-                      '-c "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh {stdlib} {boot_device} {march} {root_filesystem} {newpasswd}"'.format(stdlib=stdlib, boot_device=boot_device, march=march, root_filesystem=root_filesystem, newpasswd=newpasswd),]
+                      '-c "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh {stdlib} {boot_device} {march} {root_filesystem} {newpasswd}"'.format(stdlib=stdlib,
+                                                                                                                                                        boot_device=boot_device,
+                                                                                                                                                        march=march,
+                                                                                                                                                        root_filesystem=root_filesystem,
+                                                                                                                                                        newpasswd=newpasswd),]
+
     run_command(' '.join(chroot_command), verbose=True, ask=True, system=True)
 
     ic('chroot_gentoo.py complete!')

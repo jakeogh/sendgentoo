@@ -25,6 +25,8 @@ from pathlib import Path
 from typing import Optional
 
 import click
+from asserttool import eprint
+from asserttool import ic
 from nettool import construct_proxy_dict
 from nettool import download_file
 
@@ -32,21 +34,6 @@ from nettool import download_file
 from .get_stage3_url import get_stage3_url
 
 
-def eprint(*args, **kwargs):
-    if 'file' in kwargs.keys():
-        kwargs.pop('file')
-    print(*args, file=sys.stderr, **kwargs)
-
-
-try:
-    from icecream import ic  # https://github.com/gruns/icecream
-    from icecream import icr  # https://github.com/jakeogh/icecream
-except ImportError:
-    ic = eprint
-    icr = eprint
-
-
-#                    url: Optional[str] = None,
 def download_stage3(*,
                     destination_dir: Path,
                     stdlib: str,

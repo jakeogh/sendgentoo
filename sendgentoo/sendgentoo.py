@@ -291,6 +291,14 @@ def safety_check_devices(boot_device: Path,
             warn((boot_device,), verbose=verbose, debug=debug,)
             warn(root_devices, verbose=verbose, debug=debug,)
 
+#from portagetool import get_use_flags_for_package
+
+#MESA_FLAGS = [get_use_flags_for_package(package='media-libs/mesa', verbose=False, debug=False,)]
+#MESA_FLAGS.append('video_cards_panfrost')  # https://github.com/Jannik2099/gentoo-pinebookpro/blob/master/mesa
+
+from .click_mesa_options import add_options
+from .click_mesa_options import click_mesa_options
+
 
 @sendgentoo.command()
 @click.argument('root_devices',                required=False, nargs=-1)  # --vm does not need a specified root device
@@ -304,6 +312,8 @@ def safety_check_devices(boot_device: Path,
 @click.option('--stdlib',                      is_flag=False, required=False, type=click.Choice(['glibc', 'musl', 'uclibc']), default="glibc")
 @click.option('--arch',                        is_flag=False, required=False, type=click.Choice(['alpha', 'amd64', 'arm', 'arm64', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86']), default="amd64")
 @click.option('--raid',                        is_flag=False, required=False, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']), default="disk")
+#@click.option('--mesa-use-enable',             is_flag=False, required=False, type=click.Choice(MESA_FLAGS), default=["gallium"], multiple=True)
+#@click.option('--mesa-use-disable',            is_flag=False, required=False, type=click.Choice(MESA_FLAGS), default=["osmesa", 'llvm'], multiple=True)
 @click.option('--raid-group-size',             is_flag=False, required=False, type=click.IntRange(1, 2), default=1)
 @click.option('--march',                       is_flag=False, required=True, type=click.Choice(['native', 'nocona']))
 #@click.option('--pool-name',                   is_flag=False, required=True, type=str)
@@ -319,6 +329,7 @@ def safety_check_devices(boot_device: Path,
 @click.option('--verbose',                     is_flag=True,  required=False)
 @click.option('--debug',                       is_flag=True,  required=False)
 @click.pass_context
+@add_options(click_mesa_options)
 def install(ctx, *,
             root_devices: Tuple[Path, ...],
             vm: str,
@@ -337,6 +348,8 @@ def install(ctx, *,
             newpasswd: str,
             ip: str,
             ip_gateway: str,
+            mesa_use_enable: list[str],
+            mesa_use_disable: list[str],
             proxy: str,
             force: bool,
             encrypt: bool,
@@ -568,6 +581,8 @@ def install(ctx, *,
                ip=ip,
                ip_gateway=ip_gateway,
                vm=vm,
+               mesa_use_enable=mesa_use_enable,
+               mesa_use_disable=mesa_use_disable,
                ipython=False,
                skip_to_rsync=False,
                verbose=verbose,

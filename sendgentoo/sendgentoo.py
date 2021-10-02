@@ -324,6 +324,7 @@ def safety_check_devices(boot_device: Path,
 @click.option('--minimal',                     is_flag=True,  required=False)
 @click.option('--verbose',                     is_flag=True,  required=False)
 @click.option('--debug',                       is_flag=True,  required=False)
+@click.option('--skip-to-chroot',              is_flag=True,  required=False)
 @click.pass_context
 @add_options(click_mesa_options)
 def install(ctx, *,
@@ -355,6 +356,7 @@ def install(ctx, *,
             minimal: bool,
             verbose: bool,
             debug: bool,
+            skip_to_chroot: bool,
             ):
 
     assert isinstance(root_devices, tuple)
@@ -364,206 +366,208 @@ def install(ctx, *,
     assert hostname.lower() == hostname
     assert '_' not in hostname
 
-    distfiles_dir = Path('/var/db/repos/gentoo/distfiles')
-    os.makedirs(distfiles_dir, exist_ok=True)
+    if not skip_to_chroot:
+        distfiles_dir = Path('/var/db/repos/gentoo/distfiles')
+        os.makedirs(distfiles_dir, exist_ok=True)
 
-    if not os.path.isdir('/var/db/repos/gentoo/sys-kernel'):
-        eprint("run emerge --sync first")
-        sys.exit(1)
-    if encrypt:
-        eprint("encryption not yet supported")
-        #sys.exit(1)
-    if stdlib == 'musl':
-        eprint("musl not yet supported")
-        sys.exit(1)
-    if stdlib == 'uclibc':
-        eprint("uclibc fails with efi grub because efivar fails to compile. See Note.")
-        sys.exit(1)
+        if not os.path.isdir('/var/db/repos/gentoo/sys-kernel'):
+            eprint("run emerge --sync first")
+            sys.exit(1)
+        if encrypt:
+            eprint("encryption not yet supported")
+            #sys.exit(1)
+        if stdlib == 'musl':
+            eprint("musl not yet supported")
+            sys.exit(1)
+        if stdlib == 'uclibc':
+            eprint("uclibc fails with efi grub because efivar fails to compile. See Note.")
+            sys.exit(1)
 
-    mount_path = Path("/mnt/gentoo")
-    mount_path_boot = mount_path / Path('boot')
-    mount_path_boot_efi = mount_path_boot / Path('efi')
+        mount_path = Path("/mnt/gentoo")
+        mount_path_boot = mount_path / Path('boot')
+        mount_path_boot_efi = mount_path_boot / Path('efi')
 
-    os.makedirs(mount_path, exist_ok=True)
+        os.makedirs(mount_path, exist_ok=True)
 
-    assert Path('/usr/bin/ischroot').exists()
-    eprint("using C library:", stdlib)
-    eprint("hostname:", hostname)
+        assert Path('/usr/bin/ischroot').exists()
+        eprint("using C library:", stdlib)
+        eprint("hostname:", hostname)
 
-    if root_filesystem == '9p':
-        assert vm
+        if root_filesystem == '9p':
+            assert vm
 
-    if vm:
-        assert vm_ram
-        assert root_filesystem == "9p"
-        assert not root_devices
-        assert not boot_device
-        assert not boot_filesystem
-        guests_root = Path('/guests') / Path(vm)
-        guest_path        = guests_root / Path(hostname)
-        guest_path_chroot = guests_root / Path(hostname + "-chroot")
-        os.makedirs(guest_path, exist_ok=True)
-        os.makedirs(guest_path_chroot, exist_ok=True)
-        mount_path = guest_path
-    else:
-        assert boot_device
-        assert root_devices
+        if vm:
+            assert vm_ram
+            assert root_filesystem == "9p"
+            assert not root_devices
+            assert not boot_device
+            assert not boot_filesystem
+            guests_root = Path('/guests') / Path(vm)
+            guest_path        = guests_root / Path(hostname)
+            guest_path_chroot = guests_root / Path(hostname + "-chroot")
+            os.makedirs(guest_path, exist_ok=True)
+            os.makedirs(guest_path_chroot, exist_ok=True)
+            mount_path = guest_path
+        else:
+            assert boot_device
+            assert root_devices
 
-    if boot_device:
-        assert boot_device_partition_table
-        assert boot_filesystem
+        if boot_device:
+            assert boot_device_partition_table
+            assert boot_filesystem
 
-    if root_devices:
-        assert root_device_partition_table
+        if root_devices:
+            assert root_device_partition_table
 
-    if len(root_devices) > 1:
-        assert root_filesystem == 'zfs'
-    elif len(root_devices) == 1:
+        if len(root_devices) > 1:
+            assert root_filesystem == 'zfs'
+        elif len(root_devices) == 1:
+            if root_filesystem == 'zfs':
+                assert raid == 'disk'
+
         if root_filesystem == 'zfs':
-            assert raid == 'disk'
+            assert root_device_partition_table == 'gpt'
 
-    if root_filesystem == 'zfs':
-        assert root_device_partition_table == 'gpt'
+        if root_filesystem == 'zfs' or boot_filesystem == 'zfs':
+            input("note zfs boot/root is not working, many fixes will be needed, press enter to break things")
 
-    if root_filesystem == 'zfs' or boot_filesystem == 'zfs':
-        input("note zfs boot/root is not working, many fixes will be needed, press enter to break things")
+        safety_check_devices(boot_device=boot_device,
+                             root_devices=root_devices,
+                             verbose=verbose,
+                             debug=debug,
+                             boot_device_partition_table=boot_device_partition_table,
+                             boot_filesystem=boot_filesystem,
+                             root_device_partition_table=root_device_partition_table,
+                             root_filesystem=root_filesystem,
+                             force=force,)
 
-    safety_check_devices(boot_device=boot_device,
-                         root_devices=root_devices,
-                         verbose=verbose,
-                         debug=debug,
-                         boot_device_partition_table=boot_device_partition_table,
-                         boot_filesystem=boot_filesystem,
-                         root_device_partition_table=root_device_partition_table,
-                         root_filesystem=root_filesystem,
-                         force=force,)
+        if boot_device and root_devices and not vm:
+            if boot_device == root_devices[0]:
+                assert boot_filesystem == root_filesystem
+                assert boot_device_partition_table == root_device_partition_table
+                if boot_filesystem == 'zfs':
+                    ctx.invoke(destroy_block_devices_head_and_tail,
+                               devices=root_devices,
+                               force=True,
+                               no_backup=True,
+                               size=(1024 * 1024 * 128),
+                               note=False,
+                               verbose=verbose,
+                               debug=debug,)
+                    # if this is zfs, it will make a gpt table, / and EFI partition
+                    ctx.invoke(create_root_device,
+                               devices=root_devices,
+                               exclusive=True,
+                               filesystem=root_filesystem,
+                               partition_table=root_device_partition_table,
+                               force=True,
+                               raid=raid,
+                               raid_group_size=raid_group_size,
+                               pool_name=hostname,)
+                    create_boot_device(ctx,
+                                       device=boot_device,
+                                       partition_table='none',
+                                       filesystem=boot_filesystem,
+                                       force=True,
+                                       verbose=verbose,
+                                       debug=debug,)  # dont want to delete the gpt that zfs made
+                    boot_mount_command = False
+                    root_mount_command = False
 
-    if boot_device and root_devices and not vm:
-        if boot_device == root_devices[0]:
-            assert boot_filesystem == root_filesystem
-            assert boot_device_partition_table == root_device_partition_table
-            if boot_filesystem == 'zfs':
-                ctx.invoke(destroy_block_devices_head_and_tail,
-                           devices=root_devices,
-                           force=True,
-                           no_backup=True,
-                           size=(1024 * 1024 * 128),
-                           note=False,
-                           verbose=verbose,
-                           debug=debug,)
-                # if this is zfs, it will make a gpt table, / and EFI partition
-                ctx.invoke(create_root_device,
-                           devices=root_devices,
-                           exclusive=True,
-                           filesystem=root_filesystem,
-                           partition_table=root_device_partition_table,
-                           force=True,
-                           raid=raid,
-                           raid_group_size=raid_group_size,
-                           pool_name=hostname,)
-                create_boot_device(ctx,
-                                   device=boot_device,
-                                   partition_table='none',
-                                   filesystem=boot_filesystem,
-                                   force=True,
-                                   verbose=verbose,
-                                   debug=debug,)  # dont want to delete the gpt that zfs made
-                boot_mount_command = False
-                root_mount_command = False
-
-            elif boot_filesystem == 'ext4':
-                ctx.invoke(destroy_block_device_head_and_tail,
-                           device=boot_device,
-                           force=True,)
+                elif boot_filesystem == 'ext4':
+                    ctx.invoke(destroy_block_device_head_and_tail,
+                               device=boot_device,
+                               force=True,)
+                    create_boot_device(ctx,
+                                       device=boot_device,
+                                       partition_table=boot_device_partition_table,
+                                       filesystem=boot_filesystem,
+                                       force=True,
+                                       verbose=verbose,
+                                       debug=debug,)  # writes gurb_bios from 48s to 1023s then writes EFI partition from 1024s to 205824s (100M efi) (nope, too big for fat16)
+                    ctx.invoke(create_root_device,
+                               devices=root_devices,
+                               exclusive=False,
+                               filesystem=root_filesystem,
+                               partition_table=root_device_partition_table,
+                               force=True,
+                               raid=raid,
+                               raid_group_size=raid_group_size,
+                               pool_name=hostname,)
+                    root_partition_path = add_partition_number_to_device(device=root_devices[0], partition_number="3")
+                    root_mount_command = "mount " + root_partition_path.as_posix() + " " + str(mount_path)
+                    boot_mount_command = False
+                else:  # unknown case
+                    assert False
+            else:
+                eprint("differing root and boot devices: (exclusive) root_devices[0]:", root_devices[0], "boot_device:", boot_device)
                 create_boot_device(ctx,
                                    device=boot_device,
                                    partition_table=boot_device_partition_table,
                                    filesystem=boot_filesystem,
                                    force=True,
                                    verbose=verbose,
-                                   debug=debug,)  # writes gurb_bios from 48s to 1023s then writes EFI partition from 1024s to 205824s (100M efi) (nope, too big for fat16)
+                                   debug=debug,)
+                ctx.invoke(write_boot_partition,
+                           device=boot_device,
+                           force=True,
+                           verbose=verbose,
+                           debug=debug,)
                 ctx.invoke(create_root_device,
                            devices=root_devices,
-                           exclusive=False,
+                           exclusive=True,
                            filesystem=root_filesystem,
                            partition_table=root_device_partition_table,
                            force=True,
-                           raid=raid,
-                           raid_group_size=raid_group_size,
-                           pool_name=hostname,)
-                root_partition_path = add_partition_number_to_device(device=root_devices[0], partition_number="3")
-                root_mount_command = "mount " + root_partition_path.as_posix() + " " + str(mount_path)
-                boot_mount_command = False
-            else:  # unknown case
-                assert False
-        else:
-            eprint("differing root and boot devices: (exclusive) root_devices[0]:", root_devices[0], "boot_device:", boot_device)
-            create_boot_device(ctx,
-                               device=boot_device,
-                               partition_table=boot_device_partition_table,
-                               filesystem=boot_filesystem,
-                               force=True,
-                               verbose=verbose,
-                               debug=debug,)
-            ctx.invoke(write_boot_partition,
-                       device=boot_device,
-                       force=True,
+                           raid=raid,)
+                if root_filesystem == 'zfs':
+                    assert False
+                    root_mount_command = False
+                elif root_filesystem == 'ext4':
+                    root_partition_path = add_partition_number_to_device(device=root_devices[0], partition_number="1")
+                    root_mount_command = "mount " + root_partition_path.as_posix() + " " + mount_path.as_posix()
+
+                boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
+                boot_mount_command = "mount " + boot_partition_path.as_posix() + " " + mount_path_boot.as_posix()
+
+            if root_mount_command:
+                run_command(root_mount_command)
+
+            assert path_is_mounted(mount_path, verbose=verbose, debug=debug,)
+
+            os.makedirs(mount_path_boot, exist_ok=True)
+
+            if boot_mount_command:
+                run_command(boot_mount_command)
+                assert path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
+            else:
+                assert not path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
+
+            if boot_device:
+                os.makedirs(mount_path_boot_efi, exist_ok=True)
+
+            if boot_filesystem == 'zfs':
+                efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="9")
+                efi_mount_command = "mount " + efi_partition_path.as_posix() + " " + mount_path_boot_efi.as_posix()
+            else:
+                efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2")
+                efi_mount_command = "mount " + efi_partition_path.as_posix() + " " + mount_path_boot_efi.as_posix()
+
+            if boot_device:
+                run_command(efi_mount_command)
+                assert path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
+
+        install_stage3(stdlib=stdlib,
+                       multilib=multilib,
+                       distfiles_dir=distfiles_dir,
+                       arch=arch,
+                       destination=mount_path,
+                       vm=vm,
+                       vm_ram=vm_ram,
                        verbose=verbose,
                        debug=debug,)
-            ctx.invoke(create_root_device,
-                       devices=root_devices,
-                       exclusive=True,
-                       filesystem=root_filesystem,
-                       partition_table=root_device_partition_table,
-                       force=True,
-                       raid=raid,)
-            if root_filesystem == 'zfs':
-                assert False
-                root_mount_command = False
-            elif root_filesystem == 'ext4':
-                root_partition_path = add_partition_number_to_device(device=root_devices[0], partition_number="1")
-                root_mount_command = "mount " + root_partition_path.as_posix() + " " + mount_path.as_posix()
 
-            boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
-            boot_mount_command = "mount " + boot_partition_path.as_posix() + " " + mount_path_boot.as_posix()
-
-        if root_mount_command:
-            run_command(root_mount_command)
-
-        assert path_is_mounted(mount_path, verbose=verbose, debug=debug,)
-
-        os.makedirs(mount_path_boot, exist_ok=True)
-
-        if boot_mount_command:
-            run_command(boot_mount_command)
-            assert path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
-        else:
-            assert not path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
-
-        if boot_device:
-            os.makedirs(mount_path_boot_efi, exist_ok=True)
-
-        if boot_filesystem == 'zfs':
-            efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="9")
-            efi_mount_command = "mount " + efi_partition_path.as_posix() + " " + mount_path_boot_efi.as_posix()
-        else:
-            efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2")
-            efi_mount_command = "mount " + efi_partition_path.as_posix() + " " + mount_path_boot_efi.as_posix()
-
-        if boot_device:
-            run_command(efi_mount_command)
-            assert path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
-
-    install_stage3(stdlib=stdlib,
-                   multilib=multilib,
-                   distfiles_dir=distfiles_dir,
-                   arch=arch,
-                   destination=mount_path,
-                   vm=vm,
-                   vm_ram=vm_ram,
-                   verbose=verbose,
-                   debug=debug,)
-
+    # skip_to_chroot lands here
     if not boot_device:
         assert False
         #boot_device = "False"  # fixme

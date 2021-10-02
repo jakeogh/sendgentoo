@@ -249,7 +249,7 @@ def chroot_gentoo(ctx,
                                                                                                                                                                            march=march,
                                                                                                                                                                            root_filesystem=root_filesystem,
                                                                                                                                                                            newpasswd=newpasswd,
-                                                                                                                                                                           pinebook_overlay=str(pinebook_overlay))]
+                                                                                                                                                                           pinebook_overlay=str(int(pinebook_overlay)))]
 
     run_command(' '.join(chroot_command), verbose=True, ask=True, system=True)
 

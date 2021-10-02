@@ -7,6 +7,9 @@ from pathlib import Path
 from typing import Tuple
 
 import click
+import sh
+from asserttool import eprint
+from asserttool import ic
 from blocktool import add_partition_number_to_device
 from blocktool import path_is_block_special
 from blocktool import warn
@@ -16,18 +19,6 @@ from run_command import run_command
 from .setup_globals import RAID_LIST
 from .write_zfs_root_filesystem_on_devices import \
     write_zfs_root_filesystem_on_devices
-
-
-def eprint(*args, **kwargs):
-    if 'file' in kwargs.keys():
-        kwargs.pop('file')
-    print(*args, file=sys.stderr, **kwargs)
-
-
-try:
-    from icecream import ic  # https://github.com/gruns/icecream
-except ImportError:
-    ic = eprint
 
 
 @click.command()
@@ -84,7 +75,10 @@ def write_sysfs_partition(devices: Tuple[Path, ...],
         time.sleep(1)
         sysfs_partition_path = add_partition_number_to_device(device=devices[0], partition_number=partition_number)
         if filesystem == 'ext4':
-            run_command("mkfs.ext4 " + sysfs_partition_path.as_posix(), verbose=True)
+            ext4_command = sh.Command('mkfs.ext4')
+            for line in ext4_command(sysfs_partition_path.as_posix(), _iter=True):
+                eprint(line)
+            #run_command("mkfs.ext4 " + sysfs_partition_path.as_posix(), verbose=True)
         elif filesystem == 'fat32':
             run_command("mkfs.vfat " + sysfs_partition_path.as_posix(), verbose=True)
         else:

@@ -118,6 +118,7 @@ def rsync_cfg(*,
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
 @click.option('--ipython', is_flag=True)
+@click.option('--kernel', is_flag=False, required=True, type=click.Choice(['gentoo-sources', 'pinebookpro-manjaro-sources']),default='gentoo-sources')
 @add_options(click_mesa_options)
 @click.pass_context
 def chroot_gentoo(ctx,
@@ -135,6 +136,7 @@ def chroot_gentoo(ctx,
                   mesa_use_enable: list[str],
                   mesa_use_disable: list[str],
                   pinebook_overlay: bool,
+                  kernel: str,
                   verbose: bool,
                   debug: bool,
                   ipython: bool,

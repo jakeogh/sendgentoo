@@ -24,10 +24,6 @@
 
 
 import os
-
-os.system('emerge python -u')
-os.system('emerge click -u')
-
 import sys
 import time
 from signal import SIG_DFL
@@ -36,6 +32,11 @@ from signal import signal
 
 import click
 import sh
+
+#os.system('emerge python -u')
+#os.system('emerge click -u')
+
+
 
 signal(SIGPIPE, SIG_DFL)
 from pathlib import Path

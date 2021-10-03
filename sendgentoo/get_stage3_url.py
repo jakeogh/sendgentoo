@@ -22,22 +22,10 @@
 import sys
 
 import click
+from asserttool import eprint
+from asserttool import ic
 from nettool import construct_proxy_dict
 from nettool import download_file
-
-
-def eprint(*args, **kwargs):
-    if 'file' in kwargs.keys():
-        kwargs.pop('file')
-    print(*args, file=sys.stderr, **kwargs)
-
-
-try:
-    from icecream import ic  # https://github.com/gruns/icecream
-    from icecream import icr  # https://github.com/jakeogh/icecream
-except ImportError:
-    ic = eprint
-    icr = eprint
 
 
 def get_stage3_url(stdlib: str,
@@ -49,14 +37,15 @@ def get_stage3_url(stdlib: str,
     mirror = 'http://gentoo.osuosl.org/releases/' + arch + '/autobuilds/'
     if stdlib == 'glibc':
         if not multilib:
-            latest = 'latest-stage3-' + arch + '-hardened+nomultilib.txt'
+            latest = 'latest-stage3-' + arch + '-hardened-nomultilib-openrc.txt'
         else:
-            latest = 'latest-stage3-' + arch + '-hardened.txt'
+            latest = 'latest-stage3-' + arch + '-hardened-openrc.txt'
     if stdlib == 'musl':
         latest = ''
         eprint("cant use musl yet")
         quit(1)
     if stdlib == 'uclibc':
+        assert False
         latest = 'latest-stage3-' + arch + '-uclibc-hardened.txt'
         eprint("uclibc wont compile efivars")
         quit(1)

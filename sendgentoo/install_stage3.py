@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 from subprocess import CalledProcessError
 
+import sh
 from asserttool import eprint
 from asserttool import ic
 from mounttool import path_is_mounted
@@ -56,16 +57,18 @@ def install_stage3(stdlib,
         #run_command(gpg_cmd, verbose=True)
 
         ic(stage3_file)
-        run_command('gpg --verify ' + stage3_file.as_posix() + '.DIGESTS.asc', verbose=True)
-        whirlpool = run_command("openssl dgst -r -whirlpool " + stage3_file.as_posix() + "| cut -d ' ' -f 1",
-                                verbose=True).decode('utf8').strip()
-        try:
-            run_command("/bin/grep " + whirlpool + ' ' + stage3_file.as_posix() + '.DIGESTS', verbose=True)
-        except CalledProcessError:
-            ic('BAD WHIRPOOL HASH:', whirlpool)
-            ic('For file:', stage3_file)
-            ic('File is corrupt (most likely partially downloaded). Delete it and try again.')
-            sys.exit(1)
+        for line in sh.gpg('--verify', stage3_file.as_posix() + '.DIGESTS.asc', _iter=True):
+            eprint(line, end='')
+
+        #whirlpool = run_command("openssl dgst -r -whirlpool " + stage3_file.as_posix() + "| cut -d ' ' -f 1",
+        #                        verbose=True).decode('utf8').strip()
+        #try:
+        #    run_command("/bin/grep " + whirlpool + ' ' + stage3_file.as_posix() + '.DIGESTS', verbose=True)
+        #except CalledProcessError:
+        #    ic('BAD WHIRPOOL HASH:', whirlpool)
+        #    ic('For file:', stage3_file)
+        #    ic('File is corrupt (most likely partially downloaded). Delete it and try again.')
+        #    sys.exit(1)
         command = 'tar --xz -xpf ' + stage3_file.as_posix() + ' -C ' + destination.as_posix()
         run_command(command, verbose=True)
 

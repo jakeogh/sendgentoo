@@ -77,7 +77,7 @@ def write_sysfs_partition(devices: Tuple[Path, ...],
         if filesystem == 'ext4':
             ext4_command = sh.Command('mkfs.ext4')
             for line in ext4_command(sysfs_partition_path.as_posix(), _iter=True):
-                eprint(line)
+                eprint(line, end='')
             #run_command("mkfs.ext4 " + sysfs_partition_path.as_posix(), verbose=True)
         elif filesystem == 'fat32':
             run_command("mkfs.vfat " + sysfs_partition_path.as_posix(), verbose=True)

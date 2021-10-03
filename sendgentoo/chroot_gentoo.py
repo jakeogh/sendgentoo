@@ -235,6 +235,24 @@ def chroot_gentoo(ctx,
     sh.cp('/usr/bin/ischroot', mount_path / Path('usr') / Path('bin') / Path('ischroot'))  # bug for cross compile
 
     ic('Entering chroot')
+    #chroot_command = ['env',
+    #                  '-i',
+    #                  'HOME=/root',
+    #                  'TERM=$TERM',
+    #                  'chroot',
+    #                  Path(mount_path).as_posix(),
+    #                  '/bin/bash',
+    #                  '-l',
+    #                  '-c',
+    #                  'su',
+    #                  '-',
+    #                  '-c "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh {stdlib} {boot_device} {march} {root_filesystem} {newpasswd} {pinebook_overlay} {kernel}"'.format(stdlib=stdlib,
+    #                                                                                                                                                                                boot_device=boot_device,
+    #                                                                                                                                                                                march=march,
+    #                                                                                                                                                                                root_filesystem=root_filesystem,
+    #                                                                                                                                                                                newpasswd=newpasswd,
+                                                                                                                                                                                    pinebook_overlay=str(int(pinebook_overlay)),
+                                                                                                                                                                                    kernel=kernel)]
     chroot_command = ['env',
                       '-i',
                       'HOME=/root',
@@ -246,12 +264,13 @@ def chroot_gentoo(ctx,
                       '-c',
                       'su',
                       '-',
-                      '-c "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh {stdlib} {boot_device} {march} {root_filesystem} {newpasswd} {pinebook_overlay} {kernel}"'.format(stdlib=stdlib,
+                      '-c "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot.sh --stdlib {stdlib} --boot-device {boot_device} --march {march} --root-filesystem {root_filesystem} --newpasswd {newpasswd} {pinebook_overlay} --kernel {kernel}"'.format(
+                                                                                                                                                                                    stdlib=stdlib,
                                                                                                                                                                                     boot_device=boot_device,
                                                                                                                                                                                     march=march,
                                                                                                                                                                                     root_filesystem=root_filesystem,
                                                                                                                                                                                     newpasswd=newpasswd,
-                                                                                                                                                                                    pinebook_overlay=str(int(pinebook_overlay)),
+                                                                                                                                                                                    pinebook_overlay=('--pinebook-overlay' if pinebook_overlay else ''),
                                                                                                                                                                                     kernel=kernel)]
 
     run_command(' '.join(chroot_command), verbose=True, ask=True, system=True)

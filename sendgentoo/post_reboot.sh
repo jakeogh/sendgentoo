@@ -122,6 +122,9 @@ immute /home/user/.rediscli_history
 immute /home/user/unison.log
 immute /home/user/tldextract.cache
 immute /home/user/.python_history
+immute /home/user/Desktop
+immute /home/user/opt
+
 
 test -h /home/user/cfg || { ln -s /home/cfg /home/user/cfg || exit 1 ; }
 test -h /home/user/_myapps || { ln -s /home/cfg/_myapps /home/user/_myapps || exit 1 ; }

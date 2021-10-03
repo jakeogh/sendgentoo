@@ -22,7 +22,12 @@
 # pylint: disable=C0305  # Trailing newlines editor should fix automatically, pointless warning
 # pylint: disable=C0413  # TEMP isort issue [wrong-import-position] Import "from pathlib import Path" should be placed at the top of the module [C0413]
 
+
 import os
+
+os.system('emerge python -u')
+os.system('emerge click -u')
+
 import sys
 import time
 from signal import SIG_DFL
@@ -413,3 +418,6 @@ def cli(ctx,
     install_package('sys-apps/moreutils') # need sponge for the next command
     #grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/inittab | /home/cfg/text/insert_line_after_match "c6:2345:respawn:/sbin/agetty 38400 tty6 linux" "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" | sponge /etc/inittab ; }
     #echo "$(date) $0 complete" | tee -a /install_status
+
+if __name__ == '__main__':
+    cli()

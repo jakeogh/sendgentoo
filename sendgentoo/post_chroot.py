@@ -109,8 +109,7 @@ def cli(ctx,
                                      verbose=verbose,
                                      debug=debug,)
 
-    if verbose:
-        logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO)
 
     #musl: http://distfiles.gentoo.org/experimental/amd64/musl/HOWTO
     #spark: https://github.com/holman/spark.git
@@ -122,7 +121,7 @@ def cli(ctx,
 
     assert path_is_mounted(Path("/boot/efi"), verbose=verbose, debug=debug)
 
-    sh.emerge('--sync')
+    sh.emerge('--sync', _out=sys.stdout, _err=sys.stderr)
 
     os.makedirs(Path('/var/db/repos/gentoo'), exist_ok=True)
 
@@ -143,7 +142,7 @@ def cli(ctx,
                        unique=True,
                        verbose=verbose,
                        debug=debug,)
-    sh.locale_gen()  # hm, musl does not need this? dont fail here for uclibc or musl
+    sh.locale_gen(_out=sys.stdout, _err=sys.stderr)  # hm, musl does not need this? dont fail here for uclibc or musl
 
     write_line_to_file(path=Path('/etc') / Path('env.d') / Path('02collate'),
                        line='LC_COLLATE="C"\n',

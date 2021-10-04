@@ -138,7 +138,7 @@ def cli(ctx,
     sh.passwd('-d', 'root')
     sh.chmod('+x', '-R', '/home/cfg/sysskel/etc/local.d/')
     #sh.eselect('python', 'list')  # depreciated
-    sh.eselect('profile', 'list', _env=_env, _out=sys.stdout, _err=sys.stderr)
+    sh.eselect('profile', 'list', _out=sys.stdout, _err=sys.stderr)
     write_line_to_file(path=Path('/etc') / Path('locale.gen'),
                        line='en_US.UTF-8 UTF-8\n',
                        unique=True,
@@ -203,8 +203,8 @@ def cli(ctx,
                        verbose=verbose,
                        debug=debug,)
 
-    install_package('gcc')
-    sh.gcc_config('latest')
+    install_package('gcc', verbose=verbose)
+    sh.gcc_config('latest', _out=sys.stdout, _err=sys.stderr)
 
     # install kernel and update symlink (via use flag)
     os.environ['KCONFIG_OVERWRITECONFIG'] = 1 # https://www.mail-archive.com/lede-dev@lists.infradead.org/msg07290.html

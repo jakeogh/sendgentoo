@@ -333,20 +333,20 @@ def cli(ctx,
         sh.emerge('-u', 'pinebookpro-profile-overrides')
 
     install_package_force('compile-kernel')  # requires jakeogh overlay
-    sh.compile_kernel('--no-check-boot')
+    sh.compile_kernel('--no-check-boot', _out=sys.stdout, _err=sys.stderr)
     #sh.cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
 
     # this cant be done until memtest86+ and the kernel are ready
-    sh.Command('/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh', boot_device)
+    sh.Command('/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh', boot_device, _out=sys.stdout, _err=sys.stderr)
 
-    sh.rc_update('add', 'zfs-mount', 'boot') # dont exit if this fails
+    sh.rc_update('add', 'zfs-mount', 'boot', _out=sys.stdout, _err=sys.stderr) # dont exit if this fails
     install_package('dhcpcd')  # not in stage3
 
-    sh.ln('-rs', '/etc/init.d/net.lo', '/etc/init.d/net.eth0')
-    sh.rc_update('add', 'net.eth0', 'default')
+    sh.ln('-rs', '/etc/init.d/net.lo', '/etc/init.d/net.eth0', _out=sys.stdout, _err=sys.stderr)
+    sh.rc_update('add', 'net.eth0', 'default', _out=sys.stdout, _err=sys.stderr)
 
     install_package('netdate')
-    sh.Command('/home/cfg/time/set_time_via_ntp')
+    sh.Command('/home/cfg/time/set_time_via_ntp', _out=sys.stdout, _err=sys.stderr)
 
     #install_package('sys-fs/eudev')
     #sh.touch('/run/openrc/softlevel')
@@ -354,19 +354,19 @@ def cli(ctx,
     #udev_command('--nodeps', 'restart')
 
     install_package('gpm')
-    sh.rc_update('add', 'gpm', 'default')   #console mouse support
+    sh.rc_update('add', 'gpm', 'default', _out=sys.stdout, _err=sys.stderr)   #console mouse support
 
     #install_package('elogind')
     #rc-update add elogind default
 
     install_package('app-admin/sysklogd')
-    sh.rc_update('add', 'sysklogd', 'default')  # syslog-ng hangs on boot... bloated
+    sh.rc_update('add', 'sysklogd', 'default', _out=sys.stdout, _err=sys.stderr)  # syslog-ng hangs on boot... bloated
 
     os.makedirs('/etc/portage/package.mask', exist_ok=True)
     install_package('unison')
-    sh.eselect('unison', 'list') #todo
+    #sh.eselect('unison', 'list') #todo
 
-    sh.perl_cleaner('--reallyall')
+    sh.perl_cleaner('--reallyall', _out=sys.stdout, _err=sys.stderr)
     install_package('app-portage/repoman')
     install_package('app-editors/vim')
     install_package('www-client/links')
@@ -413,7 +413,7 @@ def cli(ctx,
 
     install_package('dev-util/ctags')  # so vim/nvim dont complain
 
-    sh.ls('/etc/ssh/sshd_config', '-al')
+    #sh.ls('/etc/ssh/sshd_config', '-al', _out=sys.stdout, _err=sys.stderr)
 
     write_line_to_file(path=Path('/etc') / Path('ssh') / Path('sshd_config'),
                        line='PermitRootLogin yes\n',

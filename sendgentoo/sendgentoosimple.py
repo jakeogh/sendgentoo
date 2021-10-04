@@ -14,11 +14,13 @@ from .sendgentoo import install
 @click.argument("device")
 @click.option("--hostname", type=str, required=True)
 @click.option("--ip", type=str, required=True)
+@click.option("--skip-to-chroot", if_flag=True)
 @click.pass_context
 def sendgentoosimple(ctx,
                      device: str,
                      hostname: str,
                      ip: str,
+                     skip_to_chroot: bool,
                      ):
 
     device = device.strip()
@@ -58,6 +60,7 @@ def sendgentoosimple(ctx,
                hostname=hostname,
                newpasswd=password,
                ip=ip,
+               skip_to_chroot=skip_to_chroot,
                force=False,
                encrypt=False,
                multilib=False,)

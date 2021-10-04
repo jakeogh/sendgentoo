@@ -337,7 +337,8 @@ def cli(ctx,
     #sh.cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
 
     # this cant be done until memtest86+ and the kernel are ready
-    sh.Command('/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh', boot_device, _out=sys.stdout, _err=sys.stderr)
+    install_grub_command = sh.Command('/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh', boot_device)
+    install_grub_command(_out=sys.stdout, _err=sys.stderr)
 
     sh.rc_update('add', 'zfs-mount', 'boot', _out=sys.stdout, _err=sys.stderr) # dont exit if this fails
     install_package('dhcpcd')  # not in stage3
@@ -346,7 +347,8 @@ def cli(ctx,
     sh.rc_update('add', 'net.eth0', 'default', _out=sys.stdout, _err=sys.stderr)
 
     install_package('netdate')
-    sh.Command('/home/cfg/time/set_time_via_ntp', _out=sys.stdout, _err=sys.stderr)
+    set_time_command = sh.Command('/home/cfg/time/set_time_via_ntp')
+    set_time_command(_out=sys.stdout, _err=sys.stderr)
 
     #install_package('sys-fs/eudev')
     #sh.touch('/run/openrc/softlevel')
@@ -447,4 +449,5 @@ def cli(ctx,
     #echo "$(date) $0 complete" | tee -a /install_status
 
 if __name__ == '__main__':
+    # pylint: disable=E1120
     cli()

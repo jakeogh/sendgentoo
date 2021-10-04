@@ -572,6 +572,10 @@ def install(ctx, *,
         assert False
         #boot_device = "False"  # fixme
 
+    skip_to_rsync = False
+    if skip_to_chroot:
+        skip_to_rsync = True
+
     ctx.invoke(chroot_gentoo,
                mount_path=mount_path,
                stdlib=stdlib,
@@ -588,7 +592,7 @@ def install(ctx, *,
                mesa_use_disable=mesa_use_disable,
                pinebook_overlay=pinebook_overlay,
                ipython=False,
-               skip_to_rsync=False,
+               skip_to_rsync=skip_to_rsync,
                verbose=verbose,
                debug=debug,)
 

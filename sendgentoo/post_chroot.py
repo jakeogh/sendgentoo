@@ -45,11 +45,11 @@ import sh
 
 os.makedirs('/etc/portage/repos.conf', exist_ok=True)
 if 'jakeogh' not in sh.eselect('repository', 'list', '-i'):
-    sh.eselect('repository', 'add', 'jakeogh', 'git', 'https://github.com/jakeogh/jakeogh')   # ignores http_proxy
+    sh.eselect('repository', 'add', 'jakeogh', 'git', 'https://github.com/jakeogh/jakeogh', _out=sys.stdout, _err=sys.stderr)   # ignores http_proxy
 sh.emaint('sync', '-r', 'jakeogh')  # this needs git
 _env = {'CONFIG_PROTECT': '-*'}
-sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', '-n', 'sendgentoo', _env=_env)
-sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', '-n', 'sendgentoo', _env=_env)
+sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', '-n', 'sendgentoo', _env=_env, _out=sys.stdout, _err=sys.stderr)
+sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', '-n', 'sendgentoo', _env=_env, _out=sys.stdout, _err=sys.stderr)
 
 import click
 

@@ -210,7 +210,7 @@ def cli(ctx,
     #sh.gcc_config('latest', _out=sys.stdout, _err=sys.stderr)
 
     # install kernel and update symlink (via use flag)
-    os.environ['KCONFIG_OVERWRITECONFIG'] = 1 # https://www.mail-archive.com/lede-dev@lists.infradead.org/msg07290.html
+    os.environ['KCONFIG_OVERWRITECONFIG'] = '1' # https://www.mail-archive.com/lede-dev@lists.infradead.org/msg07290.html
 
     # required so /usr/src/linux exists
     write_line_to_file(path=Path('/etc') / Path('portage') / Path('package.use') / Path(kernel),
@@ -436,7 +436,10 @@ def cli(ctx,
     #                     replacement="c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear",
 
     #grep noclear /etc/inittab || \
-    #    { replace-text --match "c1:12345:respawn:/sbin/agetty 38400 tty1 linux" --replacement "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear" /etc/inittab || exit 1 ; }
+    with open('/etc/iniitab', 'r') as fh:
+        if not 'noclear' in fh.read():
+            sh.replace_text('--match', "c1:12345:respawn:/sbin/agetty 38400 tty1 linux", '--replacement', "c1:12345:respawn:/sbin/agetty 38400 tty1 linux --noclear", '/etc/inittab')
+
     install_package('sys-apps/moreutils') # need sponge for the next command
     #grep "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" /etc/inittab || { cat /etc/inittab | /home/cfg/text/insert_line_after_match "c6:2345:respawn:/sbin/agetty 38400 tty6 linux" "c7:2345:respawn:/sbin/agetty 38400 tty7 linux" | sponge /etc/inittab ; }
     #echo "$(date) $0 complete" | tee -a /install_status

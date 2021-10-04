@@ -48,10 +48,10 @@ import sh
 os.makedirs('/etc/portage/repos.conf', exist_ok=True)
 if 'jakeogh' not in sh.eselect('repository', 'list', '-i'):
     sh.eselect('repository', 'add', 'jakeogh', 'git', 'https://github.com/jakeogh/jakeogh', _out=sys.stdout, _err=sys.stderr)   # ignores http_proxy
-sh.emaint('sync', '-r', 'jakeogh')  # this needs git
+sh.emaint('sync', '-r', 'jakeogh', _out=sys.stdout, _err=sys.stderr)  # this needs git
 if 'pentoo' not in sh.eselect('repository', 'list', '-i'):  # for fchroot (next time)
     sh.eselect('repository', 'enable', 'pentoo', _out=sys.stdout, _err=sys.stderr)   # ignores http_proxy
-sh.emaint('sync', '-r', 'pentoo')  # this needs git
+sh.emaint('sync', '-r', 'pentoo', _out=sys.stdout, _err=sys.stderr)  # this needs git
 
 _env = os.environ.copy()
 _env['CONFIG_PROTECT'] = '-*'

@@ -108,6 +108,7 @@ def rsync_cfg(*,
 @click.option('--boot-device', type=str, required=True)
 @click.option('--hostname', type=str, required=True)
 @click.option('--march', required=True, type=click.Choice(['native', 'nocona']))
+@click.option('--arch', is_flag=False, required=False, type=click.Choice(['alpha', 'amd64', 'arm', 'arm64', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86']), default="amd64")
 @click.option('--root-filesystem', required=False, type=click.Choice(['ext4', 'zfs', '9p']), default="ext4")
 @click.option('--newpasswd', type=str, required=True)
 @click.option('--skip-to-rsync', is_flag=True)
@@ -127,6 +128,7 @@ def chroot_gentoo(ctx,
                   boot_device: str,
                   hostname: str,
                   march: str,
+                  arch: str,
                   root_filesystem: str,
                   newpasswd: str,
                   ip: str,
@@ -254,12 +256,16 @@ def chroot_gentoo(ctx,
     #                                                                                                                                                                                pinebook_overlay=str(int(pinebook_overlay)),
     #                                                                                                                                                                                kernel=kernel)]
 
+    chroot_binary = 'chroot'
+    if arch != 'amd64':
+        chroot_binary = 'fchroot'
+
     chroot_command = \
         ['env',
          '-i',
          'HOME=/root',
          'TERM=$TERM',
-         'chroot',
+         chroot_binary,
          Path(mount_path).as_posix(),
          '/bin/bash',
          '-l',

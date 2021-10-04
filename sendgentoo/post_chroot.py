@@ -23,6 +23,8 @@
 # pylint: disable=C0413  # TEMP isort issue [wrong-import-position] Import "from pathlib import Path" should be placed at the top of the module [C0413]
 
 import logging
+
+logging.basicConfig(level=logging.INFO)
 import os
 import sys
 import time
@@ -48,6 +50,7 @@ if 'jakeogh' not in sh.eselect('repository', 'list', '-i'):
     sh.eselect('repository', 'add', 'jakeogh', 'git', 'https://github.com/jakeogh/jakeogh', _out=sys.stdout, _err=sys.stderr)   # ignores http_proxy
 sh.emaint('sync', '-r', 'jakeogh')  # this needs git
 _env = {'CONFIG_PROTECT': '-*'}
+
 sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', '-n', 'sendgentoo', _env=_env, _out=sys.stdout, _err=sys.stderr)
 sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', '-n', 'sendgentoo', _env=_env, _out=sys.stdout, _err=sys.stderr)
 
@@ -109,7 +112,6 @@ def cli(ctx,
                                      verbose=verbose,
                                      debug=debug,)
 
-    logging.basicConfig(level=logging.INFO)
 
     #musl: http://distfiles.gentoo.org/experimental/amd64/musl/HOWTO
     #spark: https://github.com/holman/spark.git
@@ -121,7 +123,7 @@ def cli(ctx,
 
     assert path_is_mounted(Path("/boot/efi"), verbose=verbose, debug=debug)
 
-    sh.emerge('--sync', _out=sys.stdout, _err=sys.stderr)
+    #sh.emerge('--sync', _out=sys.stdout, _err=sys.stderr)
 
     os.makedirs(Path('/var/db/repos/gentoo'), exist_ok=True)
 
@@ -136,7 +138,7 @@ def cli(ctx,
     sh.passwd('-d', 'root')
     sh.chmod('+x', '-R', '/home/cfg/sysskel/etc/local.d/')
     #sh.eselect('python', 'list')  # depreciated
-    sh.eselect('profile', 'list')
+    sh.eselect('profile', 'list', _env=_env, _out=sys.stdout, _err=sys.stderr)
     write_line_to_file(path=Path('/etc') / Path('locale.gen'),
                        line='en_US.UTF-8 UTF-8\n',
                        unique=True,

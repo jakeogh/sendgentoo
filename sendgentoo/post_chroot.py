@@ -268,7 +268,6 @@ def cli(ctx,
                        debug=debug,)
 
     #ln -sf /proc/self/mounts /etc/mtab
-
     #grub-install --compress=no --target=x86_64-efi --efi-directory=/boot/efi --boot-directory=/boot --removable --recheck --no-rs-codes "${boot_device}" || exit 1
     #grub-install --compress=no --target=i386-pc --boot-directory=/boot --recheck --no-rs-codes "${boot_device}" || exit 1
 

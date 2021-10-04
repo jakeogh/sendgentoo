@@ -315,13 +315,11 @@ def cli(ctx,
                                    debug=debug,)
 
     write_line_to_file(path=Path('/etc') / Path('wgetrc'),
-                       line='^use_proxy = on\n',
+                       line='use_proxy = on\n',
                        unique=True,
                        unlink_first=False,
                        verbose=verbose,
                        debug=debug,)
-
-    #grep -E "^use_proxy = on" /etc/wgetrc || { echo "use_proxy = on" >> /etc/wgetrc ; }
 
     #if 'jakeogh' not in sh.eselect('repository', 'list', '-i'):
     #    sh.eselect('repository', 'add', 'jakeogh', 'git', 'https://github.com/jakeogh/jakeogh')   # ignores http_proxy

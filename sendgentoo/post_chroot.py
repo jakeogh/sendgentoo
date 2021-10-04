@@ -205,8 +205,9 @@ def cli(ctx,
                        verbose=verbose,
                        debug=debug,)
 
-    install_package('gcc', verbose=verbose)
-    sh.gcc_config('latest', _out=sys.stdout, _err=sys.stderr)
+    # works, but quite a delay for an installer
+    #install_package('gcc', verbose=verbose)
+    #sh.gcc_config('latest', _out=sys.stdout, _err=sys.stderr)
 
     # install kernel and update symlink (via use flag)
     os.environ['KCONFIG_OVERWRITECONFIG'] = 1 # https://www.mail-archive.com/lede-dev@lists.infradead.org/msg07290.html
@@ -288,7 +289,7 @@ def cli(ctx,
                        debug=debug,)
 
     install_package('genkernel')
-    install_package('app-eselect/eselect-repository')
+    #install_package('app-eselect/eselect-repository')
     os.makedirs('/etc/portage/repos.conf', exist_ok=True)
 
     with open('/etc/portage/proxy.conf', 'r') as fh:
@@ -317,11 +318,11 @@ def cli(ctx,
 
     #grep -E "^use_proxy = on" /etc/wgetrc || { echo "use_proxy = on" >> /etc/wgetrc ; }
 
-    if 'jakeogh' not in sh.eselect('repository', 'list', '-i'):
-        sh.eselect('repository', 'add', 'jakeogh', 'git', 'https://github.com/jakeogh/jakeogh')   # ignores http_proxy
-    #git config --global http.proxy http://192.168.222.100:8888
-    install_package('dev-vcs/git')
-    sh.emaint('sync', '-r', 'jakeogh')  # this needs git
+    #if 'jakeogh' not in sh.eselect('repository', 'list', '-i'):
+    #    sh.eselect('repository', 'add', 'jakeogh', 'git', 'https://github.com/jakeogh/jakeogh')   # ignores http_proxy
+    ##git config --global http.proxy http://192.168.222.100:8888
+    #install_package('dev-vcs/git')
+    #sh.emaint('sync', '-r', 'jakeogh')  # this needs git
 
     if pinebook_overlay:
         if 'pinebookpro-overlay' not in sh.eselect('repository', 'list', '-i'):
@@ -345,10 +346,10 @@ def cli(ctx,
     install_package('netdate')
     sh.Command('/home/cfg/time/set_time_via_ntp')
 
-    install_package('sys-fs/eudev')
-    sh.touch('/run/openrc/softlevel')
-    udev_command = sh.Command('/etc/init.d/udev')
-    udev_command('--nodeps', 'restart')
+    #install_package('sys-fs/eudev')
+    #sh.touch('/run/openrc/softlevel')
+    #udev_command = sh.Command('/etc/init.d/udev')
+    #udev_command('--nodeps', 'restart')
 
     install_package('gpm')
     sh.rc_update('add', 'gpm', 'default')   #console mouse support

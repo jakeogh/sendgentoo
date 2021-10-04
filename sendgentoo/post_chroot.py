@@ -22,7 +22,7 @@
 # pylint: disable=C0305  # Trailing newlines editor should fix automatically, pointless warning
 # pylint: disable=C0413  # TEMP isort issue [wrong-import-position] Import "from pathlib import Path" should be placed at the top of the module [C0413]
 
-
+import logging
 import os
 import sys
 import time
@@ -30,13 +30,28 @@ from signal import SIG_DFL
 from signal import SIGPIPE
 from signal import signal
 
-import click
+
+def syscmd(cmd):
+    print(cmd, file=sys.stderr)
+    os.system(cmd)
+
+syscmd('emerge dev-vcs/git -1 -u')
+syscmd('emerge --sync')
+syscmd('emerge sys-apps/portage -1 -u')
+syscmd('emerge dev-python/click -1 -u')
+syscmd('emerge app-eselect/eselect-repository -1 -u')
+syscmd('emerge dev-python/sh -1 -u')
 import sh
 
-#os.system('emerge python -u')
-#os.system('emerge click -u')
+os.makedirs('/etc/portage/repos.conf', exist_ok=True)
+if 'jakeogh' not in sh.eselect('repository', 'list', '-i'):
+    sh.eselect('repository', 'add', 'jakeogh', 'git', 'https://github.com/jakeogh/jakeogh')   # ignores http_proxy
+sh.emaint('sync', '-r', 'jakeogh')  # this needs git
+_env = {'CONFIG_PROTECT': '-*'}
+sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', '-n', 'sendgentoo', _env=_env)
+sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', '-n', 'sendgentoo', _env=_env)
 
-
+import click
 
 signal(SIGPIPE, SIG_DFL)
 from pathlib import Path
@@ -94,6 +109,8 @@ def cli(ctx,
                                      verbose=verbose,
                                      debug=debug,)
 
+    if verbose:
+        logging.basicConfig(level=logging.INFO)
 
     #musl: http://distfiles.gentoo.org/experimental/amd64/musl/HOWTO
     #spark: https://github.com/holman/spark.git
@@ -119,7 +136,7 @@ def cli(ctx,
     #echo "root:$newpasswd" | chpasswd
     sh.passwd('-d', 'root')
     sh.chmod('+x', '-R', '/home/cfg/sysskel/etc/local.d/')
-    sh.eselect('python', 'list')
+    #sh.eselect('python', 'list')  # depreciated
     sh.eselect('profile', 'list')
     write_line_to_file(path=Path('/etc') / Path('locale.gen'),
                        line='en_US.UTF-8 UTF-8\n',

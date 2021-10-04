@@ -57,7 +57,7 @@ def install_stage3(stdlib,
         #run_command(gpg_cmd, verbose=True)
 
         ic(stage3_file)
-        for line in sh.gpg('--verify', stage3_file.as_posix() + '.DIGESTS.asc', _iter=True):
+        for line in sh.gpg('--verify', '--verbose', stage3_file.as_posix() + '.DIGESTS.asc', _iter=True):
             eprint(line, end='')
 
         #whirlpool = run_command("openssl dgst -r -whirlpool " + stage3_file.as_posix() + "| cut -d ' ' -f 1",

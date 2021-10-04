@@ -49,7 +49,9 @@ os.makedirs('/etc/portage/repos.conf', exist_ok=True)
 if 'jakeogh' not in sh.eselect('repository', 'list', '-i'):
     sh.eselect('repository', 'add', 'jakeogh', 'git', 'https://github.com/jakeogh/jakeogh', _out=sys.stdout, _err=sys.stderr)   # ignores http_proxy
 sh.emaint('sync', '-r', 'jakeogh')  # this needs git
-_env = {'CONFIG_PROTECT': '-*'}
+
+_env = os.environ.copy()
+_env['CONFIG_PROTECT'] = '-*'
 
 sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', '-n', 'sendgentoo', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
 sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', '-n', 'sendgentoo', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)

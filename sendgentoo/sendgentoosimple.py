@@ -14,7 +14,7 @@ from .sendgentoo import install
 @click.argument("device")
 @click.option("--hostname", type=str, required=True)
 @click.option("--ip", type=str, required=True)
-@click.option("--skip-to-chroot", if_flag=True)
+@click.option("--skip-to-chroot", is_flag=True)
 @click.pass_context
 def sendgentoosimple(ctx,
                      device: str,

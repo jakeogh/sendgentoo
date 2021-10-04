@@ -251,7 +251,7 @@ def cli(ctx,
         sys.exit(1)
 
     try:
-        sh.grep("CONFIG_FB_EFI is not set", '/usr/src/linux/.config')
+        sh.grep("CONFIG_FB_EFI is not set", '/usr/src/linux/.config', _ok_code=[1])
     except sh.ErrorReturnCode_1 as e:
         ic(e)
         eprint("ERROR: Rebuild the kernel with CONFIG_FB_EFI=y")

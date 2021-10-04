@@ -15,12 +15,16 @@ from .sendgentoo import install
 @click.option("--hostname", type=str, required=True)
 @click.option("--ip", type=str, required=True)
 @click.option("--skip-to-chroot", is_flag=True)
+@click.option("--verbose", is_flag=True)
+@click.option("--debug", is_flag=True)
 @click.pass_context
 def sendgentoosimple(ctx,
                      device: str,
                      hostname: str,
                      ip: str,
                      skip_to_chroot: bool,
+                     verbose: bool,
+                     debug: bool,
                      ):
 
     device = device.strip()
@@ -64,5 +68,7 @@ def sendgentoosimple(ctx,
                skip_to_chroot=skip_to_chroot,
                force=False,
                encrypt=False,
-               multilib=False,)
+               multilib=False,
+               verbose=verbose,
+               debug=debug,)
 

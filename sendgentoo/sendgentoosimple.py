@@ -32,12 +32,13 @@ def sendgentoosimple(ctx,
         print("you ned to be root. Exiting.", file=sys.stderr)
         quit(1)
 
-    partitions = psutil.disk_partitions()
-    for partition in partitions:
-        if device in partition.device:
-            print("device:", device, "was found:", partition.device, "mounted at:", partition.mountpoint, file=sys.stderr)
-            print("Refusing to operate on mounted device. Exiting.", file=sys.stderr)
-            quit(1)
+    if not skip_to_chroot:
+        partitions = psutil.disk_partitions()
+        for partition in partitions:
+            if device in partition.device:
+                print("device:", device, "was found:", partition.device, "mounted at:", partition.mountpoint, file=sys.stderr)
+                print("Refusing to operate on mounted device. Exiting.", file=sys.stderr)
+                quit(1)
 
     if not pathlib.Path(device).is_block_device():
             print("device:", device, "is not a block device. Exiting.", file=sys.stderr)

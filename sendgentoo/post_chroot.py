@@ -51,8 +51,8 @@ if 'jakeogh' not in sh.eselect('repository', 'list', '-i'):
 sh.emaint('sync', '-r', 'jakeogh')  # this needs git
 _env = {'CONFIG_PROTECT': '-*'}
 
-sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', '-n', 'sendgentoo', _env=_env, _out=sys.stdout, _err=sys.stderr)
-sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', '-n', 'sendgentoo', _env=_env, _out=sys.stdout, _err=sys.stderr)
+sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', '-n', 'sendgentoo', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
+sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', '-n', 'sendgentoo', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
 
 import click
 

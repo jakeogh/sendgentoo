@@ -102,12 +102,12 @@ sendgentoo.add_command(zfs_check_mountpoints)
 @click.option('--debug',                       is_flag=True,  required=False)
 @click.pass_context
 def compile_kernel(ctx, *,
-                   boot_device,
+                   boot_device: str,
                    no_configure_kernel: bool,
                    force: bool,
                    verbose: bool,
-                   debug: bool
-                   ,):
+                   debug: bool,
+                   ):
 
     if not root_user():
         ic('You must be root.')
@@ -305,7 +305,7 @@ def safety_check_devices(boot_device: Path,
 @click.option('--root-device-partition-table', is_flag=False, required=False, type=click.Choice(['gpt']), default="gpt")
 @click.option('--boot-filesystem',             is_flag=False, required=False, type=click.Choice(['ext4', 'zfs']), default="ext4")
 @click.option('--root-filesystem',             is_flag=False, required=True,  type=click.Choice(['ext4', 'zfs', '9p']), default="ext4")
-@click.option('--stdlib',                      is_flag=False, required=False, type=click.Choice(['glibc', 'musl', 'uclibc']), default="glibc")
+@click.option('--stdlib',                      is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']))
 @click.option('--arch',                        is_flag=False, required=False, type=click.Choice(['alpha', 'amd64', 'arm', 'arm64', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86']), default="amd64")
 @click.option('--raid',                        is_flag=False, required=False, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']), default="disk")
 @click.option('--raid-group-size',             is_flag=False, required=False, type=click.IntRange(1, 2), default=1)
@@ -380,9 +380,6 @@ def install(ctx, *,
         if encrypt:
             eprint("encryption not yet supported")
             #sys.exit(1)
-        if stdlib == 'musl':
-            eprint("musl not yet supported")
-            sys.exit(1)
         if stdlib == 'uclibc':
             eprint("uclibc fails with efi grub because efivar fails to compile. See Note.")
             sys.exit(1)

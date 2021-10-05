@@ -94,7 +94,7 @@ from sendgentoo.post_chroot_install_grub import install_grub
 
 
 @click.command()
-@click.option('--stdlib', is_flag=False, required=False, type=click.Choice(['glibc', 'musl', 'uclibc']), default="glibc")
+@click.option('--stdlib', is_flag=False, required=False, type=click.Choice(['glibc', 'musl', 'uclibc']))
 @click.option('--boot-device', is_flag=False, required=True)
 @click.option('--march', is_flag=False, required=True, type=click.Choice(['native', 'nocona']))
 @click.option('--root-filesystem', is_flag=False, required=True,  type=click.Choice(['ext4', 'zfs', '9p']), default="ext4")
@@ -137,6 +137,12 @@ def cli(ctx,
 
     os.makedirs(Path('/var/db/repos/gentoo'), exist_ok=True)
 
+    if stdlib == 'musl':
+        if 'musl' not in sh.eselect('repository', 'list', '-i'):  # for fchroot (next time)
+            sh.eselect('repository', 'enable', 'musl', _out=sys.stdout, _err=sys.stderr)   # ignores http_proxy
+        sh.emaint('sync', '-r', 'musl', _out=sys.stdout, _err=sys.stderr)  # this needs git
+        sh.emerge('-uvNDq', '@world', _out=sys.stdout, _err=sys.stderr)
+
     zfs_module_mode="module"
     #env-update || exit 1
     #source /etc/profile || exit 1
@@ -144,7 +150,6 @@ def cli(ctx,
     #here down is stuff that might not need to run every time
     # ---- begin run once, critical stuff ----
 
-    #echo "root:$newpasswd" | chpasswd
     sh.passwd('-d', 'root')
     sh.chmod('+x', '-R', '/home/cfg/sysskel/etc/local.d/')
     #sh.eselect('python', 'list')  # depreciated

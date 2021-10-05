@@ -22,9 +22,11 @@ umount /mnt/gentoo/usr/portage
 umount /mnt/gentoo/sys
 umount /mnt/gentoo
 
+mount | grep gentoo | cut -d ' ' -f 3 | xargs -I '{}' umount '{}'
+
 exit 0
 
-#
+
 #zfs umount rpool/ROOT/gentoo
 #zfs umount rpool/HOME
 #zfs umount rpool/HOME/root

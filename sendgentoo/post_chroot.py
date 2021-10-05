@@ -90,6 +90,8 @@ from portagetool import install_package
 from portagetool import install_package_force
 from retry_on_exception import retry_on_exception
 
+from .post_chroot_install_grub import install_grub
+
 
 @click.command()
 @click.option('--stdlib', is_flag=False, required=False, type=click.Choice(['glibc', 'musl', 'uclibc']), default="glibc")
@@ -338,8 +340,12 @@ def cli(ctx,
     #sh.cat /home/cfg/sysskel/etc/fstab.custom >> /etc/fstab
 
     # this cant be done until memtest86+ and the kernel are ready
-    install_grub_command = sh.Command('/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh', boot_device)
-    install_grub_command(_out=sys.stdout, _err=sys.stderr)
+    ctx.invoke(install_grub,
+               boot_device=boot_device,
+               verbose=verbose,
+               debug=debug,)
+    #install_grub_command = sh.Command('/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh', boot_device)
+    #install_grub_command(_out=sys.stdout, _err=sys.stderr)
 
     sh.rc_update('add', 'zfs-mount', 'boot', _out=sys.stdout, _err=sys.stderr) # dont exit if this fails
     install_package('dhcpcd')  # not in stage3

@@ -260,8 +260,8 @@ def cli(ctx,
         eprint("ERROR: Rebuild the kernel with CONFIG_FB_EFI=y")
         sys.exit(1)
 
-    add_accept_keyword("sys-fs/zfs-9999")
-    add_accept_keyword("sys-fs/zfs-kmod-9999")
+    #add_accept_keyword("sys-fs/zfs-9999")
+    #add_accept_keyword("sys-fs/zfs-kmod-9999")
 
     write_line_to_file(path=Path('/etc') / Path('fstab'),
                        line='#<fs>\t<mountpoint>\t<type>\t<opts>\t<dump/pass>\n',

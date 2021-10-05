@@ -56,11 +56,11 @@ sh.emaint('sync', '-r', 'pentoo', _out=sys.stdout, _err=sys.stderr)  # this need
 _env = os.environ.copy()
 _env['CONFIG_PROTECT'] = '-*'
 
-sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', 'sendgentoo', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
-sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', 'sendgentoo', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
+sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'sendgentoo', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
+sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'sendgentoo', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
 
-sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', 'portagetool', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
-sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '-u', '--ask', 'n', '--autounmask', '--autounmask-write', 'portagetool', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
+sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'portagetool', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
+sh.emerge('--with-bdeps=y', '--quiet', '--tree', '--usepkg=n', '--ask', 'n', '--autounmask', '--autounmask-write', 'portagetool', _env=_env, _out=sys.stdout, _err=sys.stderr, _in=sys.stdin)
 
 import click
 

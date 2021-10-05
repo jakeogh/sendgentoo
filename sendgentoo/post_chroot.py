@@ -90,7 +90,7 @@ from portagetool import install_package
 from portagetool import install_package_force
 from retry_on_exception import retry_on_exception
 
-from .post_chroot_install_grub import install_grub
+from sendgentoo.post_chroot_install_grub import install_grub
 
 
 @click.command()

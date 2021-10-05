@@ -41,9 +41,11 @@ def get_stage3_url(stdlib: str,
         else:
             latest = 'latest-stage3-' + arch + '-hardened-openrc.txt'
     if stdlib == 'musl':
-        latest = ''
-        eprint("cant use musl yet")
-        quit(1)
+        return "http://gentoo.osuosl.org/releases/amd64/autobuilds/current-stage3-amd64-musl-hardened/stage3-amd64-hardened-nomultilib-openrc-20211003T170529Z.tar.xz"
+        if not multilib:
+            latest = 'latest-stage3-' + arch + 'musl-hardened-nomultilib-openrc.txt'
+        else:
+            latest = 'latest-stage3-' + arch + '-hardened-openrc.txt'
     if stdlib == 'uclibc':
         assert False
         latest = 'latest-stage3-' + arch + '-uclibc-hardened.txt'

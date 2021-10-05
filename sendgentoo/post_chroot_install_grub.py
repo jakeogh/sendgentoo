@@ -60,31 +60,24 @@ from portagetool import install_package
 from retry_on_exception import retry_on_exception
 from timetool import get_timestamp
 
-#from getdents import files
-#from prettytable import PrettyTable
-#output_table = PrettyTable()
+
+@click.group()
+@click.option('--verbose', is_flag=True)
+@click.option('--debug', is_flag=True)
+@click.pass_context
+def cli(ctx,
+        verbose: bool,
+        debug: bool,
+        ):
+
+    null, end, verbose, debug = nevd(ctx=ctx,
+                                     printn=False,
+                                     ipython=False,
+                                     verbose=verbose,
+                                     debug=debug,)
 
 
-
-#@with_plugins(iter_entry_points('click_command_tree'))
-#@click.group()
-#@click.option('--verbose', is_flag=True)
-#@click.option('--debug', is_flag=True)
-#@click.pass_context
-#def cli(ctx,
-#        verbose: bool,
-#        debug: bool,
-#        ):
-#
-#    null, end, verbose, debug = nevd(ctx=ctx,
-#                                     printn=False,
-#                                     ipython=False,
-#                                     verbose=verbose,
-#                                     debug=debug,)
-
-
-# update setup.py if changing function name
-@click.command()
+@cli.command()
 @click.argument("boot_device",
                 type=click.Path(exists=True,
                                 dir_okay=False,
@@ -96,11 +89,11 @@ from timetool import get_timestamp
 @click.option('--verbose', is_flag=True)
 @click.option('--debug', is_flag=True)
 @click.pass_context
-def cli(ctx,
-        boot_device: Path,
-        verbose: bool,
-        debug: bool,
-        ):
+def install_grub(ctx,
+                 boot_device: Path,
+                 verbose: bool,
+                 debug: bool,
+                 ):
 
     null, end, verbose, debug = nevd(ctx=ctx,
                                      printn=False,
@@ -177,11 +170,4 @@ def cli(ctx,
 if __name__ == '__main__':
     # pylint: disable=E1120
     cli()
-
-
-
-
-
-
-
 

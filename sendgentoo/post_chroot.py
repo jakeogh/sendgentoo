@@ -37,12 +37,12 @@ def syscmd(cmd):
     print(cmd, file=sys.stderr)
     os.system(cmd)
 
-syscmd('emerge dev-vcs/git -1 -u')
+syscmd('emerge --quiet dev-vcs/git -1 -u')
 syscmd('emerge --sync')
-syscmd('emerge sys-apps/portage -1 -u')
-syscmd('emerge dev-python/click -1 -u')
-syscmd('emerge app-eselect/eselect-repository -1 -u')
-syscmd('emerge dev-python/sh -1 -u')
+syscmd('emerge --quiet sys-apps/portage -1 -u')
+syscmd('emerge --quiet dev-python/click -1 -u')
+syscmd('emerge --quiet app-eselect/eselect-repository -1 -u')
+syscmd('emerge --quiet dev-python/sh -1 -u')
 import sh
 
 os.makedirs('/etc/portage/repos.conf', exist_ok=True)

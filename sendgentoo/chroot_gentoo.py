@@ -35,6 +35,7 @@ import sh
 from asserttool import eprint
 from asserttool import ic
 from asserttool import root_user
+from boottool import make_hybrid_mbr
 from mounttool import mount_something
 from mounttool import path_is_mounted
 from pathtool import path_is_block_special
@@ -42,28 +43,8 @@ from pathtool import write_line_to_file
 from run_command import run_command
 from with_chdir import chdir
 
-from .click_mesa_options import add_options
-from .click_mesa_options import click_mesa_options
-
-
-@click.command()
-@click.argument("boot_device")
-@click.option('--verbose', is_flag=True)
-@click.option('--debug', is_flag=True)
-def make_hybrid_mbr(*,
-                    boot_device: str,
-                    verbose: bool,
-                    debug: bool,
-                    ):
-
-    if not root_user():
-        ic('You must be root.')
-        sys.exit(1)
-
-    assert path_is_block_special(boot_device)
-
-    command = "/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh {boot_device}".format(boot_device=boot_device)
-    run_command(command, verbose=verbose, debug=debug, system=True)
+from sendgentoo.click_mesa_options import add_options
+from sendgentoo.click_mesa_options import click_mesa_options
 
 
 @click.command()

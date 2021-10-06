@@ -32,30 +32,32 @@ import sh
 from asserttool import eprint
 from asserttool import ic
 from asserttool import root_user
-from blocktool import add_partition_number_to_device
-from blocktool import create_filesystem
-from blocktool import destroy_block_device_head_and_tail
-from blocktool import destroy_block_devices_head_and_tail
-from blocktool import device_is_not_a_partition
-from blocktool import get_block_device_size
-from blocktool import path_is_block_special
-from blocktool import warn
+from boottool import create_boot_device
+from boottool import create_boot_device_for_existing_root
+from boottool import write_boot_partition
 from compile_kernel.compile_kernel import kcompile
+from devicetool import add_partition_number_to_device
+from devicetool import create_filesystem
+from devicetool import destroy_block_device_head_and_tail
+from devicetool import destroy_block_devices_head_and_tail
+from devicetool import device_is_not_a_partition
+from devicetool import get_block_device_size
+from devicetool import path_is_block_special
+from devicetool import safety_check_devices
 from mounttool import block_special_path_is_mounted
 from mounttool import path_is_mounted
 from psutil import virtual_memory
 from run_command import run_command
+from warntool import warn
 
 from sendgentoo.chroot_gentoo import chroot_gentoo
 from sendgentoo.chroot_gentoo import rsync_cfg
-from sendgentoo.create_boot_device import create_boot_device
 from sendgentoo.create_root_device import create_root_device
 from sendgentoo.create_zfs_filesystem import create_zfs_filesystem
 from sendgentoo.create_zfs_filesystem_snapshot import \
     create_zfs_filesystem_snapshot
 from sendgentoo.create_zfs_pool import create_zfs_pool
 from sendgentoo.install_stage3 import install_stage3
-from sendgentoo.write_boot_partition import write_boot_partition
 from sendgentoo.zfs_check_mountpoints import zfs_check_mountpoints
 from sendgentoo.zfs_set_sharenfs import zfs_set_sharenfs
 
@@ -96,14 +98,14 @@ sendgentoo.add_command(zfs_check_mountpoints)
 
 
 @sendgentoo.command()
-@click.option('--boot-device',                 is_flag=False, required=True)
-@click.option('--force',                       is_flag=True,  required=False)
-@click.option('--no-configure-kernel',         is_flag=True,  required=False)
-@click.option('--verbose',                     is_flag=True,  required=False)
-@click.option('--debug',                       is_flag=True,  required=False)
+@click.option('--boot-device',         is_flag=False, required=True, type=click.Path(exists=True, path_type=Path))
+@click.option('--force',               is_flag=True,  required=False)
+@click.option('--no-configure-kernel', is_flag=True,  required=False)
+@click.option('--verbose',             is_flag=True,  required=False)
+@click.option('--debug',               is_flag=True,  required=False)
 @click.pass_context
 def compile_kernel(ctx, *,
-                   boot_device: str,
+                   boot_device: Path,
                    no_configure_kernel: bool,
                    force: bool,
                    verbose: bool,
@@ -155,145 +157,145 @@ def compile_kernel(ctx, *,
     run_command(grub_config_command, verbose=True, popen=True)
 
 
-@sendgentoo.command()
-@click.option('--boot-device',                 is_flag=False, required=True)
-@click.option('--boot-device-partition-table', is_flag=False, required=False, type=click.Choice(['gpt']), default="gpt")
-@click.option('--boot-filesystem',             is_flag=False, required=False, type=click.Choice(['ext4']), default="ext4")
-@click.option('--force',                       is_flag=True,  required=False)
-@click.option('--compile-kernel', "_compile_kernel", is_flag=True, required=False)
-@click.option('--configure-kernel',            is_flag=True,  required=False)
-@click.option('--verbose',                     is_flag=True,  required=False)
-@click.option('--debug',                       is_flag=True,  required=False)
-@click.pass_context
-def create_boot_device_for_existing_root(ctx,
-                                         boot_device,
-                                         boot_device_partition_table,
-                                         boot_filesystem,
-                                         _compile_kernel: bool,
-                                         configure_kernel: bool,
-                                         force: bool,
-                                         verbose: bool,
-                                         debug: bool,):
-    if configure_kernel:
-        _compile_kernel = True
+#@sendgentoo.command()
+#@click.option('--boot-device',                 is_flag=False, required=True)
+#@click.option('--boot-device-partition-table', is_flag=False, required=False, type=click.Choice(['gpt']), default="gpt")
+#@click.option('--boot-filesystem',             is_flag=False, required=False, type=click.Choice(['ext4']), default="ext4")
+#@click.option('--force',                       is_flag=True,  required=False)
+#@click.option('--compile-kernel', "_compile_kernel", is_flag=True, required=False)
+#@click.option('--configure-kernel',            is_flag=True,  required=False)
+#@click.option('--verbose',                     is_flag=True,  required=False)
+#@click.option('--debug',                       is_flag=True,  required=False)
+#@click.pass_context
+#def create_boot_device_for_existing_root(ctx,
+#                                         boot_device,
+#                                         boot_device_partition_table,
+#                                         boot_filesystem,
+#                                         _compile_kernel: bool,
+#                                         configure_kernel: bool,
+#                                         force: bool,
+#                                         verbose: bool,
+#                                         debug: bool,):
+#    if configure_kernel:
+#        _compile_kernel = True
+#
+#    if not root_user():
+#        ic('You must be root.')
+#        sys.exit(1)
+#
+#    mount_path_boot = Path('/boot')
+#    ic(mount_path_boot)
+#    assert not path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
+#
+#    mount_path_boot_efi = mount_path_boot / Path('efi')
+#    ic(mount_path_boot_efi)
+#    assert not path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
+#
+#    assert device_is_not_a_partition(device=boot_device, verbose=verbose, debug=debug,)
+#
+#    ic('installing grub on boot device:',
+#       boot_device,
+#       boot_device_partition_table,
+#       boot_filesystem)
+#    assert path_is_block_special(boot_device)
+#    assert not block_special_path_is_mounted(boot_device, verbose=verbose, debug=debug,)
+#    if not force:
+#        warn((boot_device,), verbose=verbose, debug=debug,)
+#    create_boot_device(ctx,
+#                       device=boot_device,
+#                       partition_table=boot_device_partition_table,
+#                       filesystem=boot_filesystem,
+#                       force=True,
+#                       verbose=verbose,
+#                       debug=debug,)
+#    ctx.invoke(write_boot_partition,
+#               device=boot_device,
+#               force=True,
+#               verbose=verbose,
+#               debug=debug,)
+#
+#    hybrid_mbr_command = sh.Command("/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh")
+#    hybrid_mbr_command(boot_device, _out=sys.stdout, _err=sys.stderr)
+#    #run_command(hybrid_mbr_command, verbose=True, popen=True)
+#
+#    os.makedirs(mount_path_boot, exist_ok=True)
+#    boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
+#    assert not path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
+#    sh.mount(boot_partition_path, str(mount_path_boot), _out=sys.stdout, _err=sys.stderr)
+#    #run_command(boot_mount_command, verbose=True, popen=True)
+#    assert path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
+#
+#    os.makedirs(mount_path_boot_efi, exist_ok=True)
+#
+#    efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2")
+#    assert not path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
+#    sh.mount(efi_partition_path, str(mount_path_boot_efi), _out=sys.stdout, _err=sys.stderr)
+#    #run_command(efi_mount_command, verbose=True, popen=True)
+#    assert path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
+#
+#    install_grub_command = sh.Command("/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh")
+#    install_grub_command(boot_device, _out=sys.stdout, _err=sys.stderr)
+#    #run_command(grub_install_command, verbose=True, popen=True)
+#
+#    if _compile_kernel:
+#        kcompile(configure=configure_kernel,
+#                 force=force,
+#                 no_check_boot=True,
+#                 verbose=verbose,
+#                 debug=debug)
+#
+#    sh.grub_mkconfig('-o', '/boot/grub/grub.cfg', _out=sys.stdout, _err=sys.stderr)
+#    #run_command(grub_config_command, verbose=True, popen=True)
 
-    if not root_user():
-        ic('You must be root.')
-        sys.exit(1)
 
-    mount_path_boot = Path('/boot')
-    ic(mount_path_boot)
-    assert not path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
-
-    mount_path_boot_efi = mount_path_boot / Path('efi')
-    ic(mount_path_boot_efi)
-    assert not path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
-
-    assert device_is_not_a_partition(device=boot_device, verbose=verbose, debug=debug,)
-
-    ic('installing grub on boot device:',
-       boot_device,
-       boot_device_partition_table,
-       boot_filesystem)
-    assert path_is_block_special(boot_device)
-    assert not block_special_path_is_mounted(boot_device, verbose=verbose, debug=debug,)
-    if not force:
-        warn((boot_device,), verbose=verbose, debug=debug,)
-    create_boot_device(ctx,
-                       device=boot_device,
-                       partition_table=boot_device_partition_table,
-                       filesystem=boot_filesystem,
-                       force=True,
-                       verbose=verbose,
-                       debug=debug,)
-    ctx.invoke(write_boot_partition,
-               device=boot_device,
-               force=True,
-               verbose=verbose,
-               debug=debug,)
-
-    hybrid_mbr_command = sh.Command("/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh")
-    hybrid_mbr_command(boot_device, _out=sys.stdout, _err=sys.stderr)
-    #run_command(hybrid_mbr_command, verbose=True, popen=True)
-
-    os.makedirs(mount_path_boot, exist_ok=True)
-    boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
-    assert not path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
-    sh.mount(boot_partition_path, str(mount_path_boot), _out=sys.stdout, _err=sys.stderr)
-    #run_command(boot_mount_command, verbose=True, popen=True)
-    assert path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
-
-    os.makedirs(mount_path_boot_efi, exist_ok=True)
-
-    efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2")
-    assert not path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
-    sh.mount(efi_partition_path, str(mount_path_boot_efi), _out=sys.stdout, _err=sys.stderr)
-    #run_command(efi_mount_command, verbose=True, popen=True)
-    assert path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
-
-    install_grub_command = sh.Command("/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh")
-    install_grub_command(boot_device, _out=sys.stdout, _err=sys.stderr)
-    #run_command(grub_install_command, verbose=True, popen=True)
-
-    if _compile_kernel:
-        kcompile(configure=configure_kernel,
-                 force=force,
-                 no_check_boot=True,
-                 verbose=verbose,
-                 debug=debug)
-
-    sh.grub_mkconfig('-o', '/boot/grub/grub.cfg', _out=sys.stdout, _err=sys.stderr)
-    #run_command(grub_config_command, verbose=True, popen=True)
-
-
-def safety_check_devices(boot_device: Path,
-                         root_devices: Tuple[Path, ...],
-                         verbose: bool,
-                         debug: bool,
-                         boot_device_partition_table: str,
-                         boot_filesystem: str,
-                         root_device_partition_table: str,
-                         root_filesystem: str,
-                         force: bool,
-                         ):
-    if boot_device:
-        assert device_is_not_a_partition(device=boot_device,
-                                         verbose=verbose,
-                                         debug=debug,)
-
-    for device in root_devices:
-        assert device_is_not_a_partition(device=device,
-                                         verbose=verbose,
-                                         debug=debug,)
-
-    if boot_device:
-        eprint("installing gentoo on boot device: {boot_device} {boot_device_partition_table} {boot_filesystem}".format(boot_device=boot_device, boot_device_partition_table=boot_device_partition_table, boot_filesystem=boot_filesystem))
-        assert path_is_block_special(boot_device)
-        assert not block_special_path_is_mounted(boot_device, verbose=verbose, debug=debug,)
-
-    if root_devices:
-        eprint("installing gentoo on root device(s):", root_devices, '(' + root_device_partition_table + ')', '(' + root_filesystem + ')')
-        for device in root_devices:
-            assert path_is_block_special(device)
-            assert not block_special_path_is_mounted(device, verbose=verbose, debug=debug,)
-
-    for device in root_devices:
-        eprint("boot_device:", boot_device)
-        eprint("device:", device)
-        eprint("get_block_device_size(boot_device):", get_block_device_size(boot_device, verbose=verbose, debug=debug,))
-        eprint("get_block_device_size(device):     ", get_block_device_size(device, verbose=verbose, debug=debug,))
-        assert get_block_device_size(boot_device, verbose=verbose, debug=debug,) <= get_block_device_size(device, verbose=verbose, debug=debug,)
-
-    if root_devices:
-        first_root_device_size = get_block_device_size(root_devices[0], verbose=verbose, debug=debug,)
-
-        for device in root_devices:
-            assert get_block_device_size(device, verbose=verbose, debug=debug,) == first_root_device_size
-
-    if boot_device or root_devices:
-        if not force:
-            warn((boot_device,), verbose=verbose, debug=debug,)
-            warn(root_devices, verbose=verbose, debug=debug,)
+#def safety_check_devices(boot_device: Path,
+#                         root_devices: Tuple[Path, ...],
+#                         verbose: bool,
+#                         debug: bool,
+#                         boot_device_partition_table: str,
+#                         boot_filesystem: str,
+#                         root_device_partition_table: str,
+#                         root_filesystem: str,
+#                         force: bool,
+#                         ):
+#    if boot_device:
+#        assert device_is_not_a_partition(device=boot_device,
+#                                         verbose=verbose,
+#                                         debug=debug,)
+#
+#    for device in root_devices:
+#        assert device_is_not_a_partition(device=device,
+#                                         verbose=verbose,
+#                                         debug=debug,)
+#
+#    if boot_device:
+#        eprint("installing gentoo on boot device: {boot_device} {boot_device_partition_table} {boot_filesystem}".format(boot_device=boot_device, boot_device_partition_table=boot_device_partition_table, boot_filesystem=boot_filesystem))
+#        assert path_is_block_special(boot_device)
+#        assert not block_special_path_is_mounted(boot_device, verbose=verbose, debug=debug,)
+#
+#    if root_devices:
+#        eprint("installing gentoo on root device(s):", root_devices, '(' + root_device_partition_table + ')', '(' + root_filesystem + ')')
+#        for device in root_devices:
+#            assert path_is_block_special(device)
+#            assert not block_special_path_is_mounted(device, verbose=verbose, debug=debug,)
+#
+#    for device in root_devices:
+#        eprint("boot_device:", boot_device)
+#        eprint("device:", device)
+#        eprint("get_block_device_size(boot_device):", get_block_device_size(boot_device, verbose=verbose, debug=debug,))
+#        eprint("get_block_device_size(device):     ", get_block_device_size(device, verbose=verbose, debug=debug,))
+#        assert get_block_device_size(boot_device, verbose=verbose, debug=debug,) <= get_block_device_size(device, verbose=verbose, debug=debug,)
+#
+#    if root_devices:
+#        first_root_device_size = get_block_device_size(root_devices[0], verbose=verbose, debug=debug,)
+#
+#        for device in root_devices:
+#            assert get_block_device_size(device, verbose=verbose, debug=debug,) == first_root_device_size
+#
+#    if boot_device or root_devices:
+#        if not force:
+#            warn((boot_device,), verbose=verbose, debug=debug,)
+#            warn(root_devices, verbose=verbose, debug=debug,)
 
 
 

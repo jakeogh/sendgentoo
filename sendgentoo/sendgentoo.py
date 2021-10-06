@@ -28,6 +28,7 @@ from typing import Tuple
 
 import click
 import humanfriendly
+import sh
 from asserttool import eprint
 from asserttool import ic
 from asserttool import root_user
@@ -211,28 +212,28 @@ def create_boot_device_for_existing_root(ctx,
                verbose=verbose,
                debug=debug,)
 
-    hybrid_mbr_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh" + " " + boot_device
-    run_command(hybrid_mbr_command, verbose=True, popen=True)
+    hybrid_mbr_command = sh.Command("/home/cfg/_myapps/sendgentoo/sendgentoo/gpart_make_hybrid_mbr.sh")
+    hybrid_mbr_command(boot_device, _out=sys.stdout, _err=sys.stderr)
+    #run_command(hybrid_mbr_command, verbose=True, popen=True)
 
     os.makedirs(mount_path_boot, exist_ok=True)
     boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
-    boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
-    #print("sleeping")
-    #time.sleep(10)
     assert not path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
-    run_command(boot_mount_command, verbose=True, popen=True)
+    sh.mount(boot_partition_path, str(mount_path_boot), _out=sys.stdout, _err=sys.stderr)
+    #run_command(boot_mount_command, verbose=True, popen=True)
     assert path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
 
     os.makedirs(mount_path_boot_efi, exist_ok=True)
 
     efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2")
-    efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)
     assert not path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
-    run_command(efi_mount_command, verbose=True, popen=True)
+    sh.mount(efi_partition_path, str(mount_path_boot_efi), _out=sys.stdout, _err=sys.stderr)
+    #run_command(efi_mount_command, verbose=True, popen=True)
     assert path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
 
-    grub_install_command = "/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh" + " " + boot_device
-    run_command(grub_install_command, verbose=True, popen=True)
+    install_grub_command = sh.Command("/home/cfg/_myapps/sendgentoo/sendgentoo/post_chroot_install_grub.sh")
+    install_grub_command(boot_device, _out=sys.stdout, _err=sys.stderr)
+    #run_command(grub_install_command, verbose=True, popen=True)
 
     if _compile_kernel:
         kcompile(configure=configure_kernel,
@@ -241,8 +242,8 @@ def create_boot_device_for_existing_root(ctx,
                  verbose=verbose,
                  debug=debug)
 
-    grub_config_command = "grub-mkconfig -o /boot/grub/grub.cfg"
-    run_command(grub_config_command, verbose=True, popen=True)
+    sh.grub_mkconfig('-o', '/boot/grub/grub.cfg', _out=sys.stdout, _err=sys.stderr)
+    #run_command(grub_config_command, verbose=True, popen=True)
 
 
 def safety_check_devices(boot_device: Path,

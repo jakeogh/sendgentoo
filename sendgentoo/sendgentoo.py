@@ -35,6 +35,8 @@ from asserttool import root_user
 from boottool import create_boot_device
 from boottool import create_boot_device_for_existing_root
 from boottool import write_boot_partition
+from clicktool import add_options
+from clicktool import click_mesa_options
 from compile_kernel.compile_kernel import kcompile
 from devicetool import add_partition_number_to_device
 from devicetool import create_filesystem
@@ -60,9 +62,6 @@ from sendgentoo.create_zfs_pool import create_zfs_pool
 from sendgentoo.install_stage3 import install_stage3
 from sendgentoo.zfs_check_mountpoints import zfs_check_mountpoints
 from sendgentoo.zfs_set_sharenfs import zfs_set_sharenfs
-
-from .click_mesa_options import add_options
-from .click_mesa_options import click_mesa_options
 
 
 def validate_ram_size(ctx, param, vm_ram):

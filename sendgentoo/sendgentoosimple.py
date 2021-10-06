@@ -12,6 +12,7 @@ from .sendgentoo import install
 
 @click.command()
 @click.argument("device")
+@click.option('--stdlib', is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']))
 @click.option("--hostname", type=str, required=True)
 @click.option("--ip", type=str, required=True)
 @click.option("--skip-to-chroot", is_flag=True)
@@ -22,6 +23,7 @@ def sendgentoosimple(ctx,
                      device: str,
                      hostname: str,
                      ip: str,
+                     stdlib: str,
                      skip_to_chroot: bool,
                      verbose: bool,
                      debug: bool,
@@ -58,7 +60,7 @@ def sendgentoosimple(ctx,
                root_device_partition_table='gpt',
                boot_filesystem='ext4',
                root_filesystem='ext4',
-               stdlib='glibc',
+               stdlib=stdlib,
                raid='disk',
                raid_group_size='1',
                march='nocona',

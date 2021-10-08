@@ -52,6 +52,7 @@ from psutil import virtual_memory
 from run_command import run_command
 from sendgentoo_chroot import chroot_gentoo
 from sendgentoo_chroot import rsync_cfg
+from sendgentoo_stage import install_stage3
 from warntool import warn
 
 from sendgentoo.create_root_device import create_root_device
@@ -59,7 +60,6 @@ from sendgentoo.create_zfs_filesystem import create_zfs_filesystem
 from sendgentoo.create_zfs_filesystem_snapshot import \
     create_zfs_filesystem_snapshot
 from sendgentoo.create_zfs_pool import create_zfs_pool
-from sendgentoo.install_stage3 import install_stage3
 from sendgentoo.zfs_check_mountpoints import zfs_check_mountpoints
 from sendgentoo.zfs_set_sharenfs import zfs_set_sharenfs
 

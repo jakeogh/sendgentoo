@@ -15,8 +15,8 @@ from blocktool import path_is_block_special
 from blocktool import warn
 from mounttool import block_special_path_is_mounted
 from run_command import run_command
+from zfstool import RAID_LIST
 
-from .setup_globals import RAID_LIST
 from .write_zfs_root_filesystem_on_devices import \
     write_zfs_root_filesystem_on_devices
 

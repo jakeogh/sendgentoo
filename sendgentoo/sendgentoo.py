@@ -302,33 +302,35 @@ def install(ctx, *,
                 assert boot_filesystem == root_filesystem
                 assert boot_device_partition_table == root_device_partition_table
                 if boot_filesystem == 'zfs':
-                    ctx.invoke(destroy_block_devices_head_and_tail,
-                               devices=root_devices,
-                               force=True,
-                               no_backup=True,
-                               size=(1024 * 1024 * 128),
-                               note=False,
-                               verbose=verbose,
-                               debug=debug,)
-                    # if this is zfs, it will make a gpt table, / and EFI partition
-                    ctx.invoke(create_root_device,
-                               devices=root_devices,
-                               exclusive=True,
-                               filesystem=root_filesystem,
-                               partition_table=root_device_partition_table,
-                               force=True,
-                               raid=raid,
-                               raid_group_size=raid_group_size,
-                               pool_name=hostname,)
-                    create_boot_device(ctx,
-                                       device=boot_device,
-                                       partition_table='none',
-                                       filesystem=boot_filesystem,
-                                       force=True,
-                                       verbose=verbose,
-                                       debug=debug,)  # dont want to delete the gpt that zfs made
-                    boot_mount_command = False
-                    root_mount_command = False
+                    assert False
+                    # untested
+                    #ctx.invoke(destroy_block_devices_head_and_tail,
+                    #           devices=root_devices,
+                    #           force=True,
+                    #           no_backup=True,
+                    #           size=(1024 * 1024 * 128),
+                    #           note=False,
+                    #           verbose=verbose,
+                    #           debug=debug,)
+                    ## if this is zfs, it will make a gpt table, / and EFI partition
+                    #ctx.invoke(create_root_device,
+                    #           devices=root_devices,
+                    #           exclusive=True,
+                    #           filesystem=root_filesystem,
+                    #           partition_table=root_device_partition_table,
+                    #           force=True,
+                    #           raid=raid,
+                    #           raid_group_size=raid_group_size,
+                    #           pool_name=hostname,)
+                    #create_boot_device(ctx,
+                    #                   device=boot_device,
+                    #                   partition_table='none',
+                    #                   filesystem=boot_filesystem,
+                    #                   force=True,
+                    #                   verbose=verbose,
+                    #                   debug=debug,)  # dont want to delete the gpt that zfs made
+                    #boot_mount_command = False
+                    #root_mount_command = False
 
                 elif boot_filesystem == 'ext4':
                     ctx.invoke(destroy_block_device_head_and_tail,
@@ -343,7 +345,6 @@ def install(ctx, *,
                                        debug=debug,)  # writes gurb_bios from 48s to 1023s then writes EFI partition from 1024s to 205824s (100M efi) (nope, too big for fat16)
                     ctx.invoke(create_root_device,
                                devices=root_devices,
-                               exclusive=False,
                                filesystem=root_filesystem,
                                partition_table=root_device_partition_table,
                                force=True,
@@ -356,35 +357,37 @@ def install(ctx, *,
                 else:  # unknown case
                     assert False
             else:
-                eprint("differing root and boot devices: (exclusive) root_devices[0]:", root_devices[0], "boot_device:", boot_device)
-                create_boot_device(ctx,
-                                   device=boot_device,
-                                   partition_table=boot_device_partition_table,
-                                   filesystem=boot_filesystem,
-                                   force=True,
-                                   verbose=verbose,
-                                   debug=debug,)
-                ctx.invoke(write_boot_partition,
-                           device=boot_device,
-                           force=True,
-                           verbose=verbose,
-                           debug=debug,)
-                ctx.invoke(create_root_device,
-                           devices=root_devices,
-                           exclusive=True,
-                           filesystem=root_filesystem,
-                           partition_table=root_device_partition_table,
-                           force=True,
-                           raid=raid,)
-                if root_filesystem == 'zfs':
-                    assert False
-                    root_mount_command = False
-                elif root_filesystem == 'ext4':
-                    root_partition_path = add_partition_number_to_device(device=root_devices[0], partition_number="1")
-                    root_mount_command = "mount " + root_partition_path.as_posix() + " " + mount_path.as_posix()
+                assert False
+                # not tested
+                #eprint("differing root and boot devices: (exclusive) root_devices[0]:", root_devices[0], "boot_device:", boot_device)
+                #create_boot_device(ctx,
+                #                   device=boot_device,
+                #                   partition_table=boot_device_partition_table,
+                #                   filesystem=boot_filesystem,
+                #                   force=True,
+                #                   verbose=verbose,
+                #                   debug=debug,)
+                #ctx.invoke(write_boot_partition,
+                #           device=boot_device,
+                #           force=True,
+                #           verbose=verbose,
+                #           debug=debug,)
+                #ctx.invoke(create_root_device,
+                #           devices=root_devices,
+                #           exclusive=True,
+                #           filesystem=root_filesystem,
+                #           partition_table=root_device_partition_table,
+                #           force=True,
+                #           raid=raid,)
+                #if root_filesystem == 'zfs':
+                #    assert False
+                #    root_mount_command = False
+                #elif root_filesystem == 'ext4':
+                #    root_partition_path = add_partition_number_to_device(device=root_devices[0], partition_number="1")
+                #    root_mount_command = "mount " + root_partition_path.as_posix() + " " + mount_path.as_posix()
 
-                boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
-                boot_mount_command = "mount " + boot_partition_path.as_posix() + " " + mount_path_boot.as_posix()
+                #boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
+                #boot_mount_command = "mount " + boot_partition_path.as_posix() + " " + mount_path_boot.as_posix()
 
             if root_mount_command:
                 run_command(root_mount_command)

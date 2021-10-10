@@ -5,28 +5,15 @@ from pathlib import Path
 from typing import Tuple
 
 import click
+from asserttool import eprint, ic
 from blocktool import destroy_block_device_head_and_tail
 from blocktool import path_is_block_special
 from blocktool import warn
 from blocktool import write_gpt
 from mounttool import block_special_path_is_mounted
 
-from .setup_globals import RAID_LIST
+from zfstool import RAID_LIST
 from .write_sysfs_partition import write_sysfs_partition
-
-
-def eprint(*args, **kwargs):
-    if 'file' in kwargs.keys():
-        kwargs.pop('file')
-    print(*args, file=sys.stderr, **kwargs)
-
-
-try:
-    from icecream import ic  # https://github.com/gruns/icecream
-    from icecream import icr  # https://github.com/jakeogh/icecream
-except ImportError:
-    ic = eprint
-    icr = eprint
 
 
 @click.command()
@@ -53,14 +40,20 @@ def create_root_device(ctx,
                        debug: bool,
                        pool_name: str,
                        ):
+
     devices = tuple([Path(_device) for _device in devices])
 
     eprint("installing gentoo on root devices:", ' '.join([_device.as_posix() for _device in devices]), '(' + partition_table + ')', '(' + filesystem + ')', '(', pool_name, ')')
-    for device in devices:
-        if not device.name.startswith('nvme'):
-            assert not device.name[-1].isdigit()
-        assert path_is_block_special(device)
-        assert not block_special_path_is_mounted(device, verbose=verbose, debug=debug,)
+    for _device in devices:
+        if not _device.name.startswith('nvme'):
+            assert not _device.name[-1].isdigit()
+        assert path_is_block_special(_device)
+        assert not block_special_path_is_mounted(_device, verbose=verbose, debug=debug,)
+
+    if len(devices) == 1:
+        assert raid == 'disk'
+    else:
+        assert raid != 'disk'
 
     #assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
     if not force:

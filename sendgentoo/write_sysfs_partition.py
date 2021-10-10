@@ -16,9 +16,7 @@ from blocktool import warn
 from mounttool import block_special_path_is_mounted
 from run_command import run_command
 from zfstool import RAID_LIST
-
-from .write_zfs_root_filesystem_on_devices import \
-    write_zfs_root_filesystem_on_devices
+from zfstool import write_zfs_root_filesystem_on_devices
 
 
 @click.command()
@@ -76,11 +74,10 @@ def write_sysfs_partition(devices: Tuple[Path, ...],
         sysfs_partition_path = add_partition_number_to_device(device=devices[0], partition_number=partition_number)
         if filesystem == 'ext4':
             ext4_command = sh.Command('mkfs.ext4')
-            for line in ext4_command(sysfs_partition_path.as_posix(), _iter=True):
-                eprint(line, end='')
-            #run_command("mkfs.ext4 " + sysfs_partition_path.as_posix(), verbose=True)
+            ext4_command(sysfs_partition_path.as_posix(), _out=sys.stdout, _err=sys.stderr)
         elif filesystem == 'fat32':
-            run_command("mkfs.vfat " + sysfs_partition_path.as_posix(), verbose=True)
+            mkfs_vfat_command = sh.Command('mkfs.vfat', sysfs_partition_path.as_posix())
+            mkfs_vfat_command(_out=sys.stdout, _err=sys.stderr)
         else:
             eprint("unknown filesystem:", filesystem)
             sys.exit(1)
@@ -99,10 +96,3 @@ def write_sysfs_partition(devices: Tuple[Path, ...],
     else:
         eprint("unknown filesystem:", filesystem)
         sys.exit(1)
-
-#set_boot_on_command = "parted " + device + " --script -- set 2 boot on"
-#run_command(set_boot_on_command)
-#root_partition_boot_flag_command = "parted " + device + " --script -- set 2 boot on"
-#run_command(root_partition_boot_flag_command)
-
-

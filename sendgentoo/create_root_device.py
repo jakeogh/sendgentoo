@@ -5,14 +5,13 @@ from pathlib import Path
 from typing import Tuple
 
 import click
-from asserttool import eprint, ic
-from blocktool import destroy_block_device_head_and_tail
+from asserttool import eprint
+from asserttool import ic
 from blocktool import path_is_block_special
 from blocktool import warn
-from blocktool import write_gpt
 from mounttool import block_special_path_is_mounted
-
 from zfstool import RAID_LIST
+
 from .write_sysfs_partition import write_sysfs_partition
 
 
@@ -21,7 +20,6 @@ from .write_sysfs_partition import write_sysfs_partition
 @click.option('--partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
 @click.option('--filesystem',      is_flag=False, required=True, type=click.Choice(['ext4', 'zfs', 'fat32']))
 @click.option('--force',           is_flag=True,  required=False)
-@click.option('--exclusive',       is_flag=True,  required=False)
 @click.option('--raid',            is_flag=False, required=True, type=click.Choice(RAID_LIST))
 @click.option('--raid-group-size', is_flag=False, required=True, type=int)
 @click.option('--pool-name',       is_flag=False, required=False, type=str)
@@ -33,7 +31,6 @@ def create_root_device(ctx,
                        partition_table: str,
                        filesystem: str,
                        force: bool,
-                       exclusive: bool,
                        raid: str,
                        raid_group_size: int,
                        verbose: bool,
@@ -55,32 +52,13 @@ def create_root_device(ctx,
     else:
         assert raid != 'disk'
 
-    #assert os.getcwd() == '/home/cfg/setup/gentoo_installer'
     if not force:
         warn(devices, verbose=verbose, debug=debug,)
-
-    if exclusive:
-        if filesystem != 'zfs':
-            ctx.invoke(destroy_block_device_head_and_tail,
-                       device=device,
-                       force=True,
-                       verbose=verbose,
-                       debug=debug,)
-            ctx.invoke(write_gpt,
-                       device=device,
-                       no_wipe=True,
-                       force=force,
-                       no_backup=False,
-                       verbose=verbose,
-                       debug=debug,)  # zfs does this on it's own, feed it a blank disk
-    else:
-        pass
 
     if pool_name:
         ctx.invoke(write_sysfs_partition,
                    devices=devices,
                    force=True,
-                   exclusive=exclusive,
                    filesystem=filesystem,
                    raid=raid,
                    pool_name=pool_name,
@@ -89,7 +67,6 @@ def create_root_device(ctx,
         ctx.invoke(write_sysfs_partition,
                    devices=devices,
                    force=True,
-                   exclusive=exclusive,
                    filesystem=filesystem,
                    raid=raid,
                    raid_group_size=raid_group_size,)

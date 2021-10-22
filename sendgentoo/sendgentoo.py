@@ -36,6 +36,7 @@ from boottool import create_boot_device
 from boottool import create_boot_device_for_existing_root
 from boottool import write_boot_partition
 from clicktool import add_options
+from clicktool import click_arch_select
 from clicktool import click_mesa_options
 from compile_kernel.compile_kernel import kcompile
 from devicetool import add_partition_number_to_device
@@ -52,7 +53,7 @@ from psutil import virtual_memory
 from run_command import run_command
 from sendgentoo_chroot import chroot_gentoo
 from sendgentoo_chroot import rsync_cfg
-from sendgentoo_stage import install_stage3
+from sendgentoo_stage import extract_stage3
 from warntool import warn
 from zfstool import create_zfs_filesystem
 from zfstool import create_zfs_filesystem_snapshot
@@ -165,7 +166,6 @@ def compile_kernel(ctx, *,
 @click.option('--boot-filesystem',             is_flag=False, required=False, type=click.Choice(['ext4', 'zfs']), default="ext4")
 @click.option('--root-filesystem',             is_flag=False, required=True,  type=click.Choice(['ext4', 'zfs', '9p']), default="ext4")
 @click.option('--stdlib',                      is_flag=False, required=True, type=click.Choice(['glibc', 'musl', 'uclibc']))
-@click.option('--arch',                        is_flag=False, required=False, type=click.Choice(['alpha', 'amd64', 'arm', 'arm64', 'hppa', 'ia64', 'mips', 'ppc', 's390', 'sh', 'sparc', 'x86']), default="amd64")
 @click.option('--raid',                        is_flag=False, required=False, type=click.Choice(['disk', 'mirror', 'raidz1', 'raidz2', 'raidz3', 'raidz10', 'raidz50', 'raidz60']), default="disk")
 @click.option('--raid-group-size',             is_flag=False, required=False, type=click.IntRange(1, 2), default=1)
 @click.option('--march',                       is_flag=False, required=True, type=click.Choice(['native', 'nocona']))
@@ -186,6 +186,7 @@ def compile_kernel(ctx, *,
 @click.option('--skip-to-chroot',              is_flag=True,  required=False)
 @click.pass_context
 @add_options(click_mesa_options)
+@add_options(click_arch_select)
 def install(ctx, *,
             root_devices: Tuple[Path, ...],
             vm: str,
@@ -416,11 +417,11 @@ def install(ctx, *,
                 run_command(efi_mount_command)
                 assert path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
 
-        install_stage3(stdlib=stdlib,
+        extract_stage3(stdlib=stdlib,
                        multilib=multilib,
-                       distfiles_dir=distfiles_dir,
                        arch=arch,
                        destination=mount_path,
+                       expect_mounted_destination=True,
                        vm=vm,
                        vm_ram=vm_ram,
                        verbose=verbose,

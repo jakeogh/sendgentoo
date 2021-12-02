@@ -249,6 +249,7 @@ install_pkg @laptopxorg
 
 install_pkg @gpib -pv
 install_pkg @gpib
+gpasswd -a user gpib
 
 #eselect repository enable science
 #emaint sync -r science

@@ -33,8 +33,8 @@ from asserttool import eprint
 from asserttool import ic
 from asserttool import root_user
 from boottool import create_boot_device
-from boottool import create_boot_device_for_existing_root
-from boottool import write_boot_partition
+#from boottool import create_boot_device_for_existing_root
+#from boottool import write_boot_partition
 from clicktool import click_add_options
 from clicktool import click_arch_select
 from clicktool import click_global_options

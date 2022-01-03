@@ -5,8 +5,9 @@ import pathlib
 import sys
 
 import click
-from clicktool import click_add_options, click_global_options
 import psutil
+from clicktool import click_add_options
+from clicktool import click_global_options
 
 from .sendgentoo import install
 
@@ -17,7 +18,6 @@ from .sendgentoo import install
 @click.option("--hostname", type=str, required=True)
 @click.option("--ip", type=str, required=True)
 @click.option("--skip-to-chroot", is_flag=True)
-@click.option("--verbose", is_flag=True)
 @click_add_options(click_global_options)
 @click.pass_context
 def sendgentoosimple(ctx,
@@ -27,7 +27,8 @@ def sendgentoosimple(ctx,
                      stdlib: str,
                      skip_to_chroot: bool,
                      verbose: int,
-                                          ):
+                     verbose_inf: bool,
+                     ):
 
     device = device.strip()
     if not os.getenv('TMUX'):

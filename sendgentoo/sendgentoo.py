@@ -35,16 +35,17 @@ from asserttool import root_user
 from boottool import create_boot_device
 from boottool import create_boot_device_for_existing_root
 from boottool import write_boot_partition
-from clicktool import add_options
+from clicktool import click_add_options
 from clicktool import click_arch_select
-from clicktool import click_mesa_options
+from clicktool import click_global_options
+from clicktool.mesa import click_mesa_options
 from compile_kernel.compile_kernel import kcompile
+#from devicetool import get_block_device_size
+#from devicetool import destroy_block_devices_head_and_tail
 from devicetool import add_partition_number_to_device
 from devicetool import create_filesystem
 from devicetool import destroy_block_device_head_and_tail
-from devicetool import destroy_block_devices_head_and_tail
 from devicetool import device_is_not_a_partition
-from devicetool import get_block_device_size
 from devicetool import path_is_block_special
 from devicetool import safety_check_devices
 from mounttool import block_special_path_is_mounted
@@ -66,7 +67,6 @@ from sendgentoo.create_root_device import create_root_device
 
 def validate_ram_size(ctx, param, vm_ram):
     ic(vm_ram)
-
     sysram_bytes = virtual_memory().total
     if not isinstance(vm_ram, int):
         vm_ram_bytes = humanfriendly.parse_size(vm_ram)
@@ -100,15 +100,15 @@ sendgentoo.add_command(zfs_check_mountpoints)
 @click.option('--boot-device',         is_flag=False, required=True, type=click.Path(exists=True, path_type=Path))
 @click.option('--force',               is_flag=True,  required=False)
 @click.option('--no-configure-kernel', is_flag=True,  required=False)
-@click.option('--verbose',             is_flag=True,  required=False)
-@click.option('--debug',               is_flag=True,  required=False)
+@click_add_options(click_global_options)
 @click.pass_context
-def compile_kernel(ctx, *,
+def compile_kernel(ctx,
+                   *,
                    boot_device: Path,
                    no_configure_kernel: bool,
                    force: bool,
-                   verbose: bool,
-                   debug: bool,
+                   verbose: int,
+                   verbose_inf: bool,
                    ):
 
     if not root_user():
@@ -119,38 +119,38 @@ def compile_kernel(ctx, *,
 
     mount_path_boot = Path('/boot')
     ic(mount_path_boot)
-    assert not path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
+    assert not path_is_mounted(mount_path_boot, verbose=verbose,)
 
     mount_path_boot_efi = mount_path_boot / Path('efi')
     ic(mount_path_boot_efi)
-    assert not path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
+    assert not path_is_mounted(mount_path_boot_efi, verbose=verbose,)
 
-    assert device_is_not_a_partition(device=boot_device, verbose=verbose, debug=debug,)
+    assert device_is_not_a_partition(device=boot_device, verbose=verbose,)
 
     assert path_is_block_special(boot_device)
-    assert not block_special_path_is_mounted(boot_device, verbose=verbose, debug=debug,)
-    warn((boot_device,), msg="about to update the kernel on device:", verbose=verbose, debug=debug,)
+    assert not block_special_path_is_mounted(boot_device, verbose=verbose,)
+    warn((boot_device,), msg="about to update the kernel on device:", verbose=verbose,)
 
     os.makedirs(mount_path_boot, exist_ok=True)
-    boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
+    boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3", verbose=verbose,)
     boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
-    assert not path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
+    assert not path_is_mounted(mount_path_boot, verbose=verbose,)
     run_command(boot_mount_command, verbose=True, popen=True)
-    assert path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
+    assert path_is_mounted(mount_path_boot, verbose=verbose,)
 
     os.makedirs(mount_path_boot_efi, exist_ok=True)
 
-    efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2")
+    efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2", verbose=verbose,)
     efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)
-    assert not path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
+    assert not path_is_mounted(mount_path_boot_efi, verbose=verbose,)
     run_command(efi_mount_command, verbose=True, popen=True)
-    assert path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
+    assert path_is_mounted(mount_path_boot_efi, verbose=verbose,)
 
     kcompile(configure=configure_kernel,
              force=force,
              no_check_boot=True,
              verbose=verbose,
-             debug=debug)
+            )
 
     grub_config_command = "grub-mkconfig -o /boot/grub/grub.cfg"
     run_command(grub_config_command, verbose=True, popen=True)
@@ -181,12 +181,11 @@ def compile_kernel(ctx, *,
 @click.option('--encrypt',                     is_flag=True,  required=False)
 @click.option('--multilib',                    is_flag=True,  required=False)
 @click.option('--minimal',                     is_flag=True,  required=False)
-@click.option('--verbose',                     is_flag=True,  required=False)
-@click.option('--debug',                       is_flag=True,  required=False)
 @click.option('--skip-to-chroot',              is_flag=True,  required=False)
+@click_add_options(click_mesa_options)
+@click_add_options(click_arch_select)
+@click_add_options(click_global_options)
 @click.pass_context
-@add_options(click_mesa_options)
-@add_options(click_arch_select)
 def install(ctx, *,
             root_devices: Tuple[Path, ...],
             vm: str,
@@ -214,8 +213,8 @@ def install(ctx, *,
             kernel: str,
             multilib: bool,
             minimal: bool,
-            verbose: bool,
-            debug: bool,
+            verbose: int,
+            verbose_inf: bool,
             skip_to_chroot: bool,
             ):
 
@@ -291,7 +290,6 @@ def install(ctx, *,
         safety_check_devices(boot_device=boot_device,
                              root_devices=root_devices,
                              verbose=verbose,
-                             debug=debug,
                              boot_device_partition_table=boot_device_partition_table,
                              boot_filesystem=boot_filesystem,
                              root_device_partition_table=root_device_partition_table,
@@ -312,7 +310,7 @@ def install(ctx, *,
                     #           size=(1024 * 1024 * 128),
                     #           note=False,
                     #           verbose=verbose,
-                    #           debug=debug,)
+                    #           )
                     ## if this is zfs, it will make a gpt table, / and EFI partition
                     #ctx.invoke(create_root_device,
                     #           devices=root_devices,
@@ -329,7 +327,7 @@ def install(ctx, *,
                     #                   filesystem=boot_filesystem,
                     #                   force=True,
                     #                   verbose=verbose,
-                    #                   debug=debug,)  # dont want to delete the gpt that zfs made
+                    #                   )  # dont want to delete the gpt that zfs made
                     #boot_mount_command = False
                     #root_mount_command = False
 
@@ -343,7 +341,7 @@ def install(ctx, *,
                                        filesystem=boot_filesystem,
                                        force=True,
                                        verbose=verbose,
-                                       debug=debug,)  # writes gurb_bios from 48s to 1023s then writes EFI partition from 1024s to 205824s (100M efi) (nope, too big for fat16)
+                                       )  # writes gurb_bios from 48s to 1023s then writes EFI partition from 1024s to 205824s (100M efi) (nope, too big for fat16)
                     ctx.invoke(create_root_device,
                                devices=root_devices,
                                filesystem=root_filesystem,
@@ -352,7 +350,7 @@ def install(ctx, *,
                                raid=raid,
                                raid_group_size=raid_group_size,
                                pool_name=hostname,)
-                    root_partition_path = add_partition_number_to_device(device=root_devices[0], partition_number="3")
+                    root_partition_path = add_partition_number_to_device(device=root_devices[0], partition_number="3", verbose=verbose,)
                     root_mount_command = "mount " + root_partition_path.as_posix() + " " + str(mount_path)
                     boot_mount_command = False
                 else:  # unknown case
@@ -367,12 +365,12 @@ def install(ctx, *,
                 #                   filesystem=boot_filesystem,
                 #                   force=True,
                 #                   verbose=verbose,
-                #                   debug=debug,)
+                #                   )
                 #ctx.invoke(write_boot_partition,
                 #           device=boot_device,
                 #           force=True,
                 #           verbose=verbose,
-                #           debug=debug,)
+                #           )
                 #ctx.invoke(create_root_device,
                 #           devices=root_devices,
                 #           exclusive=True,
@@ -391,31 +389,31 @@ def install(ctx, *,
                 #boot_mount_command = "mount " + boot_partition_path.as_posix() + " " + mount_path_boot.as_posix()
 
             if root_mount_command:
-                run_command(root_mount_command)
+                run_command(root_mount_command, verbose=verbose,)
 
-            assert path_is_mounted(mount_path, verbose=verbose, debug=debug,)
+            assert path_is_mounted(mount_path, verbose=verbose,)
 
             os.makedirs(mount_path_boot, exist_ok=True)
 
             if boot_mount_command:
-                run_command(boot_mount_command)
-                assert path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
+                run_command(boot_mount_command, verbose=verbose,)
+                assert path_is_mounted(mount_path_boot, verbose=verbose,)
             else:
-                assert not path_is_mounted(mount_path_boot, verbose=verbose, debug=debug,)
+                assert not path_is_mounted(mount_path_boot, verbose=verbose,)
 
             if boot_device:
                 os.makedirs(mount_path_boot_efi, exist_ok=True)
 
             if boot_filesystem == 'zfs':
-                efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="9")
+                efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="9", verbose=verbose,)
                 efi_mount_command = "mount " + efi_partition_path.as_posix() + " " + mount_path_boot_efi.as_posix()
             else:
-                efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2")
+                efi_partition_path = add_partition_number_to_device(device=boot_device, partition_number="2", verbose=verbose,)
                 efi_mount_command = "mount " + efi_partition_path.as_posix() + " " + mount_path_boot_efi.as_posix()
 
             if boot_device:
-                run_command(efi_mount_command)
-                assert path_is_mounted(mount_path_boot_efi, verbose=verbose, debug=debug,)
+                run_command(efi_mount_command, verbose=verbose,)
+                assert path_is_mounted(mount_path_boot_efi, verbose=verbose,)
 
         extract_stage3(stdlib=stdlib,
                        multilib=multilib,
@@ -425,7 +423,7 @@ def install(ctx, *,
                        vm=vm,
                        vm_ram=vm_ram,
                        verbose=verbose,
-                       debug=debug,)
+                       )
 
     # skip_to_chroot lands here
     if not boot_device:
@@ -455,5 +453,5 @@ def install(ctx, *,
                ipython=False,
                skip_to_rsync=skip_to_rsync,
                verbose=verbose,
-               debug=debug,)
+               )
 

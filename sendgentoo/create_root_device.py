@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Tuple
 
 import click
+from clicktool import click_add_options, click_global_options
 from asserttool import eprint
 from asserttool import ic
 from blocktool import path_is_block_special
@@ -33,9 +34,8 @@ def create_root_device(ctx,
                        force: bool,
                        raid: str,
                        raid_group_size: int,
-                       verbose: bool,
-                       debug: bool,
-                       pool_name: str,
+                       verbose: int,
+                                              pool_name: str,
                        ):
 
     devices = tuple([Path(_device) for _device in devices])
@@ -45,7 +45,7 @@ def create_root_device(ctx,
         if not _device.name.startswith('nvme'):
             assert not _device.name[-1].isdigit()
         assert path_is_block_special(_device)
-        assert not block_special_path_is_mounted(_device, verbose=verbose, debug=debug,)
+        assert not block_special_path_is_mounted(_device, verbose=verbose, )
 
     if len(devices) == 1:
         assert raid == 'disk'
@@ -53,7 +53,7 @@ def create_root_device(ctx,
         assert raid != 'disk'
 
     if not force:
-        warn(devices, verbose=verbose, debug=debug,)
+        warn(devices, verbose=verbose, )
 
     if pool_name:
         ctx.invoke(write_sysfs_partition,

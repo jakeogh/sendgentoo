@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Tuple
 
 import click
+from clicktool import click_add_options, click_global_options
 import sh
 from asserttool import eprint
 from asserttool import ic
@@ -36,9 +37,8 @@ def write_sysfs_partition(devices: Tuple[Path, ...],
                           raid: str,
                           raid_group_size: int,
                           pool_name: str,
-                          verbose: bool,
-                          debug: bool,
-                          ):
+                          verbose: int,
+                                                    ):
 
     devices = tuple([Path(_device) for _device in devices])
     ic('creating sysfs partition on:', devices)
@@ -50,10 +50,10 @@ def write_sysfs_partition(devices: Tuple[Path, ...],
         if not device.name.startswith('nvme'):
             assert not device.name[-1].isdigit()
         assert path_is_block_special(device)
-        assert not block_special_path_is_mounted(device, verbose=verbose, debug=debug,)
+        assert not block_special_path_is_mounted(device, verbose=verbose, )
 
     if not force:
-        warn(devices, verbose=verbose, debug=debug,)
+        warn(devices, verbose=verbose, )
 
     if filesystem in ['ext4', 'fat32']:
         assert len(devices) == 1
@@ -92,7 +92,7 @@ def write_sysfs_partition(devices: Tuple[Path, ...],
                                              raid_group_size=raid_group_size,
                                              pool_name=pool_name,
                                              verbose=verbose,
-                                             debug=debug,)
+                                             )
     else:
         eprint("unknown filesystem:", filesystem)
         sys.exit(1)

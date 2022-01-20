@@ -1,5 +1,24 @@
 #!/usr/bin/env python3
 
+# pylint: disable=C0111  # docstrings are always outdated and wrong
+# pylint: disable=C0114  # Missing module docstring (missing-module-docstring)
+# pylint: disable=W0511  # todo is encouraged
+# pylint: disable=C0301  # line too long
+# pylint: disable=R0902  # too many instance attributes
+# pylint: disable=C0302  # too many lines in module
+# pylint: disable=C0103  # single letter var names, func name too descriptive
+# pylint: disable=R0911  # too many return statements
+# pylint: disable=R0912  # too many branches
+# pylint: disable=R0915  # too many statements
+# pylint: disable=R0913  # too many arguments
+# pylint: disable=R1702  # too many nested blocks
+# pylint: disable=R0914  # too many local variables
+# pylint: disable=R0903  # too few public methods
+# pylint: disable=E1101  # no member for base
+# pylint: disable=W0201  # attribute defined outside __init__
+# pylint: disable=R0916  # Too many boolean expressions in if statement
+# pylint: disable=C0305  # Trailing newlines editor should fix automatically, pointless warning
+
 
 import sys
 import time
@@ -7,15 +26,17 @@ from pathlib import Path
 from typing import Tuple
 
 import click
-from clicktool import click_add_options, click_global_options
 import sh
 from asserttool import eprint
 from asserttool import ic
-from blocktool import add_partition_number_to_device
-from blocktool import path_is_block_special
-from blocktool import warn
+from asserttool import tv
+from clicktool import click_add_options
+from clicktool import click_global_options
+from devicetool import add_partition_number_to_device
+from devicetool import path_is_block_special
 from mounttool import block_special_path_is_mounted
 from run_command import run_command
+from warntool import warn
 from zfstool import RAID_LIST
 from zfstool import write_zfs_root_filesystem_on_devices
 
@@ -28,9 +49,10 @@ from zfstool import write_zfs_root_filesystem_on_devices
 @click.option('--raid', is_flag=False, required=True, type=click.Choice(RAID_LIST))
 @click.option('--raid-group-size', is_flag=False, required=True, type=int)
 @click.option('--pool-name', is_flag=False, type=str)
-@click.option('--verbose',)
-@click.option('--debug',)
-def write_sysfs_partition(devices: Tuple[Path, ...],
+@click_add_options(click_global_options)
+@click.pass_context
+def write_sysfs_partition(ctx,
+                          devices: Tuple[Path, ...],
                           filesystem: str,
                           force: bool,
                           exclusive: bool,
@@ -38,7 +60,13 @@ def write_sysfs_partition(devices: Tuple[Path, ...],
                           raid_group_size: int,
                           pool_name: str,
                           verbose: int,
-                                                    ):
+                          verbose_inf: bool,
+                          ):
+
+    tty, verbose = tv(ctx=ctx,
+                      verbose=verbose,
+                      verbose_inf=verbose_inf,
+                      )
 
     devices = tuple([Path(_device) for _device in devices])
     ic('creating sysfs partition on:', devices)
@@ -68,10 +96,12 @@ def write_sysfs_partition(devices: Tuple[Path, ...],
             start = "100MiB"
             end = "100%"
 
-        run_command("parted -a optimal " + devices[0].as_posix() + " --script -- mkpart primary " + filesystem + ' ' + start + ' ' + end)
-        run_command("parted  " + devices[0].as_posix() + " --script -- name " + partition_number + " rootfs")
+        run_command("parted -a optimal " + devices[0].as_posix() + " --script -- mkpart primary " + filesystem + ' ' + start + ' ' + end, verbose=verbose)
+        run_command("parted  " + devices[0].as_posix() + " --script -- name " + partition_number + " rootfs", verbose=verbose,)
         time.sleep(1)
-        sysfs_partition_path = add_partition_number_to_device(device=devices[0], partition_number=partition_number)
+        sysfs_partition_path = add_partition_number_to_device(device=devices[0],
+                                                              partition_number=partition_number,
+                                                              verbose=verbose,)
         if filesystem == 'ext4':
             ext4_command = sh.Command('mkfs.ext4')
             ext4_command(sysfs_partition_path.as_posix(), _out=sys.stdout, _err=sys.stderr)
@@ -85,14 +115,16 @@ def write_sysfs_partition(devices: Tuple[Path, ...],
     elif filesystem == 'zfs':
         assert exclusive
         assert False
-        write_zfs_root_filesystem_on_devices(devices=devices,
-                                             mount_point=None,
-                                             force=True,
-                                             raid=raid,
-                                             raid_group_size=raid_group_size,
-                                             pool_name=pool_name,
-                                             verbose=verbose,
-                                             )
+        ctx.invoke(write_zfs_root_filesystem_on_devices,
+                   ctx=ctx,
+                   devices=devices,
+                   mount_point=None,
+                   force=True,
+                   raid=raid,
+                   raid_group_size=raid_group_size,
+                   pool_name=pool_name,
+                   verbose=verbose,
+                   )
     else:
         eprint("unknown filesystem:", filesystem)
         sys.exit(1)

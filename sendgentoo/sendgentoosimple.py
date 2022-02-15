@@ -3,9 +3,11 @@
 import os
 import pathlib
 import sys
+from typing import Union
 
 import click
 import psutil
+
 from clicktool import click_add_options
 from clicktool import click_global_options
 

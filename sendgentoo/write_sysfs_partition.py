@@ -24,16 +24,17 @@ import sys
 import time
 from pathlib import Path
 from typing import Tuple
+from typing import Union
 
 import click
 import sh
-from eprint import eprint
 from asserttool import ic
-from clicktool import tv
 from clicktool import click_add_options
 from clicktool import click_global_options
+from clicktool import tv
 from devicetool import add_partition_number_to_device
 from devicetool import path_is_block_special
+from eprint import eprint
 from mounttool import block_special_path_is_mounted
 from run_command import run_command
 from warntool import warn

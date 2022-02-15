@@ -25,11 +25,11 @@ import sys
 from pathlib import Path
 from typing import Iterator
 from typing import Tuple
+from typing import Union
 
 import click
 import humanfriendly
 import sh
-from asserttool import eprint
 from asserttool import ic
 from asserttool import root_user
 from boottool import create_boot_device
@@ -48,6 +48,7 @@ from devicetool import destroy_block_device_head_and_tail
 from devicetool import device_is_not_a_partition
 from devicetool import path_is_block_special
 from devicetool import safety_check_devices
+from eprint import eprint
 from mounttool import block_special_path_is_mounted
 from mounttool import path_is_mounted
 from psutil import virtual_memory
@@ -79,7 +80,7 @@ def validate_ram_size(ctx, param, vm_ram):
     return vm_ram_bytes
 
 
-@click.group()
+@click.group(no_args_is_help=True)
 @click.pass_context
 def sendgentoo(ctx):
     pass
@@ -107,7 +108,7 @@ def compile_kernel(ctx,
                    boot_device: Path,
                    no_configure_kernel: bool,
                    force: bool,
-                   verbose: int,
+                   verbose: Union[bool, int, float],
                    verbose_inf: bool,
                    ):
 
@@ -213,7 +214,7 @@ def install(ctx, *,
             kernel: str,
             multilib: bool,
             minimal: bool,
-            verbose: int,
+            verbose: Union[bool, int, float],
             verbose_inf: bool,
             skip_to_chroot: bool,
             ):

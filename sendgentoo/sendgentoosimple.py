@@ -26,7 +26,7 @@ def sendgentoosimple(ctx,
                      ip: str,
                      stdlib: str,
                      skip_to_chroot: bool,
-                     verbose: int,
+                     verbose: Union[bool, int, float],
                      verbose_inf: bool,
                      ):
 

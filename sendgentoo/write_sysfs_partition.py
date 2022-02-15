@@ -27,9 +27,9 @@ from typing import Tuple
 
 import click
 import sh
-from asserttool import eprint
+from eprint import eprint
 from asserttool import ic
-from asserttool import tv
+from clicktool import tv
 from clicktool import click_add_options
 from clicktool import click_global_options
 from devicetool import add_partition_number_to_device
@@ -59,7 +59,7 @@ def write_sysfs_partition(ctx,
                           raid: str,
                           raid_group_size: int,
                           pool_name: str,
-                          verbose: int,
+                          verbose: Union[bool, int, float],
                           verbose_inf: bool,
                           ):
 

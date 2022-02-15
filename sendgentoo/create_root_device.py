@@ -3,13 +3,15 @@
 import sys
 from pathlib import Path
 from typing import Tuple
+from typing import Union
 
 import click
-from asserttool import eprint
 from asserttool import ic
 from clicktool import click_add_options
 from clicktool import click_global_options
+from clicktool import tv
 from devicetool import path_is_block_special
+from eprint import eprint
 from mounttool import block_special_path_is_mounted
 from warntool import warn
 from zfstool import RAID_LIST
@@ -34,10 +36,16 @@ def create_root_device(ctx,
                        force: bool,
                        raid: str,
                        raid_group_size: int,
-                       verbose: int,
+                       verbose: Union[bool, int, float],
                        verbose_inf: bool,
                        pool_name: str,
                        ):
+
+    tty, verbose = tv(ctx=ctx,
+                      verbose=verbose,
+                      verbose_inf=verbose_inf,
+                      )
+
 
     devices = tuple([Path(_device) for _device in devices])
 

@@ -15,7 +15,10 @@ source /home/cfg/_myapps/sendgentoo/sendgentoo/utils.sh
 #echo "${http_proxy}"
 
 test -d /delme || { mkdir /delme || exit 1 ; }
-chown -R portage:portage /var/db/repos
+
+#seems to break things?
+#chown -R portage:portage /var/db/repos
+
 #chown portage:portage /var/db/repos/gentoo
 test -e /etc/portage/proxy.conf || touch /etc/portage/proxy.conf
 test -e /etc/portage/cpuflags.conf || touch /etc/portage/cpuflags.conf
@@ -32,17 +35,17 @@ source /etc/profile || exit 1
 #export PS1="(chroot) $PS1"
 
 emerge --sync #|| exit 1  # if post_croot.sh was interrupted, some overlays might not exit
-install_pkg tmux || exit 1
-install_pkg app-admin/sudo || exit 1
+portagetool install tmux || exit 1
+portagetool install app-admin/sudo || exit 1
 
 set +u # disable nounset
 test -z $TMUX && { echo "start tmux!" ; exit 1 ; }
 set -o nounset
 
-install_pkg portage -1 || exit 1
-install_pkg unison
+portagetool install portage || exit 1
+portagetool install unison || exit 1
 
-install_pkg --oneshot sys-devel/libtool
+portagetool install sys-devel/libtool
 #emerge world --newuse  # this could upgrade gcc and take a long time
 #gcc-config 2
 
@@ -50,50 +53,41 @@ install_pkg --oneshot sys-devel/libtool
 #perl-cleaner --all
 
 #mkdir /etc/dnsmasq.d
-#install_pkg dnsmasq || exit 1
-#install_pkg dnsproxy
+#portagetool install dnsmasq || exit 1
+#portagetool install dnsproxy
 
-install_pkg net-dns/dnscrypt-proxy
+portagetool install net-dns/dnscrypt-proxy
 rc-update add dnscrypt-proxy default
 
-mkdir /etc/portage/package.use
-grep -E "^dev-lang/python sqlite" /etc/portage/package.use/python || { echo "dev-lang/python sqlite" >> /etc/portage/package.use/python ; }  # this is done in post_chroot too...
-grep -E "^media-libs/gd fontconfig jpeg png truetype" /etc/portage/package.use/gd || { echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/gd ; }  # ditto
+#mkdir /etc/portage/package.use
+#grep -E "^dev-lang/python sqlite" /etc/portage/package.use/python || { echo "dev-lang/python sqlite" >> /etc/portage/package.use/python ; }
+#grep -E "^media-libs/gd fontconfig jpeg png truetype" /etc/portage/package.use/gd || { echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/gd ; }  # ditto
 
-install_pkg_force symlinktree || exit 1
+portagetool install --force-use symlinktree || exit 1
 export LANG="en_US.UTF8"  # to make click happy
-symlinktree /home/cfg/sysskel --verbose || exit 1
-symlinktree /home/cfg/sysskel --verbose --re-apply-skel /root || exit 1
+symlinktree /home/cfg/sysskel --verbose-inf # || exit 1
+symlinktree /home/cfg/sysskel --verbose --re-apply-skel /root #|| exit 1
 
-# done in post_chroot.py
-#touch /etc/portage/proxy.conf  # or emerge is really unhappy
 
 /etc/init.d/dnscrypt-proxy start
 /home/cfg/linux/gentoo/layman/update_all_overlays
-install_pkg debugedit
+portagetool install debugedit
 emerge @world --newuse
-
-#touch /etc/portage/proxy.conf
 
 test -h /root/cfg     || { ln -s /home/cfg /root/cfg             || exit 1 ; }
 test -h /root/_myapps || { ln -s /home/cfg/_myapps /root/_myapps || exit 1 ; }
 test -h /root/_repos  || { ln -s /home/cfg/_repos /root/_repos   || exit 1 ; }
 
-#rc-update add dnsmasq default
-#rc-update add dnsproxy default
-#/etc/init.d/dnsmasq start
-#/etc/init.d/dnsproxy start
-
-install_pkg cpuid2cpuflags
+portagetool install cpuid2cpuflags
 #echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpuflags
 echo CPU_FLAGS_X86=$(echo \"$(echo "$(cpuid2cpuflags)" | cut -d ':' -f 2 | sed 's/^[ \t]*//')\") > /etc/portage/cpuflags.conf
 
 
-install_pkg dodo
-install_pkg echocommand
-#install_pkg dnsgate
-install_pkg_force app-misc/edit
-install_pkg net-fs/nfs-utils
+portagetool install dodo
+portagetool install echocommand
+#portagetool install dnsgate
+portagetool install_force app-misc/edit
+portagetool install net-fs/nfs-utils
 
 echo "MACHINE_SIG=\"`/home/cfg/hardware/make_machine_signature_string`\"" > /etc/env.d/99machine_sig
 
@@ -125,6 +119,15 @@ immute /home/user/.python_history
 immute /home/user/Desktop
 immute /home/user/opt
 
+immute /root/.lesshst
+immute /root/.mupdf.history
+immute /root/.pdfbox.cache
+immute /root/.rediscli_history
+immute /root/unison.log
+immute /root/tldextract.cache
+immute /root/.python_history
+immute /root/Desktop
+immute /root/opt
 
 test -h /home/user/cfg || { ln -s /home/cfg /home/user/cfg || exit 1 ; }
 test -h /home/user/_myapps || { ln -s /home/cfg/_myapps /home/user/_myapps || exit 1 ; }
@@ -145,9 +148,9 @@ then
 elif [[ "${stdlib}" == "glibc" ]];
 then
     echo -n "leaving CHOST as is: "
-    grep x86_64-pc-linux-gnu /etc/portage/make.conf || { echo "x86_64-pc-linux-gnu not found in /etc/portage/make.conf, but glibc = ${glibc}, exiting." ; exit 1 ; }
+    grep x86_64-pc-linux-gnu /etc/portage/make.conf || { echo "x86_64-pc-linux-gnu not found in /etc/portage/make.conf, stdlib = ${stdlib}, exiting." ; exit 1 ; }
 else
-    echo "unknown glibc: ${glibc}, exiting."
+    echo "unknown stdlib: ${stdlib}, exiting."
     exit 1
 fi
 
@@ -157,7 +160,7 @@ then
     echo "source /var/lib/layman/make.conf" >> /etc/portage/make.conf # musl specific # need to switch to repos.d https://wiki.gentoo.org/wiki/Overlay
 fi
 
-install_pkg dev-vcs/git # need this for any -9999 packages (zfs)
+portagetool install dev-vcs/git # need this for any -9999 packages (zfs)
 #emerge @preserved-rebuild # good spot to do this as a bunch of flags just changed
 #emerge @world --quiet-build=y --newuse --changed-use --usepkg=n
 
@@ -192,7 +195,7 @@ mkdir /mnt/smb
 
 if [[ "${stdlib}" == "musl" ]];
 then
-    install_pkg argp-standalone #for musl
+    portagetool install argp-standalone #for musl
     emerge -puvNDq world
     emerge -puvNDq world --autounmask=n
     emerge -uvNDq world || exit 1 #http://distfiles.gentoo.org/experimental/amd64/musl/HOWTO
@@ -200,55 +203,55 @@ fi
 
 rc-update add netmount default
 
-install_pkg eix
+portagetool install eix
 chown portage:portage /var/cache/eix
 eix-update
 
-install_pkg postgresql
+portagetool install postgresql
 pg_version=`/home/cfg/postgresql/version`
 rc-update add "postgresql-${pg_version}" default
 emerge --config dev-db/postgresql:"${pg_version}"  # ok to fail if already conf
 sudo su postgres -c "psql template1 -c 'create extension hstore;'"
 sudo su postgres -c "psql template1 -c 'create extension ltree;'"
-install_pkg sshd-configurator
+portagetool install sshd-configurator
 #emerge --depclean  # unmerges partial emerges, do this after install is known good
-install_pkg @laptopbase  # https://dev.gentoo.org/~zmedico/portage/doc/ch02.html
-install_pkg @wwwsurf
-install_pkg @webcam
+portagetool install @laptopbase  # https://dev.gentoo.org/~zmedico/portage/doc/ch02.html
+portagetool install @wwwsurf
+portagetool install @webcam
 
-install_pkg @print
+portagetool install @print
 gpasswd -a root lp
 gpasswd -a user lp
 gpasswd -a root lpadmin
 gpasswd -a user lpadmin
 
 
-#lspci | grep -i nvidia | grep -i vga && install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
-install_pkg sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
+#lspci | grep -i nvidia | grep -i vga && portagetool install sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
+portagetool install sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
 USE="-opengl -utils" emerge -v1 mesa x11-libs/libva  # temp fix the mesa circular dep
 
-install_pkg alsa-utils #alsamixer
+portagetool install alsa-utils #alsamixer
 rc-update add alsasound boot
-install_pkg media-plugins/alsaequal
-install_pkg media-sound/alsa-tools
+portagetool install media-plugins/alsaequal
+portagetool install media-sound/alsa-tools
 
 if [[ -d '/usr/src/linux/.git' ]];
 then
-    kernel_version=`git -C /usr/src/linux describe --always --tag`
+    kernel_version=$(git -C /usr/src/linux describe --always --tag)
 else
-    kernel_version=`readlink -f /usr/src/linux | cut -d '/' -f4 | cut -d '-' -f 2-`
+    kernel_version=$(readlink -f /usr/src/linux | cut -d '/' -f4 | cut -d '-' -f 2-)
 fi
 
-#install_pkg gpgmda
+#portagetool install gpgmda
 chown root:mail /var/spool/mail/ #invalid group
 chmod 03775 /var/spool/mail/
 
 
-install_pkg @laptopxorg -pv
-install_pkg @laptopxorg
+#portagetool install @laptopxorg -pv
+portagetool install @laptopxorg
 
-install_pkg @gpib -pv
-install_pkg @gpib
+#portagetool install @gpib -pv
+portagetool install @gpib
 gpasswd -a user gpib
 
 #eselect repository enable science
@@ -257,7 +260,7 @@ gpasswd -a user gpib
 #emerge @gpib
 #gpib_config
 
-install_pkg app-editors/neovim && emerge --unmerge vim
+portagetool install app-editors/neovim && emerge --unmerge vim
 
 echo "post_reboot.sh complete"
 

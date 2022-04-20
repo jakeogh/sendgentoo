@@ -86,7 +86,7 @@ echo CPU_FLAGS_X86=$(echo \"$(echo "$(cpuid2cpuflags)" | cut -d ':' -f 2 | sed '
 portagetool install dodo
 portagetool install echocommand
 #portagetool install dnsgate
-portagetool install_force app-misc/edit
+portagetool install --force-use app-misc/edit
 portagetool install net-fs/nfs-utils
 
 echo "MACHINE_SIG=\"`/home/cfg/hardware/make_machine_signature_string`\"" > /etc/env.d/99machine_sig

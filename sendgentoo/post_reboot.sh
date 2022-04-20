@@ -147,8 +147,8 @@ then
     /home/cfg/_myapps/replace-text/replace-text --match 'CHOST="x86_64-pc-linux-gnu"' --replacement 'CHOST="x86_64-gentoo-linux-uclibc"' /etc/portage/make.conf
 elif [[ "${stdlib}" == "glibc" ]];
 then
-    echo -n "leaving CHOST as is: "
-    grep x86_64-pc-linux-gnu /etc/portage/make.conf || { echo "x86_64-pc-linux-gnu not found in /etc/portage/make.conf, stdlib = ${stdlib}, exiting." ; exit 1 ; }
+    echo -n "leaving CHOST as default glibc"
+    #grep x86_64-pc-linux-gnu /etc/portage/make.conf || { echo "x86_64-pc-linux-gnu not found in /etc/portage/make.conf, stdlib = ${stdlib}, exiting." ; exit 1 ; }
 else
     echo "unknown stdlib: ${stdlib}, exiting."
     exit 1

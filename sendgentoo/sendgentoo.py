@@ -635,4 +635,6 @@ def install(
         ipython=False,
         skip_to_rsync=skip_to_rsync,
         verbose=verbose,
+        verbose_inf=verbose_inf,
+        dict_input=dict_input,
     )

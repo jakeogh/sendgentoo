@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import sys
+# import sys
 from pathlib import Path
 from typing import Tuple
 from typing import Union
@@ -20,63 +20,89 @@ from .write_sysfs_partition import write_sysfs_partition
 
 
 @click.command()
-@click.argument('devices',         required=True, nargs=-1)
-@click.option('--partition-table', is_flag=False, required=True, type=click.Choice(['gpt']))
-@click.option('--filesystem',      is_flag=False, required=True, type=click.Choice(['ext4', 'zfs', 'fat32']))
-@click.option('--force',           is_flag=True,  required=False)
-@click.option('--raid',            is_flag=False, required=True, type=click.Choice(RAID_LIST))
-@click.option('--raid-group-size', is_flag=False, required=True, type=int)
-@click.option('--pool-name',       is_flag=False, required=False, type=str)
+@click.argument("devices", required=True, nargs=-1)
+@click.option(
+    "--partition-table", is_flag=False, required=True, type=click.Choice(["gpt"])
+)
+@click.option(
+    "--filesystem",
+    is_flag=False,
+    required=True,
+    type=click.Choice(["ext4", "zfs", "fat32"]),
+)
+@click.option("--force", is_flag=True, required=False)
+@click.option("--raid", is_flag=False, required=True, type=click.Choice(RAID_LIST))
+@click.option("--raid-group-size", is_flag=False, required=True, type=int)
+@click.option("--pool-name", is_flag=False, required=False, type=str)
 @click_add_options(click_global_options)
 @click.pass_context
-def create_root_device(ctx,
-                       devices: Tuple[Path, ...],
-                       partition_table: str,
-                       filesystem: str,
-                       force: bool,
-                       raid: str,
-                       raid_group_size: int,
-                       verbose: Union[bool, int, float],
-                       verbose_inf: bool,
-                       pool_name: str,
-                       ):
+def create_root_device(
+    ctx,
+    devices: Tuple[Path, ...],
+    partition_table: str,
+    filesystem: str,
+    force: bool,
+    raid: str,
+    raid_group_size: int,
+    verbose: Union[bool, int, float],
+    verbose_inf: bool,
+    dict_input: bool,
+    pool_name: str,
+):
 
-    tty, verbose = tv(ctx=ctx,
-                      verbose=verbose,
-                      verbose_inf=verbose_inf,
-                      )
-
+    tty, verbose = tv(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+    )
 
     devices = tuple([Path(_device) for _device in devices])
 
-    eprint("installing gentoo on root devices:", ' '.join([_device.as_posix() for _device in devices]), '(' + partition_table + ')', '(' + filesystem + ')', '(', pool_name, ')')
+    eprint(
+        "installing gentoo on root devices:",
+        " ".join([_device.as_posix() for _device in devices]),
+        "(" + partition_table + ")",
+        "(" + filesystem + ")",
+        "(",
+        pool_name,
+        ")",
+    )
     for _device in devices:
-        if not _device.name.startswith('nvme'):
+        if not _device.name.startswith("nvme"):
             assert not _device.name[-1].isdigit()
         assert path_is_block_special(_device)
-        assert not block_special_path_is_mounted(_device, verbose=verbose,)
+        assert not block_special_path_is_mounted(
+            _device,
+            verbose=verbose,
+        )
 
     if len(devices) == 1:
-        assert raid == 'disk'
+        assert raid == "disk"
     else:
-        assert raid != 'disk'
+        assert raid != "disk"
 
     if not force:
-        warn(devices, verbose=verbose,)
+        warn(
+            devices,
+            verbose=verbose,
+        )
 
     if pool_name:
-        ctx.invoke(write_sysfs_partition,
-                   devices=devices,
-                   force=True,
-                   filesystem=filesystem,
-                   raid=raid,
-                   pool_name=pool_name,
-                   raid_group_size=raid_group_size,)
+        ctx.invoke(
+            write_sysfs_partition,
+            devices=devices,
+            force=True,
+            filesystem=filesystem,
+            raid=raid,
+            pool_name=pool_name,
+            raid_group_size=raid_group_size,
+        )
     else:
-        ctx.invoke(write_sysfs_partition,
-                   devices=devices,
-                   force=True,
-                   filesystem=filesystem,
-                   raid=raid,
-                   raid_group_size=raid_group_size,)
-
+        ctx.invoke(
+            write_sysfs_partition,
+            devices=devices,
+            force=True,
+            filesystem=filesystem,
+            raid=raid,
+            raid_group_size=raid_group_size,
+        )

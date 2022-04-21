@@ -120,6 +120,7 @@ def compile_kernel(
     force: bool,
     verbose: Union[bool, int, float],
     verbose_inf: bool,
+    dict_input: bool,
 ):
 
     if not root_user():
@@ -334,6 +335,7 @@ def install(
     minimal: bool,
     verbose: Union[bool, int, float],
     verbose_inf: bool,
+    dict_input: bool,
     skip_to_chroot: bool,
 ):
 

@@ -56,6 +56,15 @@ Options:
 
 ```
 
+OTHER PARTS:
+
+https://github.com/jakeogh/sendgentoo-stage
+
+https://github.com/jakeogh/sendgentoo-chroot
+
+https://github.com/jakeogh/sendgentoo-post-chroot
+
+
 TODO:
 
 https://github.com/fearedbliss/bliss-initramfs

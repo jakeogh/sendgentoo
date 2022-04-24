@@ -23,13 +23,13 @@
 import os
 import sys
 from pathlib import Path
-from typing import Iterator
+# from typing import Iterator
 from typing import Tuple
 from typing import Union
 
 import click
 import humanfriendly
-import sh
+# import sh
 from asserttool import ic
 from asserttool import root_user
 from boottool import create_boot_device
@@ -77,9 +77,7 @@ def validate_ram_size(ctx, param, vm_ram):
         sysram_human = humanfriendly.format_size(sysram_bytes)
         vm_ram_human = humanfriendly.format_size(vm_ram_bytes)
         raise click.BadParameter(
-            "You entered {0} for --vm-ram but the host system only has {1}. Exiting.".format(
-                vm_ram_human, sysram_human
-            )
+            f"You entered {vm_ram_human} for --vm-ram but the host system only has {sysram_human}. Exiting."
         )
     return vm_ram_bytes
 
@@ -162,7 +160,7 @@ def compile_kernel(
     os.makedirs(mount_path_boot, exist_ok=True)
     boot_partition_path = add_partition_number_to_device(
         device=boot_device,
-        partition_number="3",
+        partition_number=3,
         verbose=verbose,
     )
     boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
@@ -180,7 +178,7 @@ def compile_kernel(
 
     efi_partition_path = add_partition_number_to_device(
         device=boot_device,
-        partition_number="2",
+        partition_number=2,
         verbose=verbose,
     )
     efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)

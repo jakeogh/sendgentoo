@@ -158,6 +158,7 @@ def compile_kernel(
     )
 
     os.makedirs(mount_path_boot, exist_ok=True)
+    os.makedirs(mount_path_boot / Path("grub"), exist_ok=True)
     boot_partition_path = add_partition_number_to_device(
         device=boot_device,
         partition_number=3,

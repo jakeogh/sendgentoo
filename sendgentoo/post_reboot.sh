@@ -20,6 +20,7 @@ test -d /delme || { mkdir /delme || exit 1 ; }
 #chown -R portage:portage /var/db/repos
 
 #chown portage:portage /var/db/repos/gentoo
+rmdir /var/db/repos/gentoo  # it's root:root, let portage recreate it
 test -e /etc/portage/proxy.conf || touch /etc/portage/proxy.conf
 test -e /etc/portage/cpuflags.conf || touch /etc/portage/cpuflags.conf
 grep -E "^source /etc/portage/proxy.conf" /etc/portage/make.conf || echo "source /etc/portage/proxy.conf" >> /etc/portage/make.conf
@@ -33,6 +34,9 @@ shift
 env-update || exit 1
 source /etc/profile || exit 1
 #export PS1="(chroot) $PS1"
+
+source /home/cfg/net/proxy/setup_proxy_client
+source /etc/portage/proxy.conf
 
 emerge --sync #|| exit 1  # if post_croot.sh was interrupted, some overlays might not exit
 portagetool install tmux || exit 1

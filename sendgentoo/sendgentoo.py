@@ -298,7 +298,7 @@ def compile_kernel(
 @click.option("--encrypt", is_flag=True, required=False)
 @click.option("--multilib", is_flag=True, required=False)
 @click.option("--minimal", is_flag=True, required=False)
-@click.option("--skip-to-chroot", is_flag=True, required=False)
+@click.option("--skip-to-rsync", is_flag=True, required=False)
 @click_add_options(click_mesa_options)
 @click_add_options(click_arch_select)
 @click_add_options(click_global_options)
@@ -335,7 +335,7 @@ def install(
     verbose: Union[bool, int, float],
     verbose_inf: bool,
     dict_input: bool,
-    skip_to_chroot: bool,
+    skip_to_rsync: bool,
 ):
 
     assert isinstance(root_devices, tuple)
@@ -349,7 +349,7 @@ def install(
     mount_path_boot = mount_path / Path("boot")
     mount_path_boot_efi = mount_path_boot / Path("efi")
 
-    if not skip_to_chroot:
+    if not skip_to_rsync:
         distfiles_dir = Path("/var/db/repos/gentoo/distfiles")
         os.makedirs(distfiles_dir, exist_ok=True)
 
@@ -605,14 +605,10 @@ def install(
             verbose=verbose,
         )
 
-    # skip_to_chroot lands here
+    # skip_to_rsync lands here
     if not boot_device:
         assert False
         # boot_device = "False"  # fixme
-
-    skip_to_rsync = False
-    if skip_to_chroot:
-        skip_to_rsync = True
 
     ctx.invoke(
         chroot_gentoo,

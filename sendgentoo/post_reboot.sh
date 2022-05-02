@@ -40,6 +40,8 @@ source /home/cfg/net/proxy/setup_proxy_client
 source /etc/portage/proxy.conf
 
 emerge --sync #|| exit 1  # if post_croot.sh was interrupted, some overlays might not exit
+#syscmd("eselect news read all")
+eselect news read all
 portagetool install app-misc/tmux || exit 1
 portagetool install app-admin/sudo || exit 1
 

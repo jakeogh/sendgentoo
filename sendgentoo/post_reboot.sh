@@ -21,7 +21,7 @@ test -d /delme || { mkdir /delme || exit 1 ; }
 
 #chown portage:portage /var/db/repos/gentoo
 rmdir /var/db/repos/gentoo  # it's root:root, let portage recreate it
-test -e /etc/portage/emerge_default_opts.conf || touch /etc/portage/emerge_default_opts.conf
+test -e /etc/portage/emerge_default_opts.conf || source /home/cfg/sysskel/etc/local.d/emerge_default_opts.start
 test -e /etc/portage/proxy.conf || touch /etc/portage/proxy.conf
 test -e /etc/portage/cpuflags.conf || touch /etc/portage/cpuflags.conf
 grep -E "^source /etc/portage/proxy.conf" /etc/portage/make.conf || echo "source /etc/portage/proxy.conf" >> /etc/portage/make.conf

@@ -215,7 +215,7 @@ chown portage:portage /var/cache/eix
 eix-update
 
 portagetool install dev-db/postgresql
-pg_version=$(/home/cfg/postgresql/version)
+pg_version=$(portagetool get-latest-postgresql-version)
 rc-update add "postgresql-${pg_version}" default
 emerge --config dev-db/postgresql:"${pg_version}"  # ok to fail if already conf
 sudo su postgres -c "psql template1 -c 'create extension hstore;'"

@@ -72,12 +72,14 @@ rc-update add dnscrypt-proxy default
 
 portagetool install --force-use dev-python/symlinktree || exit 1
 export LANG="en_US.UTF8"  # to make click happy
-symlinktree /home/cfg/sysskel --verbose-inf # || exit 1
-symlinktree /home/cfg/sysskel --verbose --re-apply-skel /root #|| exit 1
+symlinktree /home/cfg/sysskel --verbose-inf || exit 1
+symlinktree /home/cfg/sysskel --verbose-inf --re-apply-skel /root || exit 1
 
 
 /etc/init.d/dnscrypt-proxy start
-/home/cfg/linux/gentoo/layman/update_all_overlays
+#/home/cfg/linux/gentoo/layman/update_all_overlays
+sudo emaint sync -A || exit 1
+
 portagetool install dev-util/debugedit
 emerge @world --newuse
 

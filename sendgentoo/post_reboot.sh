@@ -254,7 +254,9 @@ fi
 chown root:mail /var/spool/mail/ #invalid group
 chmod 03775 /var/spool/mail/
 
+# https://bugs.gentoo.org/602688
 USE="$USE -vaapi" portagetool install @laptopxorg || exit 1
+
 portagetool install @gpib
 gpasswd -a user gpib
 

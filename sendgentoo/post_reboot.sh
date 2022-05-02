@@ -9,7 +9,7 @@ test "$#" -eq "${argcount}" || { echo "$0 ${usage}" && exit 1 ; }
 #musl: http://distfiles.gentoo.org/experimental/amd64/musl/HOWTO
 #spark: https://github.com/holman/spark.git
 
-source /home/cfg/_myapps/sendgentoo/sendgentoo/utils.sh
+#source /home/cfg/_myapps/sendgentoo/sendgentoo/utils.sh
 #cat /etc/portage/proxy.conf | tr '\n' '\0' | xargs -0 -I '{}' export '{}'
 #eval `cat /etc/portage/proxy.conf`
 #echo "${http_proxy}"
@@ -217,7 +217,7 @@ chown portage:portage /var/cache/eix
 eix-update
 
 portagetool install dev-db/postgresql
-pg_version=$(portagetool get-latest-postgresql-version)
+pg_version=$(portagetool get-latest-postgresql-version | unmp)
 rc-update add "postgresql-${pg_version}" default
 emerge --config dev-db/postgresql:"${pg_version}"  # ok to fail if already conf
 sudo su postgres -c "psql template1 -c 'create extension hstore;'"

@@ -21,6 +21,7 @@ test -d /delme || { mkdir /delme || exit 1 ; }
 
 #chown portage:portage /var/db/repos/gentoo
 rmdir /var/db/repos/gentoo  # it's root:root, let portage recreate it
+test -e /etc/portage/emerge_default_opts.conf || touch /etc/portage/emerge_default_opts.conf
 test -e /etc/portage/proxy.conf || touch /etc/portage/proxy.conf
 test -e /etc/portage/cpuflags.conf || touch /etc/portage/cpuflags.conf
 grep -E "^source /etc/portage/proxy.conf" /etc/portage/make.conf || echo "source /etc/portage/proxy.conf" >> /etc/portage/make.conf
@@ -39,15 +40,15 @@ source /home/cfg/net/proxy/setup_proxy_client
 source /etc/portage/proxy.conf
 
 emerge --sync #|| exit 1  # if post_croot.sh was interrupted, some overlays might not exit
-portagetool install tmux || exit 1
+portagetool install app-misc/tmux || exit 1
 portagetool install app-admin/sudo || exit 1
 
 set +u # disable nounset
 test -z $TMUX && { echo "start tmux!" ; exit 1 ; }
 set -o nounset
 
-portagetool install portage || exit 1
-portagetool install unison || exit 1
+portagetool install sys-apps/portage || exit 1
+portagetool install app-misc/unison || exit 1
 
 portagetool install sys-devel/libtool
 #emerge world --newuse  # this could upgrade gcc and take a long time
@@ -57,8 +58,8 @@ portagetool install sys-devel/libtool
 #perl-cleaner --all
 
 #mkdir /etc/dnsmasq.d
-#portagetool install dnsmasq || exit 1
-#portagetool install dnsproxy
+#portagetool install net-dns/dnsmasq || exit 1
+#portagetool install net-proxy/dnsproxy
 
 portagetool install net-dns/dnscrypt-proxy
 rc-update add dnscrypt-proxy default
@@ -67,7 +68,7 @@ rc-update add dnscrypt-proxy default
 #grep -E "^dev-lang/python sqlite" /etc/portage/package.use/python || { echo "dev-lang/python sqlite" >> /etc/portage/package.use/python ; }
 #grep -E "^media-libs/gd fontconfig jpeg png truetype" /etc/portage/package.use/gd || { echo "media-libs/gd fontconfig jpeg png truetype" >> /etc/portage/package.use/gd ; }  # ditto
 
-portagetool install --force-use symlinktree || exit 1
+portagetool install --force-use dev-python/symlinktree || exit 1
 export LANG="en_US.UTF8"  # to make click happy
 symlinktree /home/cfg/sysskel --verbose-inf # || exit 1
 symlinktree /home/cfg/sysskel --verbose --re-apply-skel /root #|| exit 1
@@ -75,21 +76,21 @@ symlinktree /home/cfg/sysskel --verbose --re-apply-skel /root #|| exit 1
 
 /etc/init.d/dnscrypt-proxy start
 /home/cfg/linux/gentoo/layman/update_all_overlays
-portagetool install debugedit
+portagetool install dev-util/debugedit
 emerge @world --newuse
 
 test -h /root/cfg     || { ln -s /home/cfg /root/cfg             || exit 1 ; }
 test -h /root/_myapps || { ln -s /home/cfg/_myapps /root/_myapps || exit 1 ; }
 test -h /root/_repos  || { ln -s /home/cfg/_repos /root/_repos   || exit 1 ; }
 
-portagetool install cpuid2cpuflags
+portagetool install app-portage/cpuid2cpuflags
 #echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpuflags
 echo CPU_FLAGS_X86=$(echo \"$(echo "$(cpuid2cpuflags)" | cut -d ':' -f 2 | sed 's/^[ \t]*//')\") > /etc/portage/cpuflags.conf
 
 
-portagetool install dodo
-portagetool install echocommand
-#portagetool install dnsgate
+portagetool install app-misc/dodo
+portagetool install app-misc/echocommand
+#portagetool install net-dns/dnsgate
 portagetool install --force-use app-misc/edit
 portagetool install net-fs/nfs-utils
 
@@ -199,7 +200,7 @@ mkdir /mnt/smb
 
 if [[ "${stdlib}" == "musl" ]];
 then
-    portagetool install argp-standalone #for musl
+    portagetool install sys-libs/argp-standalone #for musl
     emerge -puvNDq world
     emerge -puvNDq world --autounmask=n
     emerge -uvNDq world || exit 1 #http://distfiles.gentoo.org/experimental/amd64/musl/HOWTO
@@ -207,17 +208,17 @@ fi
 
 rc-update add netmount default
 
-portagetool install eix
+portagetool install app-portage/eix
 chown portage:portage /var/cache/eix
 eix-update
 
-portagetool install postgresql
-pg_version=`/home/cfg/postgresql/version`
+portagetool install dev-db/postgresql
+pg_version=$(/home/cfg/postgresql/version)
 rc-update add "postgresql-${pg_version}" default
 emerge --config dev-db/postgresql:"${pg_version}"  # ok to fail if already conf
 sudo su postgres -c "psql template1 -c 'create extension hstore;'"
 sudo su postgres -c "psql template1 -c 'create extension ltree;'"
-portagetool install sshd-configurator
+portagetool install sys-apps/sshd-configurator
 #emerge --depclean  # unmerges partial emerges, do this after install is known good
 portagetool install @laptopbase  # https://dev.gentoo.org/~zmedico/portage/doc/ch02.html
 portagetool install @wwwsurf
@@ -234,7 +235,7 @@ gpasswd -a user lpadmin
 portagetool install sys-firmware/nvidia-firmware #make sure this is after installing sys-apps/pciutils
 USE="-opengl -utils" emerge -v1 mesa x11-libs/libva  # temp fix the mesa circular dep
 
-portagetool install alsa-utils #alsamixer
+portagetool install media-sound/alsa-utils #alsamixer
 rc-update add alsasound boot
 portagetool install media-plugins/alsaequal
 portagetool install media-sound/alsa-tools
@@ -246,15 +247,10 @@ else
     kernel_version=$(readlink -f /usr/src/linux | cut -d '/' -f4 | cut -d '-' -f 2-)
 fi
 
-#portagetool install gpgmda
 chown root:mail /var/spool/mail/ #invalid group
 chmod 03775 /var/spool/mail/
 
-
-#portagetool install @laptopxorg -pv
 portagetool install @laptopxorg
-
-#portagetool install @gpib -pv
 portagetool install @gpib
 gpasswd -a user gpib
 

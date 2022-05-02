@@ -48,7 +48,7 @@ test -z $TMUX && { echo "start tmux!" ; exit 1 ; }
 set -o nounset
 
 portagetool install sys-apps/portage || exit 1
-portagetool install app-misc/unison || exit 1
+portagetool install net-misc/unison || exit 1
 
 portagetool install sys-devel/libtool
 #emerge world --newuse  # this could upgrade gcc and take a long time

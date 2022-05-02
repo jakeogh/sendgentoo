@@ -33,15 +33,11 @@ import humanfriendly
 from asserttool import ic
 from asserttool import root_user
 from boottool import create_boot_device
-# from boottool import create_boot_device_for_existing_root
-# from boottool import write_boot_partition
 from clicktool import click_add_options
 from clicktool import click_arch_select
 from clicktool import click_global_options
 from clicktool.mesa import click_mesa_options
 from compile_kernel.compile_kernel import kcompile
-# from devicetool import get_block_device_size
-# from devicetool import destroy_block_devices_head_and_tail
 from devicetool import add_partition_number_to_device
 from devicetool import create_filesystem
 from devicetool import destroy_block_device_head_and_tail
@@ -483,7 +479,7 @@ def install(
                     )
                     root_partition_path = add_partition_number_to_device(
                         device=root_devices[0],
-                        partition_number="3",
+                        partition_number=3,
                         verbose=verbose,
                     )
                     root_mount_command = (
@@ -562,7 +558,7 @@ def install(
             if boot_filesystem == "zfs":
                 efi_partition_path = add_partition_number_to_device(
                     device=boot_device,
-                    partition_number="9",
+                    partition_number=9,
                     verbose=verbose,
                 )
                 efi_mount_command = (
@@ -574,7 +570,7 @@ def install(
             else:
                 efi_partition_path = add_partition_number_to_device(
                     device=boot_device,
-                    partition_number="2",
+                    partition_number=2,
                     verbose=verbose,
                 )
                 efi_mount_command = (

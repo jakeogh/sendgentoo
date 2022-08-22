@@ -3,7 +3,6 @@
 # import sys
 from pathlib import Path
 from typing import Tuple
-from typing import Union
 
 import click
 from asserttool import ic
@@ -44,9 +43,9 @@ def create_root_device(
     force: bool,
     raid: str,
     raid_group_size: int,
-    verbose: Union[bool, int, float],
+    verbose: bool | int | float,
     verbose_inf: bool,
-    dict_input: bool,
+    dict_output: bool,
     pool_name: str,
 ):
 

@@ -46,7 +46,6 @@ from mounttool import block_special_path_is_mounted
 from mounttool import path_is_mounted
 from psutil import virtual_memory
 from run_command import run_command
-from sendgentoo.create_root_device import create_root_device
 from sendgentoo_chroot import chroot_gentoo
 from sendgentoo_chroot import rsync_cfg
 from sendgentoo_stage import extract_stage3
@@ -56,6 +55,8 @@ from zfstool import create_zfs_filesystem_snapshot
 from zfstool import create_zfs_pool
 from zfstool import zfs_check_mountpoints
 from zfstool import zfs_set_sharenfs
+
+from sendgentoo.create_root_device import create_root_device
 
 
 def validate_ram_size(ctx, param, vm_ram):

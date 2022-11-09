@@ -9,6 +9,7 @@ import click
 import psutil
 from click_auto_help import AHGroup
 from clicktool import click_add_options
+from clicktool import click_arch_select
 from clicktool import click_global_options
 
 from .sendgentoo import install
@@ -26,12 +27,14 @@ from .sendgentoo import install
 @click.option("--ip", type=str, required=True)
 @click.option("--skip-to-chroot", is_flag=True)
 @click_add_options(click_global_options)
+@click_add_options(click_arch_select)
 @click.pass_context
 def sendgentoosimple(
     ctx,
     device: str,
     hostname: str,
     ip: str,
+    arch: str,
     # stdlib: str,
     skip_to_chroot: bool,
     verbose: bool | int | float,
@@ -86,6 +89,7 @@ def sendgentoosimple(
         raid="disk",
         raid_group_size="1",
         march="nocona",
+        arch=arch,
         hostname=hostname,
         newpasswd=password,
         ip=ip,

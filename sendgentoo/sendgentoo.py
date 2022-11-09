@@ -22,15 +22,14 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
-# from collections.abc import Iterator
 from typing import Tuple
 
 import click
 import humanfriendly
-# import sh
 from asserttool import ic
 from asserttool import root_user
 from boottool import create_boot_device
+from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_arch_select
 from clicktool import click_global_options
@@ -189,6 +188,7 @@ def compile_kernel(
 
     kcompile(
         configure=configure_kernel,
+        configure_only=False,
         force=force,
         no_check_boot=True,
         verbose=verbose,

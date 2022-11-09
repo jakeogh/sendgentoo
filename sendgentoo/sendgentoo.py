@@ -334,6 +334,7 @@ def install(
     skip_to_chroot: bool,
 ):
 
+    assert arch
     if skip_to_chroot:
         assert False
     assert isinstance(root_devices, tuple)
@@ -608,6 +609,7 @@ def install(
         assert False
         # boot_device = "False"  # fixme
 
+    assert arch
     ctx.invoke(
         chroot_gentoo,
         mount_path=mount_path,

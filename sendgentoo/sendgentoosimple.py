@@ -36,6 +36,7 @@ def sendgentoosimple(
     skip_to_chroot: bool,
     verbose: bool | int | float,
     verbose_inf: bool,
+    dict_output: bool,
 ):
 
     stdlib = "glibc"

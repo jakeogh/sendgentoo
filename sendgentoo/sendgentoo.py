@@ -109,11 +109,10 @@ def compile_kernel(
     boot_device: Path,
     no_configure_kernel: bool,
     force: bool,
-    verbose: bool | int | float,
     verbose_inf: bool,
     dict_output: bool,
+    verbose: bool | int | float = False,
 ):
-
     if not root_user():
         ic("You must be root.")
         sys.exit(1)
@@ -327,13 +326,12 @@ def install(
     kernel: str,
     multilib: bool,
     minimal: bool,
-    verbose: bool | int | float,
     verbose_inf: bool,
     dict_output: bool,
     skip_to_rsync: bool,
     skip_to_chroot: bool,
+    verbose: bool | int | float = False,
 ):
-
     assert arch
     if skip_to_chroot:
         assert False

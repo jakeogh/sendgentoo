@@ -293,6 +293,7 @@ def compile_kernel(
 @click.option("--minimal", is_flag=True, required=False)
 @click.option("--skip-to-rsync", is_flag=True, required=False)
 @click.option("--skip-to-chroot", is_flag=True, required=False)
+@click.option("--configure-kernel", is_flag=True)
 @click_add_options(click_mesa_options)
 @click_add_options(click_arch_select)
 @click_add_options(click_global_options)
@@ -322,6 +323,7 @@ def install(
     proxy: str,
     force: bool,
     encrypt: bool,
+    configure_kernel: bool,
     pinebook_overlay: bool,
     kernel: str,
     multilib: bool,
@@ -627,6 +629,7 @@ def install(
         pinebook_overlay=pinebook_overlay,
         ipython=False,
         skip_to_rsync=skip_to_rsync,
+        configure_kernel=configure_kernel,
         verbose=verbose,
         verbose_inf=verbose_inf,
         dict_output=dict_output,

@@ -26,6 +26,7 @@ from .sendgentoo import install
 @click.option("--hostname", type=str, required=True)
 @click.option("--ip", type=str, required=True)
 @click.option("--skip-to-chroot", is_flag=True)
+@click.option("--configure-kernel", is_flag=True)
 @click_add_options(click_global_options)
 @click_add_options(click_arch_select)
 @click.pass_context
@@ -37,11 +38,11 @@ def sendgentoosimple(
     arch: str,
     # stdlib: str,
     skip_to_chroot: bool,
+    configure_kernel: bool,
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool | int | float = False,
 ):
-
     stdlib = "glibc"
     device = device.strip()
     if not os.getenv("TMUX"):

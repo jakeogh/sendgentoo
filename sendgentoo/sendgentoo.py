@@ -36,11 +36,11 @@ from clicktool import click_global_options
 from clicktool.mesa import click_mesa_options
 from compile_kernel.compile_kernel import kcompile
 from devicetool import add_partition_number_to_device
-from devicetool import create_filesystem
-from devicetool import destroy_block_device_head_and_tail
 from devicetool import device_is_not_a_partition
 from devicetool import path_is_block_special
 from devicetool import safety_check_devices
+from devicetool.cli import create_filesystem
+from devicetool.cli import destroy_block_device_head_and_tail
 from eprint import eprint
 from mounttool import block_special_path_is_mounted
 from mounttool import path_is_mounted

@@ -1,3 +1,16 @@
+1. Download gentoo LiveGUI USB Image https://www.gentoo.org/downloads/
+2. Boot into LiveGui
+2. Disable "suspend session" in "Energy Saving"
+3. open terminal
+3. become root `sudo su root`
+4. Set the password for the "gentoo user": `passwd gentoo`
+3. Connect to the internet https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Networking
+4. `sudo emerge --sync`
+5. `sudo eselect repository add jakeogh git https://github.com/jakeogh/jakeogh`
+6. `sudo emerge --sync`
+
+
+
 Add the github/jakeogh overlay and then "emerge sendgentoo"
 
 ```

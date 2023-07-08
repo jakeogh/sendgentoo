@@ -10,7 +10,7 @@ am_i_root()
 }
 
 am_i_root
-passwd user
+passwd gentoo
 emerge --sync
 eselect repository add jakeogh git https://github.com/jakeogh/jakeogh
 emerge --sync

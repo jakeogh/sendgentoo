@@ -24,6 +24,7 @@ from .sendgentoo import install
 # )
 @click.option("--hostname", type=str, required=True)
 @click.option("--ip", type=str, required=True)
+@click.option("--password", type=str, required=True)
 @click.option("--skip-to-chroot", is_flag=True)
 @click.option("--configure-kernel", is_flag=True)
 @click_add_options(click_global_options)
@@ -35,6 +36,7 @@ def sendgentoosimple(
     hostname: str,
     ip: str,
     arch: str,
+    password: str,
     # stdlib: str,
     skip_to_chroot: bool,
     configure_kernel: bool,
@@ -74,7 +76,9 @@ def sendgentoosimple(
         print("device:", device, "is not a block device. Exiting.", file=sys.stderr)
         sys.exit(1)
 
-    password = input("Enter new password: ")
+    if not password:
+        password = input("Enter new password: ")
+
     assert len(password) > 0
 
     ctx.invoke(

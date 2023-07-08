@@ -1,6 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 
+am_i_root()
+{
+    if [ "$(whoami)" != root ]
+    then
+        echo -e "\nPlease run this script as root! Exiting.\n" >&2
+        exit 1
+    fi
+}
 
+am_i_root
+passwd user
 emerge --sync
 eselect repository add jakeogh git https://github.com/jakeogh/jakeogh
 emerge --sync

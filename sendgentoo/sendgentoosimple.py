@@ -7,7 +7,6 @@ import sys
 
 import click
 import psutil
-from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_arch_select
 from clicktool import click_global_options
@@ -98,5 +97,6 @@ def sendgentoosimple(
         force=False,
         encrypt=False,
         multilib=False,
+        configure_kernel=configure_kernel,
         verbose=verbose,
     )

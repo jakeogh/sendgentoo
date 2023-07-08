@@ -123,30 +123,26 @@ def compile_kernel(
     ic(mount_path_boot)
     assert not path_is_mounted(
         mount_path_boot,
-        verbose=verbose,
     )
 
     mount_path_boot_efi = mount_path_boot / Path("efi")
     ic(mount_path_boot_efi)
     assert not path_is_mounted(
         mount_path_boot_efi,
-        verbose=verbose,
     )
 
     assert device_is_not_a_partition(
         device=boot_device,
-        verbose=verbose,
     )
 
     assert path_is_block_special(boot_device)
     assert not block_special_path_is_mounted(
         boot_device,
-        verbose=verbose,
     )
     warn(
         (boot_device,),
         msg="about to update the kernel on device:",
-        verbose=verbose,
+        disk_size=None,
     )
 
     os.makedirs(mount_path_boot, exist_ok=True)
@@ -154,17 +150,14 @@ def compile_kernel(
     boot_partition_path = add_partition_number_to_device(
         device=boot_device,
         partition_number=3,
-        verbose=verbose,
     )
     boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
     assert not path_is_mounted(
         mount_path_boot,
-        verbose=verbose,
     )
     run_command(boot_mount_command, verbose=True, popen=True)
     assert path_is_mounted(
         mount_path_boot,
-        verbose=verbose,
     )
 
     os.makedirs(mount_path_boot_efi, exist_ok=True)
@@ -172,17 +165,14 @@ def compile_kernel(
     efi_partition_path = add_partition_number_to_device(
         device=boot_device,
         partition_number=2,
-        verbose=verbose,
     )
     efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)
     assert not path_is_mounted(
         mount_path_boot_efi,
-        verbose=verbose,
     )
     run_command(efi_mount_command, verbose=True, popen=True)
     assert path_is_mounted(
         mount_path_boot_efi,
-        verbose=verbose,
     )
 
     kcompile(
@@ -190,7 +180,6 @@ def compile_kernel(
         configure_only=False,
         force=force,
         no_check_boot=True,
-        verbose=verbose,
     )
 
     grub_config_command = "grub-mkconfig -o /boot/grub/grub.cfg"
@@ -294,6 +283,7 @@ def compile_kernel(
 @click.option("--skip-to-rsync", is_flag=True, required=False)
 @click.option("--skip-to-chroot", is_flag=True, required=False)
 @click.option("--configure-kernel", is_flag=True)
+@click.option("--disk-size", type=str)
 @click_add_options(click_mesa_options)
 @click_add_options(click_arch_select)
 @click_add_options(click_global_options)
@@ -316,6 +306,7 @@ def install(
     march: str,
     hostname: str,
     newpasswd: str,
+    disk_size: None | str,
     ip: str,
     ip_gateway: str,
     mesa_use_enable: list[str],
@@ -413,12 +404,12 @@ def install(
         safety_check_devices(
             boot_device=boot_device,
             root_devices=root_devices,
-            verbose=verbose,
             boot_device_partition_table=boot_device_partition_table,
             boot_filesystem=boot_filesystem,
             root_device_partition_table=root_device_partition_table,
             root_filesystem=root_filesystem,
             force=force,
+            disk_size=disk_size,
         )
 
         if boot_device and root_devices and not vm:

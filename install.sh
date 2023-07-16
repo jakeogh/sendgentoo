@@ -15,6 +15,7 @@ passwd gentoo
 emerge --sync
 eselect repository add jakeogh git https://github.com/jakeogh/jakeogh
 emerge --sync
+emerge portage -1 -u
 CONFIG_PROTECT="-*" emerge --autounmask --autounmask-write --autounmask-continue sendgentoo
 sendgentoosimple --help
-
+echo "sendgentoosimple --hostname fastbox --ip 192.168.222.109/24 --arch amd64 /dev/sda --disk-size 1.82"

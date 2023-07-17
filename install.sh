@@ -12,6 +12,11 @@ am_i_root()
 am_i_root
 #mount | grep gentoo | cut -d ' ' -f 3 | xargs -I '{}' sudo umount '{}'
 passwd gentoo
+passwd
+date
+chronyd -q
+date
+#netdate time.nist.gov
 emerge --sync
 eselect repository add jakeogh git https://github.com/jakeogh/jakeogh
 emerge --sync

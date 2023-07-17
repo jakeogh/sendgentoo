@@ -94,7 +94,7 @@ def sendgentoosimple(
         stdlib=stdlib,
         raid="disk",
         raid_group_size="1",
-        march="nocona",
+        march="native",  # todo
         arch=arch,
         hostname=hostname,
         newpasswd=password,

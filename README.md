@@ -1,11 +1,12 @@
 1. Download gentoo LiveGUI USB Image https://www.gentoo.org/downloads/
 2. Boot into LiveGui
-2. Disable "suspend session" in "Energy Saving"
-3. Connect to the internet https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Networking
-3. open terminal
-4. `wget https://raw.githubusercontent.com/jakeogh/sendgentoo/master/install.sh`
-5. `chmod +x install.sh`
-6. `sudo ./intstall.sh`
+3. Disable "suspend session" in "Energy Saving"
+4. Connect to the internet https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Networking
+5. open terminal
+6. `sudo su root`
+7. `wget https://raw.githubusercontent.com/jakeogh/sendgentoo/master/install.sh`
+8. `chmod +x install.sh`
+9. `./intstall.sh`
 
 
 

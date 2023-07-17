@@ -49,7 +49,7 @@ def sendgentoosimple(
     stdlib = "glibc"
     device = device.strip()
     if not os.getenv("TMUX"):
-        print("Start a Tmux session first. Exiting.", file=sys.stderr)
+        print("Start a tmux session first. Exiting.", file=sys.stderr)
         sys.exit(1)
 
     if not os.geteuid() == 0:

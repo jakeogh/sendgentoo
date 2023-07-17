@@ -23,4 +23,4 @@ emerge --sync
 emerge portage -1 -u
 CONFIG_PROTECT="-*" emerge --autounmask --autounmask-write --autounmask-continue sendgentoo
 sendgentoosimple --help
-echo "sendgentoosimple --hostname fastbox --ip 192.168.222.109/24 --arch amd64 /dev/sda --disk-size 1.82"
+echo "sendgentoosimple --configure --hostname fastbox --ip 192.168.222.109/24 --arch amd64 /dev/sda --disk-size 1.82"

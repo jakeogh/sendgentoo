@@ -33,6 +33,7 @@ from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_arch_select
 from clicktool import click_global_options
+from clicktool import tv
 from clicktool.mesa import click_mesa_options
 from compile_kernel.compile_kernel import kcompile
 from devicetool import add_partition_number_to_device
@@ -42,6 +43,7 @@ from devicetool import safety_check_devices
 from devicetool.cli import create_filesystem
 from devicetool.cli import destroy_block_device_head_and_tail
 from eprint import eprint
+from globalverbose import gvd
 from mounttool import block_special_path_is_mounted
 from mounttool import path_is_mounted
 from psutil import virtual_memory
@@ -92,6 +94,81 @@ sendgentoo.add_command(zfs_set_sharenfs)
 sendgentoo.add_command(zfs_check_mountpoints)
 
 
+def mount_filesystems(
+    *,
+    boot_device: Path,
+    boot_filesystem: str,
+    root_partition_path: Path,
+    mount_path: Path,
+):
+    mount_path_boot = mount_path / Path("boot")
+    mount_path_boot_efi = mount_path_boot / Path("efi")
+
+    os.makedirs(mount_path, exist_ok=True)
+
+    root_mount_command = (
+        "mount " + root_partition_path.as_posix() + " " + str(mount_path)
+    )
+    boot_mount_command: None | str = None
+
+    if root_mount_command:
+        run_command(
+            root_mount_command,
+        )
+
+    assert path_is_mounted(
+        mount_path,
+    )
+
+    os.makedirs(mount_path_boot, exist_ok=True)
+
+    if boot_mount_command:
+        run_command(
+            boot_mount_command,
+        )
+        assert path_is_mounted(
+            mount_path_boot,
+        )
+    else:
+        assert not path_is_mounted(
+            mount_path_boot,
+        )
+
+    if boot_device:
+        os.makedirs(mount_path_boot_efi, exist_ok=True)
+
+    if boot_filesystem == "zfs":
+        efi_partition_path = add_partition_number_to_device(
+            device=boot_device,
+            partition_number=9,
+        )
+        efi_mount_command = (
+            "mount "
+            + efi_partition_path.as_posix()
+            + " "
+            + mount_path_boot_efi.as_posix()
+        )
+    else:
+        efi_partition_path = add_partition_number_to_device(
+            device=boot_device,
+            partition_number=2,
+        )
+        efi_mount_command = (
+            "mount "
+            + efi_partition_path.as_posix()
+            + " "
+            + mount_path_boot_efi.as_posix()
+        )
+
+    if boot_device:
+        run_command(
+            efi_mount_command,
+        )
+        assert path_is_mounted(
+            mount_path_boot_efi,
+        )
+
+
 @sendgentoo.command()
 @click.option(
     "--boot-device",
@@ -113,6 +190,20 @@ def compile_kernel(
     dict_output: bool,
     verbose: bool | int | float = False,
 ):
+    tty, verbose = tv(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+    )
+
+    if not verbose:
+        ic.disable()
+    else:
+        ic.enable()
+
+    if verbose_inf:
+        gvd.enable()
+
     if not root_user():
         ic("You must be root.")
         sys.exit(1)
@@ -232,7 +323,7 @@ def compile_kernel(
     "--stdlib",
     is_flag=False,
     required=True,
-    type=click.Choice(["glibc", "musl", "uclibc"]),
+    type=click.Choice(["glibc", "musl"]),
 )
 @click.option(
     "--raid",
@@ -325,6 +416,20 @@ def install(
     skip_to_chroot: bool,
     verbose: bool | int | float = False,
 ):
+    tty, verbose = tv(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+    )
+
+    if not verbose:
+        ic.disable()
+    else:
+        ic.enable()
+
+    if verbose_inf:
+        gvd.enable()
+
     assert arch
     if skip_to_chroot:
         assert False
@@ -336,8 +441,6 @@ def install(
     assert "_" not in hostname
 
     mount_path = Path("/mnt/gentoo")
-    mount_path_boot = mount_path / Path("boot")
-    mount_path_boot_efi = mount_path_boot / Path("efi")
 
     if not skip_to_rsync:
         distfiles_dir = Path("/var/db/repos/gentoo/distfiles")
@@ -349,13 +452,6 @@ def install(
         if encrypt:
             eprint("encryption not yet supported")
             # sys.exit(1)
-        if stdlib == "uclibc":
-            eprint(
-                "uclibc fails with efi grub because efivar fails to compile. See Note."
-            )
-            sys.exit(1)
-
-        os.makedirs(mount_path, exist_ok=True)
 
         assert Path("/usr/bin/ischroot").exists()
         eprint("using C library:", stdlib)
@@ -425,7 +521,6 @@ def install(
                     #           no_backup=True,
                     #           size=(1024 * 1024 * 128),
                     #           note=False,
-                    #           verbose=verbose,
                     #           )
                     ## if this is zfs, it will make a gpt table, / and EFI partition
                     # ctx.invoke(create_root_device,
@@ -442,10 +537,7 @@ def install(
                     #                   partition_table='none',
                     #                   filesystem=boot_filesystem,
                     #                   force=True,
-                    #                   verbose=verbose,
                     #                   )  # dont want to delete the gpt that zfs made
-                    # boot_mount_command = False
-                    # root_mount_command = False
 
                 elif boot_filesystem == "ext4":
                     ctx.invoke(
@@ -459,7 +551,6 @@ def install(
                         partition_table=boot_device_partition_table,
                         filesystem=boot_filesystem,
                         force=True,
-                        verbose=verbose,
                     )  # writes gurb_bios from 48s to 1023s then writes EFI partition from 1024s to 205824s (100M efi) (nope, too big for fat16)
                     ctx.invoke(
                         create_root_device,
@@ -474,15 +565,7 @@ def install(
                     root_partition_path = add_partition_number_to_device(
                         device=root_devices[0],
                         partition_number=3,
-                        verbose=verbose,
                     )
-                    root_mount_command = (
-                        "mount "
-                        + root_partition_path.as_posix()
-                        + " "
-                        + str(mount_path)
-                    )
-                    boot_mount_command = False
                 else:  # unknown case
                     assert False
             else:
@@ -494,12 +577,10 @@ def install(
                 #                   partition_table=boot_device_partition_table,
                 #                   filesystem=boot_filesystem,
                 #                   force=True,
-                #                   verbose=verbose,
                 #                   )
                 # ctx.invoke(write_boot_partition,
                 #           device=boot_device,
                 #           force=True,
-                #           verbose=verbose,
                 #           )
                 # ctx.invoke(create_root_device,
                 #           devices=root_devices,
@@ -510,79 +591,18 @@ def install(
                 #           raid=raid,)
                 # if root_filesystem == 'zfs':
                 #    assert False
-                #    root_mount_command = False
                 # elif root_filesystem == 'ext4':
                 #    root_partition_path = add_partition_number_to_device(device=root_devices[0], partition_number="1")
-                #    root_mount_command = "mount " + root_partition_path.as_posix() + " " + mount_path.as_posix()
 
                 # boot_partition_path = add_partition_number_to_device(device=boot_device, partition_number="3")
                 # boot_mount_command = "mount " + boot_partition_path.as_posix() + " " + mount_path_boot.as_posix()
 
-            if root_mount_command:
-                run_command(
-                    root_mount_command,
-                    verbose=verbose,
-                )
-
-            assert path_is_mounted(
-                mount_path,
-                verbose=verbose,
+            mount_filesystems(
+                mount_path=mount_path,
+                boot_device=boot_device,
+                boot_filesystem=boot_filesystem,
+                root_partition_path=root_partition_path,
             )
-
-            os.makedirs(mount_path_boot, exist_ok=True)
-
-            if boot_mount_command:
-                run_command(
-                    boot_mount_command,
-                    verbose=verbose,
-                )
-                assert path_is_mounted(
-                    mount_path_boot,
-                    verbose=verbose,
-                )
-            else:
-                assert not path_is_mounted(
-                    mount_path_boot,
-                    verbose=verbose,
-                )
-
-            if boot_device:
-                os.makedirs(mount_path_boot_efi, exist_ok=True)
-
-            if boot_filesystem == "zfs":
-                efi_partition_path = add_partition_number_to_device(
-                    device=boot_device,
-                    partition_number=9,
-                    verbose=verbose,
-                )
-                efi_mount_command = (
-                    "mount "
-                    + efi_partition_path.as_posix()
-                    + " "
-                    + mount_path_boot_efi.as_posix()
-                )
-            else:
-                efi_partition_path = add_partition_number_to_device(
-                    device=boot_device,
-                    partition_number=2,
-                    verbose=verbose,
-                )
-                efi_mount_command = (
-                    "mount "
-                    + efi_partition_path.as_posix()
-                    + " "
-                    + mount_path_boot_efi.as_posix()
-                )
-
-            if boot_device:
-                run_command(
-                    efi_mount_command,
-                    verbose=verbose,
-                )
-                assert path_is_mounted(
-                    mount_path_boot_efi,
-                    verbose=verbose,
-                )
 
         extract_stage3(
             stdlib=stdlib,
@@ -592,7 +612,6 @@ def install(
             expect_mounted_destination=True,
             vm=vm,
             vm_ram=vm_ram,
-            verbose=verbose,
         )
 
     # skip_to_rsync lands here
@@ -624,4 +643,66 @@ def install(
         verbose=verbose,
         verbose_inf=verbose_inf,
         dict_output=dict_output,
+    )
+
+
+@sendgentoo.command()
+@click.argument("root_devices", required=False, nargs=-1)
+@click.option("--boot-device", is_flag=False, required=True)
+@click.option(
+    "--boot-filesystem",
+    is_flag=False,
+    required=False,
+    type=click.Choice(["ext4", "zfs"]),
+    default="ext4",
+)
+@click.option(
+    "--root-filesystem",
+    is_flag=False,
+    required=True,
+    type=click.Choice(["ext4", "zfs", "9p"]),
+    default="ext4",
+)
+@click_add_options(click_global_options)
+@click.pass_context
+def mount_existing_filesystems(
+    ctx,
+    *,
+    root_devices: Tuple[Path, ...],
+    boot_device: Path,
+    boot_filesystem: str,
+    root_filesystem: str,
+    verbose_inf: bool,
+    dict_output: bool,
+    verbose: bool | int | float = False,
+):
+    tty, verbose = tv(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+    )
+
+    if not verbose:
+        ic.disable()
+    else:
+        ic.enable()
+
+    if verbose_inf:
+        gvd.enable()
+
+    mount_path = Path("/mnt/gentoo")
+
+    if boot_filesystem == root_filesystem == "ext4":
+        root_partition_path = add_partition_number_to_device(
+            device=root_devices[0],
+            partition_number=3,
+        )
+    else:
+        assert False
+
+    mount_filesystems(
+        mount_path=mount_path,
+        boot_device=boot_device,
+        boot_filesystem=boot_filesystem,
+        root_partition_path=root_partition_path,
     )

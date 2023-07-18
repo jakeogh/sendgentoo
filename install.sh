@@ -1,4 +1,5 @@
 #!/bin/bash
+echo 2 > /sys/module/hid_apple/parameters/fnmode
 
 kwriteconfig5 --file kscreenlockerrc --group Daemon --key Autolock false
 qdbus org.freedesktop.ScreenSaver /ScreenSaver configure

@@ -647,7 +647,18 @@ def install(
 
 
 @sendgentoo.command()
-@click.argument("root_devices", required=False, nargs=-1)
+@click.argument(
+    "root_devices",
+    required=False,
+    nargs=-1,
+    type=click.Path(
+        exists=True,
+        dir_okay=False,
+        file_okay=True,
+        allow_dash=False,
+        path_type=Path,
+    ),
+)
 @click.option("--boot-device", is_flag=False, required=True)
 @click.option(
     "--boot-filesystem",

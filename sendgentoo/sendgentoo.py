@@ -279,8 +279,17 @@ def compile_kernel(
 
 @sendgentoo.command()
 @click.argument(
-    "root_devices", required=False, nargs=-1
-)  # --vm does not need a specified root device
+    "root_devices",
+    required=False,
+    nargs=-1,
+    type=click.path(
+        exists=True,
+        dir_okay=False,
+        file_okay=True,
+        allow_dash=False,
+        path_type=Path,
+    ),
+)
 @click.option("--vm", is_flag=False, required=False, type=click.Choice(["qemu"]))
 @click.option(
     "--vm-ram",
@@ -651,7 +660,7 @@ def install(
     "root_devices",
     required=False,
     nargs=-1,
-    type=click.Path(
+    type=click.path(
         exists=True,
         dir_okay=False,
         file_okay=True,

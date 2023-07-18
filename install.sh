@@ -7,7 +7,7 @@ kwriteconfig5 --file ~/.config/powermanagementprofilesrc --group AC --group DimD
 kwriteconfig5 --file ~/.config/powermanagementprofilesrc --group AC --group DPMSControl --key idleTime --delete
 qdbus org.freedesktop.PowerManagement /org/kde/Solid/PowerManagement org.kde.Solid.PowerManagement.reparseConfiguration
 qdbus org.freedesktop.PowerManagement /org/kde/Solid/PowerManagement org.kde.Solid.PowerManagement.refreshStatus
-sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
+#sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target
 
 
 am_i_root()
@@ -29,6 +29,7 @@ chronyd -q
 date
 #netdate time.nist.gov
 emerge --sync
+nmcli device disconnect enp12s0u9u3c2
 emerge xrandr
 xrandr -s 1024x768
 eselect repository add jakeogh git https://github.com/jakeogh/jakeogh

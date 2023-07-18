@@ -282,7 +282,7 @@ def compile_kernel(
     "root_devices",
     required=False,
     nargs=-1,
-    type=click.path(
+    type=click.Path(
         exists=True,
         dir_okay=False,
         file_okay=True,
@@ -660,7 +660,7 @@ def install(
     "root_devices",
     required=False,
     nargs=-1,
-    type=click.path(
+    type=click.Path(
         exists=True,
         dir_okay=False,
         file_okay=True,

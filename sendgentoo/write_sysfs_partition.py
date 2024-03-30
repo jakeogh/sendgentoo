@@ -86,13 +86,11 @@ def write_sysfs_partition(
         assert path_is_block_special(device)
         assert not block_special_path_is_mounted(
             device,
-            verbose=verbose,
         )
 
     if not force:
         warn(
             devices,
-            verbose=verbose,
         )
 
     if filesystem in ["ext4", "fat32"]:
@@ -117,7 +115,7 @@ def write_sysfs_partition(
             + start
             + " "
             + end,
-            verbose=verbose,
+            verbose=True,
         )
         run_command(
             "parted  "
@@ -125,13 +123,13 @@ def write_sysfs_partition(
             + " --script -- name "
             + partition_number
             + " rootfs",
-            verbose=verbose,
+            verbose=True,
         )
         time.sleep(1)
         sysfs_partition_path = add_partition_number_to_device(
             device=devices[0],
-            partition_number=partition_number,
-            verbose=verbose,
+            partition_number=int(partition_number),
+            verbose=True,
         )
         if filesystem == "ext4":
             ext4_command = sh.Command("mkfs.ext4")

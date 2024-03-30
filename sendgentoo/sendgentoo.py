@@ -33,7 +33,7 @@ from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_arch_select
 from clicktool import click_global_options
-from clicktool import tv
+from clicktool import tvicgvd
 from clicktool.mesa import click_mesa_options
 from compile_kernel.compile_kernel import kcompile
 from devicetool import add_partition_number_to_device
@@ -188,21 +188,17 @@ def compile_kernel(
     force: bool,
     verbose_inf: bool,
     dict_output: bool,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
-    tty, verbose = tv(
+    # this whole function is redundant, use compile-kernel
+    assert False
+    tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
     )
-
-    if not verbose:
-        ic.disable()
-    else:
-        ic.enable()
-
-    if verbose_inf:
-        gvd.enable()
 
     if not root_user():
         ic("You must be root.")
@@ -271,6 +267,9 @@ def compile_kernel(
         configure_only=False,
         force=force,
         no_check_boot=True,
+        fix=True,
+        warn_only=False,
+        symlink_config=True,
     )
 
     grub_config_command = "grub-mkconfig -o /boot/grub/grub.cfg"
@@ -423,21 +422,15 @@ def install(
     dict_output: bool,
     skip_to_rsync: bool,
     skip_to_chroot: bool,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
-    tty, verbose = tv(
+    tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
     )
-
-    if not verbose:
-        ic.disable()
-    else:
-        ic.enable()
-
-    if verbose_inf:
-        gvd.enable()
 
     assert arch
     if skip_to_chroot:
@@ -694,21 +687,15 @@ def mount_existing_filesystems(
     root_filesystem: str,
     verbose_inf: bool,
     dict_output: bool,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
-    tty, verbose = tv(
+    tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
     )
-
-    if not verbose:
-        ic.disable()
-    else:
-        ic.enable()
-
-    if verbose_inf:
-        gvd.enable()
 
     mount_path = Path("/mnt/gentoo")
 

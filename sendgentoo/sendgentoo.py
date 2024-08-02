@@ -613,7 +613,6 @@ def install(
 
         extract_stage3(
             stdlib=stdlib,
-            multilib=multilib,
             arch=arch,
             destination=mount_path,
             expect_mounted_destination=True,

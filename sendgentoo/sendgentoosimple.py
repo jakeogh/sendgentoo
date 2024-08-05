@@ -29,15 +29,15 @@ from .sendgentoo import install
 @click.option("--skip-to-chroot", is_flag=True)
 @click.option("--configure-kernel", is_flag=True)
 @click_add_options(click_global_options)
-@click_add_options(click_arch_select)
+# @click_add_options(click_arch_select)
 @click.pass_context
 def sendgentoosimple(
     ctx,
     device: str,
     hostname: str,
     ip: str,
-    arch: str,
     password: None | str,
+    # arch: str,
     # stdlib: str,
     skip_to_chroot: bool,
     disk_size: None | int,
@@ -46,6 +46,7 @@ def sendgentoosimple(
     dict_output: bool,
     verbose: bool | int | float = False,
 ):
+    arch = "amd64"
     stdlib = "glibc"
     device = device.strip()
     if not os.getenv("TMUX"):

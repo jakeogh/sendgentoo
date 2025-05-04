@@ -227,7 +227,10 @@ def compile_kernel(
         device=boot_device,
     )
 
-    assert path_is_block_special(boot_device)
+    assert path_is_block_special(
+        boot_device,
+        symlink_ok=True,
+    )
     assert not block_special_path_is_mounted(
         boot_device,
     )
@@ -235,6 +238,7 @@ def compile_kernel(
         (boot_device,),
         msg="about to update the kernel on device:",
         disk_size=None,
+        symlink_ok=True,
     )
 
     os.makedirs(mount_path_boot, exist_ok=True)
@@ -269,7 +273,6 @@ def compile_kernel(
 
     kcompile(
         configure=configure_kernel,
-        configure_only=False,
         force=force,
         no_check_boot=True,
         fix=True,

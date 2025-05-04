@@ -31,10 +31,11 @@ import sh
 from asserttool import ic
 from clicktool import click_add_options
 from clicktool import click_global_options
-from clicktool import tv
+from clicktool import tvicgvd
 from devicetool import add_partition_number_to_device
 from devicetool import path_is_block_special
 from eprint import eprint
+from globalverbose import gvd
 from mounttool import block_special_path_is_mounted
 from run_command import run_command
 from warntool import warn
@@ -63,15 +64,17 @@ def write_sysfs_partition(
     raid: str,
     raid_group_size: int,
     pool_name: str,
-    verbose: bool | int | float,
     verbose_inf: bool,
     dict_output: bool,
+    verbose: bool = False,
 ):
 
-    tty, verbose = tv(
+    tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
     )
 
     devices = tuple([Path(_device) for _device in devices])
@@ -83,7 +86,7 @@ def write_sysfs_partition(
     for device in devices:
         if not device.name.startswith("nvme"):
             assert not device.name[-1].isdigit()
-        assert path_is_block_special(device)
+        assert path_is_block_special(device, symlink_ok=True)
         assert not block_special_path_is_mounted(
             device,
         )
@@ -91,6 +94,7 @@ def write_sysfs_partition(
     if not force:
         warn(
             devices,
+            symlink_ok=True,
         )
 
     if filesystem in ["ext4", "fat32"]:
@@ -115,7 +119,6 @@ def write_sysfs_partition(
             + start
             + " "
             + end,
-            verbose=True,
         )
         run_command(
             "parted  "
@@ -123,13 +126,11 @@ def write_sysfs_partition(
             + " --script -- name "
             + partition_number
             + " rootfs",
-            verbose=True,
         )
         time.sleep(1)
         sysfs_partition_path = add_partition_number_to_device(
             device=devices[0],
             partition_number=int(partition_number),
-            verbose=True,
         )
         if filesystem == "ext4":
             ext4_command = sh.Command("mkfs.ext4")

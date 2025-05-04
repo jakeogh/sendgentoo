@@ -40,7 +40,6 @@ from clicktool import click_arch_select
 from clicktool import click_global_options
 from clicktool import tvicgvd
 from clicktool.mesa import click_mesa_options
-from compile_kernel.compile_kernel import kcompile
 from devicetool import add_partition_number_to_device
 from devicetool import device_is_not_a_partition
 from devicetool import path_is_block_special
@@ -64,6 +63,8 @@ from zfstool import zfs_check_mountpoints
 from zfstool import zfs_set_sharenfs
 
 from sendgentoo.create_root_device import create_root_device
+
+# from compile_kernel.compile_kernel import compile_and_install_kernel
 
 
 def validate_ram_size(ctx, param, vm_ram):
@@ -174,114 +175,114 @@ def mount_filesystems(
         )
 
 
-@sendgentoo.command()
-@click.option(
-    "--boot-device",
-    is_flag=False,
-    required=True,
-    type=click.Path(exists=True, path_type=Path),
-)
-@click.option("--force", is_flag=True, required=False)
-@click.option("--no-configure-kernel", is_flag=True, required=False)
-@click_add_options(click_global_options)
-@click.pass_context
-def compile_kernel(
-    ctx,
-    *,
-    boot_device: Path,
-    no_configure_kernel: bool,
-    force: bool,
-    verbose_inf: bool,
-    dict_output: bool,
-    verbose: bool = False,
-):
-    # this whole function is redundant, use compile-kernel
-    assert False
-    tty, verbose = tvicgvd(
-        ctx=ctx,
-        verbose=verbose,
-        verbose_inf=verbose_inf,
-        ic=ic,
-        gvd=gvd,
-    )
-
-    if not root_user():
-        ic("You must be root.")
-        sys.exit(1)
-
-    configure_kernel = not no_configure_kernel
-
-    mount_path_boot = Path("/boot")
-    ic(mount_path_boot)
-    assert not path_is_mounted(
-        mount_path_boot,
-    )
-
-    mount_path_boot_efi = mount_path_boot / Path("efi")
-    ic(mount_path_boot_efi)
-    assert not path_is_mounted(
-        mount_path_boot_efi,
-    )
-
-    assert device_is_not_a_partition(
-        device=boot_device,
-    )
-
-    assert path_is_block_special(
-        boot_device,
-        symlink_ok=True,
-    )
-    assert not block_special_path_is_mounted(
-        boot_device,
-    )
-    warn(
-        (boot_device,),
-        msg="about to update the kernel on device:",
-        disk_size=None,
-        symlink_ok=True,
-    )
-
-    os.makedirs(mount_path_boot, exist_ok=True)
-    os.makedirs(mount_path_boot / Path("grub"), exist_ok=True)
-    boot_partition_path = add_partition_number_to_device(
-        device=boot_device,
-        partition_number=3,
-    )
-    boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
-    assert not path_is_mounted(
-        mount_path_boot,
-    )
-    run_command(boot_mount_command, verbose=True, popen=True)
-    assert path_is_mounted(
-        mount_path_boot,
-    )
-
-    os.makedirs(mount_path_boot_efi, exist_ok=True)
-
-    efi_partition_path = add_partition_number_to_device(
-        device=boot_device,
-        partition_number=2,
-    )
-    efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)
-    assert not path_is_mounted(
-        mount_path_boot_efi,
-    )
-    run_command(efi_mount_command, verbose=True, popen=True)
-    assert path_is_mounted(
-        mount_path_boot_efi,
-    )
-
-    kcompile(
-        configure=configure_kernel,
-        force=force,
-        no_check_boot=True,
-        fix=True,
-        warn_only=False,
-        symlink_config=True,
-    )
-
-    grub_config_command = "grub-mkconfig -o /boot/grub/grub.cfg"
-    run_command(grub_config_command, verbose=True, popen=True)
+# @sendgentoo.command()
+# @click.option(
+#    "--boot-device",
+#    is_flag=False,
+#    required=True,
+#    type=click.Path(exists=True, path_type=Path),
+# )
+# @click.option("--force", is_flag=True, required=False)
+# @click.option("--no-configure-kernel", is_flag=True, required=False)
+# @click_add_options(click_global_options)
+# @click.pass_context
+# def compile_kernel(
+#    ctx,
+#    *,
+#    boot_device: Path,
+#    no_configure_kernel: bool,
+#    force: bool,
+#    verbose_inf: bool,
+#    dict_output: bool,
+#    verbose: bool = False,
+# ):
+#    # this whole function is redundant, use compile-kernel
+#    assert False
+#    tty, verbose = tvicgvd(
+#        ctx=ctx,
+#        verbose=verbose,
+#        verbose_inf=verbose_inf,
+#        ic=ic,
+#        gvd=gvd,
+#    )
+#
+#    if not root_user():
+#        ic("You must be root.")
+#        sys.exit(1)
+#
+#    configure_kernel = not no_configure_kernel
+#
+#    mount_path_boot = Path("/boot")
+#    ic(mount_path_boot)
+#    assert not path_is_mounted(
+#        mount_path_boot,
+#    )
+#
+#    mount_path_boot_efi = mount_path_boot / Path("efi")
+#    ic(mount_path_boot_efi)
+#    assert not path_is_mounted(
+#        mount_path_boot_efi,
+#    )
+#
+#    assert device_is_not_a_partition(
+#        device=boot_device,
+#    )
+#
+#    assert path_is_block_special(
+#        boot_device,
+#        symlink_ok=True,
+#    )
+#    assert not block_special_path_is_mounted(
+#        boot_device,
+#    )
+#    warn(
+#        (boot_device,),
+#        msg="about to update the kernel on device:",
+#        disk_size=None,
+#        symlink_ok=True,
+#    )
+#
+#    os.makedirs(mount_path_boot, exist_ok=True)
+#    os.makedirs(mount_path_boot / Path("grub"), exist_ok=True)
+#    boot_partition_path = add_partition_number_to_device(
+#        device=boot_device,
+#        partition_number=3,
+#    )
+#    boot_mount_command = "mount " + boot_partition_path + " " + str(mount_path_boot)
+#    assert not path_is_mounted(
+#        mount_path_boot,
+#    )
+#    run_command(boot_mount_command, verbose=True, popen=True)
+#    assert path_is_mounted(
+#        mount_path_boot,
+#    )
+#
+#    os.makedirs(mount_path_boot_efi, exist_ok=True)
+#
+#    efi_partition_path = add_partition_number_to_device(
+#        device=boot_device,
+#        partition_number=2,
+#    )
+#    efi_mount_command = "mount " + efi_partition_path + " " + str(mount_path_boot_efi)
+#    assert not path_is_mounted(
+#        mount_path_boot_efi,
+#    )
+#    run_command(efi_mount_command, verbose=True, popen=True)
+#    assert path_is_mounted(
+#        mount_path_boot_efi,
+#    )
+#
+#    compile_and_install_kernel(
+#        configure=configure_kernel,
+#        force=force,
+#        no_check_boot=True,
+#        fix=True,
+#        warn_only=False,
+#        symlink_config=True,
+#    )
+#
+#    grub_config_command = "grub-mkconfig -o /boot/grub/grub.cfg"
+#    run_command(grub_config_command, verbose=True, popen=True)
 
 
 @sendgentoo.command()

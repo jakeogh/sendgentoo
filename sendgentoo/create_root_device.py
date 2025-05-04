@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from __future__ import annotations
+
 # import sys
 from pathlib import Path
 from typing import Tuple
@@ -9,9 +10,10 @@ import click
 from asserttool import ic
 from clicktool import click_add_options
 from clicktool import click_global_options
-from clicktool import tv
+from clicktool import tvicgvd
 from devicetool import path_is_block_special
 from eprint import eprint
+from globalverbose import gvd
 from mounttool import block_special_path_is_mounted
 from warntool import warn
 from zfstool import RAID_LIST
@@ -44,16 +46,18 @@ def create_root_device(
     force: bool,
     raid: str,
     raid_group_size: int,
-    verbose: bool | int | float,
     verbose_inf: bool,
     dict_output: bool,
     pool_name: str,
+    verbose: bool = False,
 ):
 
-    tty, verbose = tv(
+    tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
     )
 
     devices = tuple([Path(_device) for _device in devices])
@@ -70,10 +74,12 @@ def create_root_device(
     for _device in devices:
         if not _device.name.startswith("nvme"):
             assert not _device.name[-1].isdigit()
-        assert path_is_block_special(_device)
+        assert path_is_block_special(
+            _device,
+            symlink_ok=True,
+        )
         assert not block_special_path_is_mounted(
             _device,
-            verbose=verbose,
         )
 
     if len(devices) == 1:
@@ -84,7 +90,7 @@ def create_root_device(
     if not force:
         warn(
             devices,
-            verbose=verbose,
+            symlink_ok=True,
         )
 
     if pool_name:

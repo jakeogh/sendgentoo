@@ -24,7 +24,10 @@ from .write_sysfs_partition import write_sysfs_partition
 @click.command()
 @click.argument("devices", required=True, nargs=-1)
 @click.option(
-    "--partition-table", is_flag=False, required=True, type=click.Choice(["gpt"])
+    "--partition-table",
+    is_flag=False,
+    required=True,
+    type=click.Choice(["gpt"]),
 )
 @click.option(
     "--filesystem",
@@ -33,9 +36,24 @@ from .write_sysfs_partition import write_sysfs_partition
     type=click.Choice(["ext4", "zfs", "fat32"]),
 )
 @click.option("--force", is_flag=True, required=False)
-@click.option("--raid", is_flag=False, required=True, type=click.Choice(RAID_LIST))
-@click.option("--raid-group-size", is_flag=False, required=True, type=int)
-@click.option("--pool-name", is_flag=False, required=False, type=str)
+@click.option(
+    "--raid",
+    is_flag=False,
+    required=True,
+    type=click.Choice(RAID_LIST),
+)
+@click.option(
+    "--raid-group-size",
+    is_flag=False,
+    required=True,
+    type=int,
+)
+@click.option(
+    "--pool-name",
+    is_flag=False,
+    required=False,
+    type=str,
+)
 @click_add_options(click_global_options)
 @click.pass_context
 def create_root_device(

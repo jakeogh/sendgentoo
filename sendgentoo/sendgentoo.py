@@ -1,27 +1,5 @@
 #!/usr/bin/env python3
 
-# flake8: noqa
-# pylint: disable=useless-suppression             # [I0021]
-# pylint: disable=missing-docstring               # [C0111] docstrings are always outdated and wrong
-# pylint: disable=missing-param-doc               # [W9015]
-# pylint: disable=missing-module-docstring        # [C0114]
-# pylint: disable=fixme                           # [W0511] todo encouraged
-# pylint: disable=line-too-long                   # [C0301]
-# pylint: disable=too-many-instance-attributes    # [R0902]
-# pylint: disable=too-many-lines                  # [C0302] too many lines in module
-# pylint: disable=invalid-name                    # [C0103] single letter var names, name too descriptive(!)
-# pylint: disable=too-many-return-statements      # [R0911]
-# pylint: disable=too-many-branches               # [R0912]
-# pylint: disable=too-many-statements             # [R0915]
-# pylint: disable=too-many-arguments              # [R0913]
-# pylint: disable=too-many-nested-blocks          # [R1702]
-# pylint: disable=too-many-locals                 # [R0914]
-# pylint: disable=too-many-public-methods         # [R0904]
-# pylint: disable=too-few-public-methods          # [R0903]
-# pylint: disable=no-member                       # [E1101] no member for base
-# pylint: disable=attribute-defined-outside-init  # [W0201]
-# pylint: disable=too-many-boolean-expressions    # [R0916] in if statement
-
 from __future__ import annotations
 
 import os
@@ -32,7 +10,6 @@ from typing import Tuple
 import click
 import humanfriendly
 from asserttool import ic
-from asserttool import root_user
 from boottool import create_boot_device
 from click_auto_help import AHGroup
 from clicktool import click_add_options
@@ -41,21 +18,16 @@ from clicktool import click_global_options
 from clicktool import tvicgvd
 from clicktool.mesa import click_mesa_options
 from devicetool import add_partition_number_to_device
-from devicetool import device_is_not_a_partition
-from devicetool import path_is_block_special
-from devicetool import safety_check_devices
 from devicetool.cli import create_filesystem
 from devicetool.cli import destroy_block_device_head_and_tail
 from eprint import eprint
 from globalverbose import gvd
-from mounttool import block_special_path_is_mounted
 from mounttool import path_is_mounted
 from psutil import virtual_memory
 from run_command import run_command
 from sendgentoo_chroot import chroot_gentoo
 from sendgentoo_chroot import rsync_cfg
 from sendgentoo_stage import extract_stage3
-from warntool import warn
 from zfstool import create_zfs_filesystem
 from zfstool import create_zfs_filesystem_snapshot
 from zfstool import create_zfs_pool
@@ -67,7 +39,11 @@ from sendgentoo.create_root_device import create_root_device
 # from compile_kernel.compile_kernel import compile_and_install_kernel
 
 
-def validate_ram_size(ctx, param, vm_ram):
+def validate_ram_size(
+    ctx,
+    param,
+    vm_ram,
+):
     ic(vm_ram)
     sysram_bytes = virtual_memory().total
     if not isinstance(vm_ram, int):
@@ -298,7 +274,12 @@ def mount_filesystems(
         path_type=Path,
     ),
 )
-@click.option("--vm", is_flag=False, required=False, type=click.Choice(["qemu"]))
+@click.option(
+    "--vm",
+    is_flag=False,
+    required=False,
+    type=click.Choice(["qemu"]),
+)
 @click.option(
     "--vm-ram",
     is_flag=False,
@@ -368,7 +349,10 @@ def mount_filesystems(
     default=1,
 )
 @click.option(
-    "--march", is_flag=False, required=True, type=click.Choice(["native", "nocona"])
+    "--march",
+    is_flag=False,
+    required=True,
+    type=click.Choice(["native", "nocona"]),
 )
 @click.option(
     "--kernel",

@@ -1,24 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
 
-# pylint: disable=useless-suppression             # [I0021]
-# pylint: disable=missing-docstring               # [C0111] docstrings are always outdated and wrong
-# pylint: disable=missing-module-docstring        # [C0114]
-# pylint: disable=fixme                           # [W0511] todo is encouraged
-# pylint: disable=line-too-long                   # [C0301]
-# pylint: disable=too-many-instance-attributes    # [R0902]
-# pylint: disable=too-many-lines                  # [C0302] too many lines in module
-# pylint: disable=invalid-name                    # [C0103] single letter var names, name too descriptive
-# pylint: disable=too-many-return-statements      # [R0911]
-# pylint: disable=too-many-branches               # [R0912]
-# pylint: disable=too-many-statements             # [R0915]
-# pylint: disable=too-many-arguments              # [R0913]
-# pylint: disable=too-many-nested-blocks          # [R1702]
-# pylint: disable=too-many-locals                 # [R0914]
-# pylint: disable=too-few-public-methods          # [R0903]
-# pylint: disable=no-member                       # [E1101] no member for base
-# pylint: disable=attribute-defined-outside-init  # [W0201]
-# pylint: disable=too-many-boolean-expressions    # [R0916] in if statement
 from __future__ import annotations
 
 import sys
@@ -27,7 +9,7 @@ from pathlib import Path
 from typing import Tuple
 
 import click
-import sh
+import hs
 from asserttool import ic
 from clicktool import click_add_options
 from clicktool import click_global_options
@@ -46,12 +28,25 @@ from zfstool import write_zfs_root_filesystem_on_devices
 @click.command()
 @click.argument("devices", required=True, nargs=-1)
 @click.option(
-    "--filesystem", is_flag=False, required=True, type=click.Choice(["ext4", "zfs"])
+    "--filesystem",
+    is_flag=False,
+    required=True,
+    type=click.Choice(["ext4", "zfs"]),
 )
 @click.option("--force", is_flag=True, required=False)
 @click.option("--exclusive", is_flag=True, required=False)
-@click.option("--raid", is_flag=False, required=True, type=click.Choice(RAID_LIST))
-@click.option("--raid-group-size", is_flag=False, required=True, type=int)
+@click.option(
+    "--raid",
+    is_flag=False,
+    required=True,
+    type=click.Choice(RAID_LIST),
+)
+@click.option(
+    "--raid-group-size",
+    is_flag=False,
+    required=True,
+    type=int,
+)
 @click.option("--pool-name", is_flag=False, type=str)
 @click_add_options(click_global_options)
 @click.pass_context
@@ -133,12 +128,12 @@ def write_sysfs_partition(
             partition_number=int(partition_number),
         )
         if filesystem == "ext4":
-            ext4_command = sh.Command("mkfs.ext4")
+            ext4_command = hs.Command("mkfs.ext4")
             ext4_command(
                 sysfs_partition_path.as_posix(), _out=sys.stdout, _err=sys.stderr
             )
         elif filesystem == "fat32":
-            mkfs_vfat_command = sh.Command("mkfs.vfat", sysfs_partition_path.as_posix())
+            mkfs_vfat_command = hs.Command("mkfs.vfat", sysfs_partition_path.as_posix())
             mkfs_vfat_command(_out=sys.stdout, _err=sys.stderr)
         else:
             eprint("unknown filesystem:", filesystem)

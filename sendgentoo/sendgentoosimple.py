@@ -1,27 +1,29 @@
 #!/usr/bin/env python3
-from __future__ import annotations
 
 import os
-import pathlib
 import sys
+from pathlib import Path
 
 import click
 import psutil
 from clicktool import click_add_options
-from clicktool import click_arch_select
 from clicktool import click_global_options
+from eprint import eprint
 
-from .sendgentoo import install
+from sendgentoo.sendgentoo import install
 
 
 @click.command()
-@click.argument("device")
-# @click.option(
-#    "--stdlib",
-#    is_flag=False,
-#    required=True,
-#    type=click.Choice(["glibc", "musl", "uclibc"]),
-# )
+@click.argument(
+    "device",
+    type=click.Path(
+        exists=True,
+        dir_okay=False,
+        file_okay=True,
+        allow_dash=False,
+        path_type=Path,
+    ),
+)
 @click.option("--hostname", type=str, required=True)
 @click.option("--ip", type=str, required=True)
 @click.option("--password", type=str)
@@ -29,59 +31,49 @@ from .sendgentoo import install
 @click.option("--skip-to-chroot", is_flag=True)
 @click.option("--configure-kernel", is_flag=True)
 @click_add_options(click_global_options)
-# @click_add_options(click_arch_select)
 @click.pass_context
 def sendgentoosimple(
-    ctx,
-    device: str,
+    ctx: click.Context,
+    *,
+    device: Path,
     hostname: str,
     ip: str,
     password: None | str,
-    # arch: str,
-    # stdlib: str,
     skip_to_chroot: bool,
-    disk_size: None | int,
+    disk_size: None | str,
     configure_kernel: bool,
     verbose_inf: bool,
     dict_output: bool,
-    verbose: bool | int | float = False,
-):
-    arch = "amd64"
-    stdlib = "glibc"
-    device = device.strip()
+    verbose: bool = False,
+) -> None:
     if not os.getenv("TMUX"):
-        print("Start a tmux session first. Exiting.", file=sys.stderr)
+        eprint("Start a tmux session first. Exiting.")
         sys.exit(1)
 
-    if not os.geteuid() == 0:
-        print("you ned to be root. Exiting.", file=sys.stderr)
+    if os.geteuid() != 0:
+        eprint("You need to be root. Exiting.")
         sys.exit(1)
 
     if not skip_to_chroot:
-        partitions = psutil.disk_partitions()
-        for partition in partitions:
-            if device in partition.device:
-                print(
+        for partition in psutil.disk_partitions():
+            if device.as_posix() in partition.device:
+                eprint(
                     "device:",
-                    device,
+                    device.as_posix(),
                     "was found:",
                     partition.device,
                     "mounted at:",
                     partition.mountpoint,
-                    file=sys.stderr,
                 )
-                print(
-                    "Refusing to operate on mounted device. Exiting.", file=sys.stderr
-                )
+                eprint("Refusing to operate on mounted device. Exiting.")
                 sys.exit(1)
 
-    if not pathlib.Path(device).is_block_device():
-        print("device:", device, "is not a block device. Exiting.", file=sys.stderr)
+    if not device.is_block_device():
+        eprint("device:", device.as_posix(), "is not a block device. Exiting.")
         sys.exit(1)
 
     if not password:
         password = input("Enter new password: ")
-
     assert len(password) > 0
 
     ctx.invoke(
@@ -92,11 +84,11 @@ def sendgentoosimple(
         root_device_partition_table="gpt",
         boot_filesystem="ext4",
         root_filesystem="ext4",
-        stdlib=stdlib,
+        stdlib="glibc",
         raid="disk",
-        raid_group_size="1",
-        march="native",  # todo
-        arch=arch,
+        raid_group_size=1,
+        march="native",
+        arch="amd64",
         hostname=hostname,
         newpasswd=password,
         ip=ip,
@@ -107,4 +99,6 @@ def sendgentoosimple(
         configure_kernel=configure_kernel,
         disk_size=disk_size,
         verbose=verbose,
+        verbose_inf=verbose_inf,
+        dict_output=dict_output,
     )

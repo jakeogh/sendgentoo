@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 import click
+import hs
 import humanfriendly
 from asserttool import ic
 from boottool import create_boot_device
@@ -15,13 +16,13 @@ from clicktool import click_global_options
 from clicktool import tvicgvd
 from clicktool.mesa import click_mesa_options
 from devicetool import add_partition_number_to_device
+from devicetool import safety_check_devices
 from devicetool.cli import create_filesystem
 from devicetool.cli import destroy_block_device_head_and_tail
 from eprint import eprint
 from globalverbose import gvd
 from mounttool import path_is_mounted
 from psutil import virtual_memory
-from run_command import run_command
 from sendgentoo_chroot import chroot_gentoo
 from sendgentoo_chroot import rsync_cfg
 from sendgentoo_stage import extract_stage3
@@ -80,9 +81,15 @@ def mount_filesystems(
 ) -> None:
     mount_path_boot = mount_path / "boot"
     mount_path_boot_efi = mount_path_boot / "efi"
+    _mount = hs.Command("mount")
 
     os.makedirs(mount_path, exist_ok=True)
-    run_command(f"mount {root_partition_path.as_posix()} {mount_path.as_posix()}")
+    _mount(
+        root_partition_path.as_posix(),
+        mount_path.as_posix(),
+        _out=sys.stdout,
+        _err=sys.stderr,
+    )
     assert path_is_mounted(mount_path)
 
     os.makedirs(mount_path_boot, exist_ok=True)
@@ -94,8 +101,11 @@ def mount_filesystems(
         device=boot_device,
         partition_number=efi_partition_number,
     )
-    run_command(
-        f"mount {efi_partition_path.as_posix()} {mount_path_boot_efi.as_posix()}"
+    _mount(
+        efi_partition_path.as_posix(),
+        mount_path_boot_efi.as_posix(),
+        _out=sys.stdout,
+        _err=sys.stderr,
     )
     assert path_is_mounted(mount_path_boot_efi)
 

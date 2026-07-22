@@ -14,7 +14,6 @@ from devicetool import add_partition_number_to_device
 from devicetool import path_is_block_special
 from globalverbose import gvd
 from mounttool import block_special_path_is_mounted
-from run_command import run_command
 from warntool import warn
 from zfstool import RAID_LIST
 
@@ -104,11 +103,30 @@ def write_sysfs_partition(
         partition_number = 3
         start = "100MiB"
 
-    run_command(
-        f"parted -a optimal {device.as_posix()} --script -- mkpart primary {filesystem} {start} 100%"
+    parted = hs.Command("parted")
+    parted(
+        "-a",
+        "optimal",
+        device.as_posix(),
+        "--script",
+        "--",
+        "mkpart",
+        "primary",
+        filesystem,
+        start,
+        "100%",
+        _out=sys.stdout,
+        _err=sys.stderr,
     )
-    run_command(
-        f"parted {device.as_posix()} --script -- name {partition_number} rootfs"
+    parted(
+        device.as_posix(),
+        "--script",
+        "--",
+        "name",
+        str(partition_number),
+        "rootfs",
+        _out=sys.stdout,
+        _err=sys.stderr,
     )
     time.sleep(1)
     sysfs_partition_path = add_partition_number_to_device(

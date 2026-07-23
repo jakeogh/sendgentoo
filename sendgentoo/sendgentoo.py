@@ -408,8 +408,6 @@ def install(
             arch=arch,
             destination=mount_path,
             expect_mounted_destination=True,
-            vm=vm,
-            vm_ram=vm_ram,
         )
 
     assert boot_device

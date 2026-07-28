@@ -32,6 +32,8 @@ from zfstool import create_zfs_pool
 from zfstool import zfs_check_mountpoints
 from zfstool import zfs_set_sharenfs
 
+from sendgentoo_deploy import start_deployment_server
+
 from sendgentoo.create_root_device import create_root_device
 
 
@@ -70,6 +72,7 @@ sendgentoo.add_command(chroot_gentoo)
 sendgentoo.add_command(rsync_cfg)
 sendgentoo.add_command(zfs_set_sharenfs)
 sendgentoo.add_command(zfs_check_mountpoints)
+sendgentoo.add_command(start_deployment_server)
 
 
 def mount_filesystems(

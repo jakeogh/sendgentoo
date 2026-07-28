@@ -238,6 +238,7 @@ def mount_filesystems(
 @click.option("--skip-to-chroot", is_flag=True, required=False)
 @click.option("--configure-kernel", is_flag=True)
 @click.option("--disk-size", type=str)
+@click.option("--full-disk", is_flag=True)
 @click_add_options(click_mesa_options)
 @click_add_options(click_arch_select)
 @click_add_options(click_global_options)
@@ -261,6 +262,7 @@ def install(
     hostname: str,
     newpasswd: str,
     disk_size: None | str,
+    full_disk: bool,
     ip: str,
     ip_gateway: str,
     mesa_use_enable: list[str],
@@ -292,6 +294,8 @@ def install(
         raise NotImplementedError("--skip-to-chroot")
     assert hostname.lower() == hostname
     assert "_" not in hostname
+    if full_disk:
+        assert not disk_size
 
     mount_path = Path("/mnt/gentoo")
 
@@ -359,6 +363,7 @@ def install(
             root_filesystem=root_filesystem,
             force=force,
             disk_size=disk_size,
+            full_disk=full_disk,
         )
 
         if boot_device and root_devices and not vm:

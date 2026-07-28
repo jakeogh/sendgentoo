@@ -28,6 +28,7 @@ from sendgentoo.sendgentoo import install
 @click.option("--ip", type=str, required=True)
 @click.option("--password", type=str)
 @click.option("--disk-size", type=str)
+@click.option("--full-disk", is_flag=True)
 @click.option("--skip-to-chroot", is_flag=True)
 @click.option("--configure-kernel", is_flag=True)
 @click_add_options(click_global_options)
@@ -41,6 +42,7 @@ def sendgentoosimple(
     password: None | str,
     skip_to_chroot: bool,
     disk_size: None | str,
+    full_disk: bool,
     configure_kernel: bool,
     verbose_inf: bool,
     dict_output: bool,
@@ -98,6 +100,7 @@ def sendgentoosimple(
         multilib=False,
         configure_kernel=configure_kernel,
         disk_size=disk_size,
+        full_disk=full_disk,
         verbose=verbose,
         verbose_inf=verbose_inf,
         dict_output=dict_output,

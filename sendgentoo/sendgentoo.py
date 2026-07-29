@@ -225,7 +225,6 @@ def mount_filesystems(
     default="gentoo-sources",
 )
 @click.option("--hostname", is_flag=False, required=True)
-@click.option("--newpasswd", is_flag=False, required=True)
 @click.option("--ip", is_flag=False, required=True)
 @click.option("--ip-gateway", is_flag=False, required=True)
 @click.option("--proxy", is_flag=False, required=True)
@@ -260,7 +259,6 @@ def install(
     raid_group_size: int,
     march: str,
     hostname: str,
-    newpasswd: str,
     disk_size: None | str,
     full_disk: bool,
     ip: str,
@@ -428,7 +426,6 @@ def install(
         march=march,
         arch=arch,
         root_filesystem=root_filesystem,
-        newpasswd=newpasswd,
         kernel=kernel,
         ip=ip,
         ip_gateway=ip_gateway,

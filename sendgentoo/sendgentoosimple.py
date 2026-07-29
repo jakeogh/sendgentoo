@@ -26,7 +26,6 @@ from sendgentoo.sendgentoo import install
 )
 @click.option("--hostname", type=str, required=True)
 @click.option("--ip", type=str, required=True)
-@click.option("--password", type=str)
 @click.option("--disk-size", type=str)
 @click.option("--full-disk", is_flag=True)
 @click.option("--skip-to-chroot", is_flag=True)
@@ -39,7 +38,6 @@ def sendgentoosimple(
     device: Path,
     hostname: str,
     ip: str,
-    password: None | str,
     skip_to_chroot: bool,
     disk_size: None | str,
     full_disk: bool,
@@ -74,10 +72,6 @@ def sendgentoosimple(
         eprint("device:", device.as_posix(), "is not a block device. Exiting.")
         sys.exit(1)
 
-    if not password:
-        password = input("Enter new password: ")
-    assert len(password) > 0
-
     ctx.invoke(
         install,
         root_devices=(device,),
@@ -92,7 +86,6 @@ def sendgentoosimple(
         march="native",
         arch="amd64",
         hostname=hostname,
-        newpasswd=password,
         ip=ip,
         skip_to_chroot=skip_to_chroot,
         force=False,

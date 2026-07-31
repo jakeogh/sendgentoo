@@ -226,7 +226,8 @@ def mount_filesystems(
 )
 @click.option("--hostname", is_flag=False, required=True)
 @click.option("--ip", is_flag=False, required=True)
-@click.option("--ip-gateway", is_flag=False, required=True)
+@click.option("--stage3-url", is_flag=False, required=True)
+@click.option("--stage3-keys-url", is_flag=False, required=True)
 @click.option("--proxy", is_flag=False, required=True)
 @click.option("--force", is_flag=True, required=False)
 @click.option("--pinebook-overlay", is_flag=True, required=False)
@@ -262,7 +263,8 @@ def install(
     disk_size: None | str,
     full_disk: bool,
     ip: str,
-    ip_gateway: str,
+    stage3_url: str,
+    stage3_keys_url: str,
     mesa_use_enable: list[str],
     mesa_use_disable: list[str],
     proxy: str,
@@ -414,8 +416,8 @@ def install(
             )
 
         extract_stage3(
-            stdlib=stdlib,
-            arch=arch,
+            url=stage3_url,
+            keys_url=stage3_keys_url,
             destination=mount_path,
             expect_mounted_destination=True,
         )
@@ -432,7 +434,6 @@ def install(
         root_filesystem=root_filesystem,
         kernel=kernel,
         ip=ip,
-        ip_gateway=ip_gateway,
         vm=vm,
         mesa_use_enable=mesa_use_enable,
         mesa_use_disable=mesa_use_disable,

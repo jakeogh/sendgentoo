@@ -370,8 +370,12 @@ def install(
                 assert boot_device_partition_table == root_device_partition_table
                 if boot_filesystem == "ext4":
                     ctx.invoke(
+                        # ctx.invoke bypasses click's required check and
+                        # substitutes the option default, so source must be
+                        # named here or it arrives as None
                         destroy_block_device_head_and_tail,
                         device=boot_device,
+                        source="zero",
                         force=True,
                     )
                     create_boot_device(

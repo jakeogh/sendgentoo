@@ -24,7 +24,7 @@ from globalverbose import gvd
 from mounttool import path_is_mounted
 from psutil import virtual_memory
 from sendgentoo_chroot import chroot_gentoo
-from sendgentoo_chroot import rsync_cfg
+from sendgentoo_chroot import install_post_chroot
 from sendgentoo_stage import extract_stage3
 from zfstool import create_zfs_filesystem
 from zfstool import create_zfs_filesystem_snapshot
@@ -69,7 +69,7 @@ sendgentoo.add_command(create_zfs_filesystem)
 sendgentoo.add_command(create_zfs_filesystem_snapshot)
 sendgentoo.add_command(create_root_device)
 sendgentoo.add_command(chroot_gentoo)
-sendgentoo.add_command(rsync_cfg)
+sendgentoo.add_command(install_post_chroot)
 sendgentoo.add_command(zfs_set_sharenfs)
 sendgentoo.add_command(zfs_check_mountpoints)
 sendgentoo.add_command(start_deployment_server)

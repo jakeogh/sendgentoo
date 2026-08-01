@@ -87,7 +87,6 @@ def sendgentoosimple(
         stdlib="glibc",
         raid="disk",
         raid_group_size=1,
-        march="native",
         arch="amd64",
         hostname=hostname,
         ip=ip,

@@ -212,12 +212,6 @@ def mount_filesystems(
     default=1,
 )
 @click.option(
-    "--march",
-    is_flag=False,
-    required=True,
-    type=click.Choice(["native", "nocona"]),
-)
-@click.option(
     "--kernel",
     is_flag=False,
     required=True,
@@ -258,7 +252,6 @@ def install(
     arch: str,
     raid: str,
     raid_group_size: int,
-    march: str,
     hostname: str,
     disk_size: None | str,
     full_disk: bool,
@@ -429,7 +422,6 @@ def install(
         stdlib=stdlib,
         boot_device=boot_device,
         hostname=hostname,
-        march=march,
         arch=arch,
         root_filesystem=root_filesystem,
         kernel=kernel,

@@ -223,6 +223,7 @@ def mount_filesystems(
 @click.option("--distfiles-url", is_flag=False, required=True)
 @click.option("--stage3-url", is_flag=False, required=True)
 @click.option("--stage3-keys-url", is_flag=False, required=True)
+@click.option("--root-password-hash", is_flag=False, required=False, default=None)
 @click.option("--proxy", is_flag=False, required=True)
 @click.option("--force", is_flag=True, required=False)
 @click.option("--pinebook-overlay", is_flag=True, required=False)
@@ -260,6 +261,7 @@ def install(
     distfiles_url: str,
     stage3_url: str,
     stage3_keys_url: str,
+    root_password_hash: None | str,
     mesa_use_enable: list[str],
     mesa_use_disable: list[str],
     proxy: str,

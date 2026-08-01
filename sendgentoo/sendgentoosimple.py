@@ -26,6 +26,7 @@ from sendgentoo.sendgentoo import install
 )
 @click.option("--hostname", type=str, required=True)
 @click.option("--ip", type=str, required=True)
+@click.option("--distfiles-url", type=str, required=True)
 @click.option("--stage3-url", type=str, required=True)
 @click.option("--root-password-hash", type=str, required=False, default=None)
 @click.option("--stage3-keys-url", type=str, required=True)
@@ -42,6 +43,7 @@ def sendgentoosimple(
     hostname: str,
     ip: str,
     root_password_hash: None | str,
+    distfiles_url: str,
     stage3_url: str,
     stage3_keys_url: str,
     skip_to_chroot: bool,
@@ -93,6 +95,7 @@ def sendgentoosimple(
         hostname=hostname,
         ip=ip,
         root_password_hash=root_password_hash,
+        distfiles_url=distfiles_url,
         stage3_url=stage3_url,
         stage3_keys_url=stage3_keys_url,
         skip_to_chroot=skip_to_chroot,

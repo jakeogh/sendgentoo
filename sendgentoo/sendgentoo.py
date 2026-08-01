@@ -220,6 +220,7 @@ def mount_filesystems(
 )
 @click.option("--hostname", is_flag=False, required=True)
 @click.option("--ip", is_flag=False, required=True)
+@click.option("--distfiles-url", is_flag=False, required=True)
 @click.option("--stage3-url", is_flag=False, required=True)
 @click.option("--stage3-keys-url", is_flag=False, required=True)
 @click.option("--proxy", is_flag=False, required=True)
@@ -256,6 +257,7 @@ def install(
     disk_size: None | str,
     full_disk: bool,
     ip: str,
+    distfiles_url: str,
     stage3_url: str,
     stage3_keys_url: str,
     mesa_use_enable: list[str],
@@ -422,6 +424,7 @@ def install(
         stdlib=stdlib,
         boot_device=boot_device,
         root_password_hash=root_password_hash,
+        distfiles_url=distfiles_url,
         hostname=hostname,
         arch=arch,
         root_filesystem=root_filesystem,

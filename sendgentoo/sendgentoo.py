@@ -421,6 +421,7 @@ def install(
         mount_path=mount_path,
         stdlib=stdlib,
         boot_device=boot_device,
+        root_password_hash=root_password_hash,
         hostname=hostname,
         arch=arch,
         root_filesystem=root_filesystem,

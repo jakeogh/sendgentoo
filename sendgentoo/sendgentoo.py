@@ -25,14 +25,13 @@ from mounttool import path_is_mounted
 from psutil import virtual_memory
 from sendgentoo_chroot import chroot_gentoo
 from sendgentoo_chroot import install_post_chroot
+from sendgentoo_deploy import start_deployment_server
 from sendgentoo_stage import extract_stage3
 from zfstool import create_zfs_filesystem
 from zfstool import create_zfs_filesystem_snapshot
 from zfstool import create_zfs_pool
 from zfstool import zfs_check_mountpoints
 from zfstool import zfs_set_sharenfs
-
-from sendgentoo_deploy import start_deployment_server
 
 from sendgentoo.create_root_device import create_root_device
 
@@ -223,7 +222,12 @@ def mount_filesystems(
 @click.option("--distfiles-url", is_flag=False, required=True)
 @click.option("--stage3-url", is_flag=False, required=True)
 @click.option("--stage3-keys-url", is_flag=False, required=True)
-@click.option("--root-password-hash", is_flag=False, required=False, default=None)
+@click.option(
+    "--root-password-hash",
+    is_flag=False,
+    required=False,
+    default=None,
+)
 @click.option("--proxy", is_flag=False, required=True)
 @click.option("--force", is_flag=True, required=False)
 @click.option("--pinebook-overlay", is_flag=True, required=False)

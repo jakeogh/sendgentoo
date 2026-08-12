@@ -28,7 +28,7 @@ from sendgentoo.sendgentoo import install
 @click.option("--ip", type=str, required=True)
 @click.option("--distfiles-url", type=str, required=True)
 @click.option("--stage3-url", type=str, required=True)
-@click.option("--root-password-hash", type=str, required=False, default=None)
+@click.option("--root-password", type=str, required=False, default=None)
 @click.option("--stage3-keys-url", type=str, required=True)
 @click.option("--disk-size", type=str)
 @click.option("--full-disk", is_flag=True)
@@ -42,7 +42,7 @@ def sendgentoosimple(
     device: Path,
     hostname: str,
     ip: str,
-    root_password_hash: None | str,
+    root_password: None | str,
     distfiles_url: str,
     stage3_url: str,
     stage3_keys_url: str,
@@ -94,7 +94,7 @@ def sendgentoosimple(
         arch="amd64",
         hostname=hostname,
         ip=ip,
-        root_password_hash=root_password_hash,
+        root_password=root_password,
         distfiles_url=distfiles_url,
         stage3_url=stage3_url,
         stage3_keys_url=stage3_keys_url,

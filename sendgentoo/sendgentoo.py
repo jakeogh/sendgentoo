@@ -25,13 +25,14 @@ from mounttool import path_is_mounted
 from psutil import virtual_memory
 from sendgentoo_chroot import chroot_gentoo
 from sendgentoo_chroot import install_post_chroot
-from sendgentoo_deploy import start_deployment_server
 from sendgentoo_stage import extract_stage3
 from zfstool import create_zfs_filesystem
 from zfstool import create_zfs_filesystem_snapshot
 from zfstool import create_zfs_pool
 from zfstool import zfs_check_mountpoints
 from zfstool import zfs_set_sharenfs
+
+from sendgentoo_deploy import start_deployment_server
 
 from sendgentoo.create_root_device import create_root_device
 
@@ -222,12 +223,7 @@ def mount_filesystems(
 @click.option("--distfiles-url", is_flag=False, required=True)
 @click.option("--stage3-url", is_flag=False, required=True)
 @click.option("--stage3-keys-url", is_flag=False, required=True)
-@click.option(
-    "--root-password-hash",
-    is_flag=False,
-    required=False,
-    default=None,
-)
+@click.option("--root-password", is_flag=False, required=False, default=None)
 @click.option("--proxy", is_flag=False, required=True)
 @click.option("--force", is_flag=True, required=False)
 @click.option("--pinebook-overlay", is_flag=True, required=False)
@@ -265,7 +261,7 @@ def install(
     distfiles_url: str,
     stage3_url: str,
     stage3_keys_url: str,
-    root_password_hash: None | str,
+    root_password: None | str,
     mesa_use_enable: list[str],
     mesa_use_disable: list[str],
     proxy: str,
@@ -429,7 +425,7 @@ def install(
         mount_path=mount_path,
         stdlib=stdlib,
         boot_device=boot_device,
-        root_password_hash=root_password_hash,
+        root_password=root_password,
         distfiles_url=distfiles_url,
         hostname=hostname,
         arch=arch,

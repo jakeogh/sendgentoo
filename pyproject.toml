@@ -1,0 +1,59 @@
+[build-system]
+requires = [
+    "setuptools>=61.0",
+    "tomlkit",
+]
+build-backend = "pep508_url_version_backend"
+backend-path = [
+    ".",
+]
+
+[project]
+name = "sendgentoo"
+version = "1!0.0.1787188740"
+description = "Install Gentoo Linux"
+authors = [
+    { name = "Justin Keogh", email = "github.com@v6y.net" },
+]
+license = "MIT"
+dependencies = []
+requires-python = ">=3.12"
+
+[project.urls]
+Homepage = "https://github.com/jakeogh/sendgentoo"
+
+[project.scripts]
+sendgentoo = "sendgentoo.sendgentoo:sendgentoo"
+sendgentoosimple = "sendgentoo.sendgentoosimple:sendgentoosimple"
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.package-data]
+sendgentoo = [
+    "py.typed",
+]
+
+[tool.pep508-url-version-backend]
+dependencies-indexed = ["asserttool>=1!0.0.1787109866", "boottool>=1!0.0.1785931712", "click-auto-help>=1!0.0.1787109847", "clicktool>=1!0.0.1787109868", "eprint>=1!0.0.1787109843", "globalverbose>=1!0.0.1787109845", "warntool>=1!0.0.1785212131"]
+dependencies-git = [
+    "asserttool @ git+https://git@github.com/jakeogh/asserttool",
+    "boottool @ git+https://git@github.com/jakeogh/boottool",
+    "click-auto-help @ git+https://git@github.com/jakeogh/click-auto-help",
+    "clicktool @ git+https://git@github.com/jakeogh/clicktool",
+    "devicetool @ git+https://git@github.com/jakeogh/devicetool",
+    "eprint @ git+https://git@github.com/jakeogh/eprint",
+    "globalverbose @ git+https://git@github.com/jakeogh/globalverbose",
+    "hs @ git+https://git@github.com/jakeogh/hs",
+    "mounttool @ git+https://git@github.com/jakeogh/mounttool",
+    "sendgentoo-chroot @ git+https://git@github.com/jakeogh/sendgentoo-chroot",
+    "sendgentoo-deploy @ git+https://git@github.com/jakeogh/sendgentoo-deploy",
+    "sendgentoo-stage @ git+https://git@github.com/jakeogh/sendgentoo-stage",
+    "warntool @ git+https://git@github.com/jakeogh/warntool",
+    "zfstool @ git+https://git@github.com/jakeogh/zfstool",
+]
+index-urls = [
+    "jakeogh.github.io",
+    "pip-index",
+]

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sendgentoo"
-version = "1!0.0.1787457881"
+version = "1!0.0.1787598539"
 description = "Install Gentoo Linux"
 authors = [
     { name = "Justin Keogh", email = "github.com@v6y.net" },
@@ -14,19 +14,19 @@ dependencies = [
     "humanfriendly",
     "psutil",
     "asserttool @ git+https://github.com/jakeogh/asserttool@4bd23a06c2161e488415acde89c29537e6720cc1",
-    "boottool @ git+https://github.com/jakeogh/boottool@7070e3b7ae3c3c961216a9fda3cd1ad457fefc5a",
+    "boottool @ git+https://github.com/jakeogh/boottool@bee29bc81d4da8b665b8cf936b1b5cf7754524d3",
     "click-auto-help @ git+https://github.com/jakeogh/click-auto-help@c53f57c78529a51ae9b03f579d7ee6f2d63ca03a",
-    "clicktool @ git+https://github.com/jakeogh/clicktool@a9894f9d3a06701c5f73cd8b2794028042c9b420",
+    "clicktool @ git+https://github.com/jakeogh/clicktool@7294ba6934225c028e48638fc0540bc57238ff00",
     "devicetool @ git+https://github.com/jakeogh/devicetool@6f0f18dc2c1a70f9e0a0d0a000cf5a86316fd8c5",
     "eprint @ git+https://github.com/jakeogh/eprint@6ee1deca0c24b684eb5093247d6bd22e11f1b057",
     "globalverbose @ git+https://github.com/jakeogh/globalverbose@59abc758c18c0b85e9e61c1e14e5a64a81bb220e",
     "hs @ git+https://github.com/jakeogh/hs@b33c88f35cd24e773fea6ca4758193c9e815536d",
     "mounttool @ git+https://github.com/jakeogh/mounttool@171b99f6888ef3bd1858f341349b6c59417f0c10",
-    "sendgentoo-chroot @ git+https://github.com/jakeogh/sendgentoo-chroot@8bad9754d52276e94b4b4241cf2b83bb556ac97b",
-    "sendgentoo-deploy @ git+https://github.com/jakeogh/sendgentoo-deploy@fd01b9a2358fe170c9783755dc19023faefe2dc4",
+    "sendgentoo-chroot @ git+https://github.com/jakeogh/sendgentoo-chroot@81f1617e97bc384bc386c126cdb3250b9ca8b978",
+    "sendgentoo-deploy @ git+https://github.com/jakeogh/sendgentoo-deploy@6813bcf50bc83af835a92c9dc6cbf463f796503b",
     "sendgentoo-stage @ git+https://github.com/jakeogh/sendgentoo-stage@11d253f41e7dab24a3901373f9881182eadc243f",
     "warntool @ git+https://github.com/jakeogh/warntool@e778f77607cf2437bc43a986443c6a1238123fa4",
-    "zfstool @ git+https://github.com/jakeogh/zfstool@b1a9ac4e1156885ab40698b9ca6c6374691e1cfd",
+    "zfstool @ git+https://github.com/jakeogh/zfstool@07d4e4445b336494236b0cd07b258700ff02c54a",
 ]
 license = "MIT"
 requires-python = ">=3.12"

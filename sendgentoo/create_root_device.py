@@ -6,10 +6,9 @@ import click
 from asserttool import ic
 from clicktool import click_add_options
 from clicktool import click_global_options
-from clicktool import tvicgvd
+from clicktool import tvic
 from devicetool import path_is_block_special
 from eprint import eprint
-from globalverbose import gvd
 from mounttool import block_special_path_is_mounted
 from warntool import warn
 from zfstool import RAID_LIST
@@ -77,12 +76,11 @@ def create_root_device(
     pool_name: None | str,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
 
     eprint(

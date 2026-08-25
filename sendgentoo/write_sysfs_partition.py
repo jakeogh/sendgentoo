@@ -9,10 +9,9 @@ import hs
 from asserttool import ic
 from clicktool import click_add_options
 from clicktool import click_global_options
-from clicktool import tvicgvd
+from clicktool import tvic
 from devicetool import add_partition_number_to_device
 from devicetool import path_is_block_special
-from globalverbose import gvd
 from mounttool import block_special_path_is_mounted
 from warntool import warn
 from zfstool import RAID_LIST
@@ -68,12 +67,11 @@ def write_sysfs_partition(
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
 
     ic("creating sysfs partition on:", devices)

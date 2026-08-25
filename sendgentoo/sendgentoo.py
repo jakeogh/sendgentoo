@@ -13,14 +13,13 @@ from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_arch_select
 from clicktool import click_global_options
-from clicktool import tvicgvd
+from clicktool import tvic
 from clicktool.mesa import click_mesa_options
 from devicetool import add_partition_number_to_device
 from devicetool import safety_check_devices
 from devicetool.cli import create_filesystem
 from devicetool.cli import destroy_block_device_head_and_tail
 from eprint import eprint
-from globalverbose import gvd
 from mounttool import path_is_mounted
 from psutil import virtual_memory
 from sendgentoo_chroot import chroot_gentoo
@@ -278,12 +277,11 @@ def install(
     skip_to_chroot: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
 
     assert arch
@@ -497,12 +495,11 @@ def mount_existing_filesystems(
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
 
     assert root_devices

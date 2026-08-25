@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sendgentoo"
-version = "1!0.0.1787634081"
+version = "1!0.0.1787634094"
 description = "Install Gentoo Linux"
 authors = [
     { name = "Justin Keogh", email = "github.com@v6y.net" },
@@ -14,18 +14,18 @@ dependencies = [
     "humanfriendly",
     "psutil",
     "asserttool @ git+https://github.com/jakeogh/asserttool@4bd23a06c2161e488415acde89c29537e6720cc1",
-    "boottool @ git+https://github.com/jakeogh/boottool@73bc9177d14aca6b7c6792cd6496e05b7a5c2211",
+    "boottool @ git+https://github.com/jakeogh/boottool@a6ccd1ff70e26c08777986474a7d33786c143e5a",
     "click-auto-help @ git+https://github.com/jakeogh/click-auto-help@c53f57c78529a51ae9b03f579d7ee6f2d63ca03a",
     "clicktool @ git+https://github.com/jakeogh/clicktool@4bc98af7590652693aef664af7485acde40688c2",
-    "devicetool @ git+https://github.com/jakeogh/devicetool@2a7c9ab53481eba585bfa83db2e43536252bc08d",
+    "devicetool @ git+https://github.com/jakeogh/devicetool@32d6d1fd888c123adff4ffd6f6186448cadc597b",
     "eprint @ git+https://github.com/jakeogh/eprint@6ee1deca0c24b684eb5093247d6bd22e11f1b057",
     "hs @ git+https://github.com/jakeogh/hs@b33c88f35cd24e773fea6ca4758193c9e815536d",
     "mounttool @ git+https://github.com/jakeogh/mounttool@1dc451c21a89a45ffb69161a6ed7432c8192d9a6",
-    "sendgentoo-chroot @ git+https://github.com/jakeogh/sendgentoo-chroot@b04fa9fd2a447462311741aa65c3d0253e0c467a",
+    "sendgentoo-chroot @ git+https://github.com/jakeogh/sendgentoo-chroot@0f09c5c048b71c58f779a0577b9d897dc4bfdd21",
     "sendgentoo-deploy @ git+https://github.com/jakeogh/sendgentoo-deploy@6813bcf50bc83af835a92c9dc6cbf463f796503b",
     "sendgentoo-stage @ git+https://github.com/jakeogh/sendgentoo-stage@fc8d314b0c5ec449113d45c33de3c3dd4ce9087d",
     "warntool @ git+https://github.com/jakeogh/warntool@c61bf0caba8dbbcec97662734f45b77bb59a5c95",
-    "zfstool @ git+https://github.com/jakeogh/zfstool@d3257d7117ce78b2f8a459d8661b98153bb661e9",
+    "zfstool @ git+https://github.com/jakeogh/zfstool@cc749ca95087864366778182796d8c3f2f78e1d4",
 ]
 license = "MIT"
 requires-python = ">=3.12"

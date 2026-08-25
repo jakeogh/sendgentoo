@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sendgentoo"
-version = "1!0.0.1787598539"
+version = "1!0.0.1787633996"
 description = "Install Gentoo Linux"
 authors = [
     { name = "Justin Keogh", email = "github.com@v6y.net" },
@@ -14,17 +14,16 @@ dependencies = [
     "humanfriendly",
     "psutil",
     "asserttool @ git+https://github.com/jakeogh/asserttool@4bd23a06c2161e488415acde89c29537e6720cc1",
-    "boottool @ git+https://github.com/jakeogh/boottool@bee29bc81d4da8b665b8cf936b1b5cf7754524d3",
+    "boottool @ git+https://github.com/jakeogh/boottool@a167cc8bf1a5c4ca0b797f2f9c2f0923fe4fa553",
     "click-auto-help @ git+https://github.com/jakeogh/click-auto-help@c53f57c78529a51ae9b03f579d7ee6f2d63ca03a",
-    "clicktool @ git+https://github.com/jakeogh/clicktool@7294ba6934225c028e48638fc0540bc57238ff00",
+    "clicktool @ git+https://github.com/jakeogh/clicktool@4bc98af7590652693aef664af7485acde40688c2",
     "devicetool @ git+https://github.com/jakeogh/devicetool@6f0f18dc2c1a70f9e0a0d0a000cf5a86316fd8c5",
     "eprint @ git+https://github.com/jakeogh/eprint@6ee1deca0c24b684eb5093247d6bd22e11f1b057",
-    "globalverbose @ git+https://github.com/jakeogh/globalverbose@59abc758c18c0b85e9e61c1e14e5a64a81bb220e",
     "hs @ git+https://github.com/jakeogh/hs@b33c88f35cd24e773fea6ca4758193c9e815536d",
     "mounttool @ git+https://github.com/jakeogh/mounttool@171b99f6888ef3bd1858f341349b6c59417f0c10",
-    "sendgentoo-chroot @ git+https://github.com/jakeogh/sendgentoo-chroot@81f1617e97bc384bc386c126cdb3250b9ca8b978",
+    "sendgentoo-chroot @ git+https://github.com/jakeogh/sendgentoo-chroot@6baeca285290f66a155533265d134ca6ca615fb6",
     "sendgentoo-deploy @ git+https://github.com/jakeogh/sendgentoo-deploy@6813bcf50bc83af835a92c9dc6cbf463f796503b",
-    "sendgentoo-stage @ git+https://github.com/jakeogh/sendgentoo-stage@11d253f41e7dab24a3901373f9881182eadc243f",
+    "sendgentoo-stage @ git+https://github.com/jakeogh/sendgentoo-stage@6444075c0247b7e5c2b559879aace2d4c7dc0d0d",
     "warntool @ git+https://github.com/jakeogh/warntool@e778f77607cf2437bc43a986443c6a1238123fa4",
     "zfstool @ git+https://github.com/jakeogh/zfstool@07d4e4445b336494236b0cd07b258700ff02c54a",
 ]

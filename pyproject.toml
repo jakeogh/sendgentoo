@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sendgentoo"
-version = "1!0.0.1788869772"
+version = "1!0.0.1788870257"
 description = "Install Gentoo Linux"
 authors = [
     { name = "Justin Keogh", email = "github.com@v6y.net" },
@@ -14,14 +14,14 @@ dependencies = [
     "humanfriendly",
     "psutil",
     "asserttool @ git+https://github.com/jakeogh/asserttool@4bd23a06c2161e488415acde89c29537e6720cc1",
-    "boottool @ git+https://github.com/jakeogh/boottool@36183555a4b9870304c41d0c58aee0986baa680b",
+    "boottool @ git+https://github.com/jakeogh/boottool@d3b686ae25318a8d8d14a31647545d7b5fb5616d",
     "click-auto-help @ git+https://github.com/jakeogh/click-auto-help@0308bf2e30095ce9c87a083e1f013731827e60aa",
     "clicktool @ git+https://github.com/jakeogh/clicktool@4bc98af7590652693aef664af7485acde40688c2",
     "devicetool @ git+https://github.com/jakeogh/devicetool@9aa2e3e84b20dceabf4dfbbd3f6c906cd57f33d6",
     "eprint @ git+https://github.com/jakeogh/eprint@6ee1deca0c24b684eb5093247d6bd22e11f1b057",
     "hs @ git+https://github.com/jakeogh/hs@b33c88f35cd24e773fea6ca4758193c9e815536d",
     "mounttool @ git+https://github.com/jakeogh/mounttool@1dc451c21a89a45ffb69161a6ed7432c8192d9a6",
-    "sendgentoo-chroot @ git+https://github.com/jakeogh/sendgentoo-chroot@1fc5db4919061890aef9eadf28b7ca2d875f0bbb",
+    "sendgentoo-chroot @ git+https://github.com/jakeogh/sendgentoo-chroot@60a09b11053ef8b9c89fe274cfd245bf9535c6ef",
     "sendgentoo-deploy @ git+https://github.com/jakeogh/sendgentoo-deploy@f0d9b218ae0b4e8d450112e0612c1597ac30cbd5",
     "sendgentoo-stage @ git+https://github.com/jakeogh/sendgentoo-stage@4dd3d28a52fba3c2c001def901231164f8bd7762",
     "warntool @ git+https://github.com/jakeogh/warntool@c61bf0caba8dbbcec97662734f45b77bb59a5c95",

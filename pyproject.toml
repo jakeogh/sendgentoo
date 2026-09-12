@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sendgentoo"
-version = "1!0.0.1789207559"
+version = "1!0.0.1789253878"
 description = "Install Gentoo Linux"
 authors = [
     { name = "Justin Keogh", email = "github.com@v6y.net" },
@@ -21,7 +21,7 @@ dependencies = [
     "eprint @ git+https://github.com/jakeogh/eprint@6ee1deca0c24b684eb5093247d6bd22e11f1b057",
     "hs @ git+https://github.com/jakeogh/hs@b33c88f35cd24e773fea6ca4758193c9e815536d",
     "mounttool @ git+https://github.com/jakeogh/mounttool@1dc451c21a89a45ffb69161a6ed7432c8192d9a6",
-    "sendgentoo-chroot @ git+https://github.com/jakeogh/sendgentoo-chroot@c808bc4975cd4bd241c54c8175b3897d635149fe",
+    "sendgentoo-chroot @ git+https://github.com/jakeogh/sendgentoo-chroot@b085318e7049a4c0150c99cc48e75eb94bd576c8",
     "sendgentoo-deploy @ git+https://github.com/jakeogh/sendgentoo-deploy@0c6d2225574a734a266119da2578d19275c307ad",
     "sendgentoo-stage @ git+https://github.com/jakeogh/sendgentoo-stage@4dd3d28a52fba3c2c001def901231164f8bd7762",
     "warntool @ git+https://github.com/jakeogh/warntool@c61bf0caba8dbbcec97662734f45b77bb59a5c95",
